@@ -29,6 +29,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         _gridView = (GridView) findViewById(R.id.gridView);
 
+        int row = 3;
+        int column = 4;
+        String[] test = new String[row*column];
+        for (int i = 0; i < row * column; i++) {
+            test[i] = "row" + i;
+        }
+
         _gridView.setAdapter(new CustomGridAdapter(this, 3, 4));
         _gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -40,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
+ /*   @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -60,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     // METHODS
 }
