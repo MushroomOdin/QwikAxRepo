@@ -139,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         cancelTimerTask();
     }
+
     // Sets the adapter to the grid view.
     private void SetAdapter() {
         _items = new ArrayList<NodeOfGridView>();

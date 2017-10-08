@@ -1,13 +1,11 @@
 package cmps121.qwikax;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import java.util.List;
@@ -19,18 +17,6 @@ import java.util.List;
 // Allows us to set up the grid view in a custom manor rather than the existing adapter.
 public class CustomGridAdapter extends ArrayAdapter<NodeOfGridView>
 {
-    // This class handles the individual objects inside the grid layout
-    private static class ViewHolder {
-        private ImageView image;
-        private ViewGroup background;
-
-        public ViewHolder(View v) {
-            image = (ImageView) v.findViewById(R.id.nodeImageView);
-            background = (ViewGroup) v.findViewById(R.id.nodeLayout);
-        }
-    }
-
-
 
     // FIELDS
 
@@ -100,4 +86,19 @@ public class CustomGridAdapter extends ArrayAdapter<NodeOfGridView>
     }
 
     // METHODS
+
+    // HANDLER CLASS
+
+    // This class handles the individual objects inside the grid layout
+    private static class ViewHolder {
+        private ImageView image;
+        private ViewGroup background;
+
+        public ViewHolder(View v) {
+            image = (ImageView) v.findViewById(R.id.nodeImageView);
+            background = (ViewGroup) v.findViewById(R.id.nodeLayout);
+        }
+    }
+
+    // HANDLER CLASS
 }
