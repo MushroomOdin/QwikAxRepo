@@ -1,30 +1,65 @@
 package cmps121.qwikax;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+
+import java.util.List;
 
 /**
  * Created by andrew on 10/4/2017.
  */
 
-public class CustomGridAdapter extends BaseAdapter
+// Allows us to set up the grid view in a custom manor rather than the existing adapter.
+public class CustomGridAdapter extends ArrayAdapter<NodeOfGridView>
 {
+    // This class handles the individual objects inside the grid layout
+    private static class ViewHolder {
+        private ImageView image;
+        private ViewGroup background;
 
-    private Context _context;
+        public ViewHolder(View v) {
+            image = (ImageView) v.findViewById(R.id.nodeImageView);
+            background = (ViewGroup) v.findViewById(R.id.nodeLayout);
+        }
+    }
+
+
+
+    // FIELDS
+
+    private Activity _activity;
+    private int _resourceLayoutID;
+    private List<NodeOfGridView> _items;
     private int _rows;
     private int _columns;
 
-    //Constructor to initialize values
-    public CustomGridAdapter(Context context, int rows, int columns) {
+    // FIELDS
 
-        _context = context;
+    // CONSTRUCTOR
+
+    //Constructor to initialize values
+    public CustomGridAdapter(Activity activity, int resourceLayout, List<NodeOfGridView> items, int rows, int columns) {
+        super(activity, 0, items);
+        _activity = activity;
+        _resourceLayoutID = resourceLayout;
+        _items = items;
         _rows = rows;
         _columns = columns;
     }
 
+    // CONSTRUCTOR
+
+
+    // METHODS
+
+    // Gets the amount of objects in the grid view
     @Override
     public int getCount() {
 
@@ -32,15 +67,9 @@ public class CustomGridAdapter extends BaseAdapter
         return _rows * _columns;
     }
 
-    @Override
-    public Object getItem(int position) {
-
-        return null;
-    }
-
+    // Does nothing right now, might never need a use for this, but it was necessary for construction
     @Override
     public long getItemId(int position) {
-
         return 0;
     }
 
@@ -48,23 +77,27 @@ public class CustomGridAdapter extends BaseAdapter
     // Number of times getView method call depends upon gridValues.length
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        // LayoutInflator to call external grid_item.xml file
-        LayoutInflater inflater = (LayoutInflater) _context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ViewHolder holder = null;
 
-        View gridView;
+        if(convertView == null)
+        {
+            LayoutInflater inflater = _activity.getLayoutInflater();
+            convertView = inflater.inflate(_resourceLayoutID, parent, false);
 
-        if (convertView == null) {
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
+        }else
+            holder = (ViewHolder) convertView.getTag();
 
-            gridView = new View(_context);
-            // get layout from grid_item.xml ( Defined Below )
-            gridView = inflater.inflate(R.layout.node , null);
+        NodeOfGridView item = _items.get(position);
 
-        } else {
+        if(item.isHighLight())
+            holder.background.setBackgroundColor(Color.BLUE);
+        else
+            holder.background.setBackgroundColor(Color.TRANSPARENT);
 
-            gridView = (View) convertView;
-        }
-
-        return gridView;
+        return convertView;
     }
+
+    // METHODS
 }

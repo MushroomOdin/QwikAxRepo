@@ -4,10 +4,14 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.nfc.Tag;
+import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,64 +20,87 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
+
 public class MainActivity extends AppCompatActivity {
 
     // FIELDS
+
     private GridView _gridView;
     private int _rows;
     private int _columns;
+    private int _position = -1;
+    private int _currentPosition = -1;
+    private int _maxPosition;
+    private TimerTask _timeTask;
+
+    private CustomGridAdapter _adapter;
+    private ArrayList<NodeOfGridView> _items;
+
     // FIELDS
 
-    // ENUMS
-
-    // ENUMS
-
     // METHODS
+
+    // Ends the timer we have running.
+    private void cancelTimerTask(){
+        if(_timeTask != null)
+            _timeTask.cancel();
+    }
+
+    private void highLight(){
+        if((_position >= 0) || (_position < _maxPosition)){
+            _adapter.getItem(_position).setHighLight(true);
+            _adapter.notifyDataSetChanged();
+        }else {
+            cancelTimerTask();
+            _position = -1;
+            _currentPosition = -1;
+        }
+    }
+
+    private void launchHighlightWork(){
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        _timeTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            HighLightTask highlightBackgroundTask = new HighLightTask();
+                            highlightBackgroundTask.execute();
+                        }catch (Exception e){
+
+                        }
+                    }
+                });
+            }
+        };
+
+        timer.schedule(_timeTask,0,1000);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        _gridView = (GridView) findViewById(R.id.gridView);
-        DisplayMetrics display = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(display);
 
         _rows = 4;
         _columns = 3;
-        _gridView.setColumnWidth(display.widthPixels / _columns);
-        _gridView.setAdapter(new CustomGridAdapter(this, _rows, _columns));
+        _maxPosition = _rows * _columns;
 
-        _gridView.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View view, DragEvent dragEvent) {
-                Drawable background = view.getBackground();
-                int color = Color.TRANSPARENT;
-                if(background instanceof ColorDrawable)
-                    color = ((ColorDrawable)background).getColor();
+        _gridView = (GridView) findViewById(R.id.gridView);
+        SetAdapter();
 
-                if(color == Color.TRANSPARENT)
-                    view.setBackgroundColor(Color.RED);
-                else
-                    view.setBackgroundColor(Color.TRANSPARENT);
-
-                return false;
-            }
-        });
-
+        // Using a click on an item inside the grid view as a means to start the highlighting.
         _gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Drawable background = view.getBackground();
-                int color = Color.TRANSPARENT;
-                if(background instanceof ColorDrawable)
-                    color = ((ColorDrawable)background).getColor();
-
-                if(color == Color.TRANSPARENT)
-                    view.setBackgroundColor(Color.RED);
-                else
-                    view.setBackgroundColor(Color.TRANSPARENT);
-
-                Toast.makeText(getApplicationContext(), "row: " + ((i / _columns) + 1) + " column: " + ((i % _columns) + 1), Toast.LENGTH_SHORT).show();
+                launchHighlightWork();
             }
         });
     }
@@ -106,5 +133,46 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onPause(){
+        super.onPause();
+        cancelTimerTask();
+    }
+    // Sets the adapter to the grid view.
+    private void SetAdapter() {
+        _items = new ArrayList<NodeOfGridView>();
+
+        for (int i = 0; i < _rows * _columns; i++)
+            _items.add(i, new NodeOfGridView(R.drawable.main, false));
+
+        _adapter = new CustomGridAdapter(this, R.layout.node, _items, _rows, _columns);
+        _gridView.setAdapter(_adapter);
+    }
+
     // METHODS
+
+    // ASYNC CLASS
+
+    private class HighLightTask extends AsyncTask<Void, Integer, Void> {
+
+        protected void onPostExecution(Void result){
+            if(_position < _maxPosition)
+                highLight();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            if(_position < _maxPosition)
+                publishProgress(Integer.valueOf(_position));
+
+            return null;
+        }
+
+        protected void onProgressUpdate(Integer... values){
+            if(_position < _maxPosition)
+                _position++;
+        }
+    }
+
+    // ASYNC CLASS
 }
