@@ -1,29 +1,28 @@
 package cmps121.qwikax;
 
-import android.content.Intent;
+
+import android.content.ClipData;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.nfc.Tag;
-import android.os.AsyncTask;
-import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.constraint.solver.widgets.Rectangle;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,10 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private GridView _gridView;
     private int _rows;
     private int _columns;
-    private int _position = -1;
-    private int _currentPosition = -1;
-    private int _maxPosition;
-    private TimerTask _timeTask;
+    private int _startPosition;
 
     private CustomGridAdapter _adapter;
     private ArrayList<NodeOfGridView> _items;
@@ -44,44 +40,12 @@ public class MainActivity extends AppCompatActivity {
 
     // METHODS
 
-    // Ends the timer we have running.
-    private void cancelTimerTask(){
-        if(_timeTask != null)
-            _timeTask.cancel();
-    }
+    private View FindViewByLocation(float x, float y, View parentView) {
+        float[][] areasOfViews = new float[4][_rows*_columns];
+        for(int count = 0; count < _rows * _columns; count++) {
 
-    private void highLight(){
-        if((_position >= 0) || (_position < _maxPosition)){
-            _adapter.getItem(_position).setHighLight(true);
-            _adapter.notifyDataSetChanged();
-        }else {
-            cancelTimerTask();
-            _position = -1;
-            _currentPosition = -1;
         }
-    }
 
-    private void launchHighlightWork(){
-        final Handler handler = new Handler();
-        Timer timer = new Timer();
-        _timeTask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try{
-                            HighLightTask highlightBackgroundTask = new HighLightTask();
-                            highlightBackgroundTask.execute();
-                        }catch (Exception e){
-
-                        }
-                    }
-                });
-            }
-        };
-
-        timer.schedule(_timeTask,0,1000);
     }
 
     @Override
@@ -91,19 +55,14 @@ public class MainActivity extends AppCompatActivity {
 
         _rows = 4;
         _columns = 3;
-        _maxPosition = _rows * _columns;
 
         _gridView = (GridView) findViewById(R.id.gridView);
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
-        _gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                launchHighlightWork();
-            }
-        });
+        _gridView.setOnItemClickListener(new CustomTouchListener());
+        _gridView.setOnDragListener(new CustomDragListener());
     }
 
     @Override
@@ -134,12 +93,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        cancelTimerTask();
-    }
-
     // Sets the adapter to the grid view.
     private void SetAdapter() {
         _items = new ArrayList<NodeOfGridView>();
@@ -153,28 +106,59 @@ public class MainActivity extends AppCompatActivity {
 
     // METHODS
 
-    // ASYNC CLASS
+    // CUSTOM LISTENER
 
-    private class HighLightTask extends AsyncTask<Void, Integer, Void> {
-
-        protected void onPostExecution(Void result){
-            if(_position < _maxPosition)
-                highLight();
-        }
+    private final class CustomTouchListener implements View.OnTouchListener{
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            if(_position < _maxPosition)
-                publishProgress(Integer.valueOf(_position));
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            boolean value = false;
 
-            return null;
-        }
+            switch(motionEvent.getAction())
+            {
+                case MotionEvent.ACTION_DOWN:
+                    View node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
+                    node.setBackgroundColor(Color.BLUE);
+                    break;
 
-        protected void onProgressUpdate(Integer... values){
-            if(_position < _maxPosition)
-                _position++;
+                case MotionEvent.ACTION_MOVE:
+                        
+                    break;
+            }
+            return false;
         }
     }
 
-    // ASYNC CLASS
+    private class CustomDragListener implements View.OnDragListener{
+
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+            switch(event.getAction()) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    Toast.makeText(getApplicationContext(), "you started a drag", Toast.LENGTH_SHORT).show();
+                    break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+
+                    break;
+
+                case DragEvent.ACTION_DRAG_EXITED:
+                    Toast.makeText(getApplicationContext(), "you finished a drag", Toast.LENGTH_SHORT).show();
+                    break;
+
+                case DragEvent.ACTION_DROP:
+
+                    break;
+
+                case DragEvent.ACTION_DRAG_ENDED:
+                    v.setBackgroundColor(Color.TRANSPARENT);
+
+                default:
+                    break;
+            }
+
+            return true;
+        }
+
+    }
+    // CUSTOM LISTENER
 }
