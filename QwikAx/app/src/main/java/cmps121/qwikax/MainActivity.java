@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         _maxPosition = _rows * _columns;
 
         _gridView = (GridView) findViewById(R.id.gridView);
+        _gridView.setNumColumns(_columns);
         SetAdapter();
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
