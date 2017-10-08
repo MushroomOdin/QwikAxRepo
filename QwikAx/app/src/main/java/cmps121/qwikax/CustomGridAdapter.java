@@ -57,9 +57,9 @@ public class CustomGridAdapter extends BaseAdapter
         if (convertView == null) {
 
             gridView = new View(_context);
-
             // get layout from grid_item.xml ( Defined Below )
-            gridView = inflater.inflate( R.layout.node , null);
+            gridView = inflater.inflate(R.layout.node , null);
+
         } else {
 
             gridView = (View) convertView;
