@@ -49,7 +49,7 @@ public class CustomGridAdapter extends ArrayAdapter<NodeOfGridView>
     @Override
     public int getCount() {
 
-        // Number of times getView method call depends upon gridValues.length
+        // Number of times getView method call depends upon the number of rows and columns
         return _rows * _columns;
     }
 

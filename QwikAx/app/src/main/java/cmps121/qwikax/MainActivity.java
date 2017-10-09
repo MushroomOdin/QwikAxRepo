@@ -2,7 +2,10 @@ package cmps121.qwikax;
 
 
 import android.content.ClipData;
+import android.database.DataSetObserver;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.constraint.solver.widgets.Rectangle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,12 +16,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -35,17 +43,18 @@ public class MainActivity extends AppCompatActivity {
 
     private CustomGridAdapter _adapter;
     private ArrayList<NodeOfGridView> _items;
-
+    private ListView _listView;
     // FIELDS
 
     // METHODS
 
     private View FindViewByLocation(float x, float y, View parentView) {
         float[][] areasOfViews = new float[4][_rows*_columns];
-        for(int count = 0; count < _rows * _columns; count++) {
+        View view;
+        // Find out how to tell location from
+        view = _gridView.getChildAt(1);
 
-        }
-
+        return view;
     }
 
     @Override
@@ -53,16 +62,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 4;
-        _columns = 3;
+        _rows = 15;
+        _columns = 15;
 
         _gridView = (GridView) findViewById(R.id.gridView);
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
+        String[] arrayItemsInList = new String[] { "cat", "dog", "llama", "small", "retrieve", "ball", "animal"};
+
+        ArrayList<String> itemsInList = new ArrayList<String>();
+        itemsInList.addAll(Arrays.asList(arrayItemsInList));
+        _listView = (ListView) findViewById(R.id.applicationListView);
+        _listView.setAdapter(new ArrayAdapter<String>(this, R.layout.main_row, itemsInList));
+
         // Using a click on an item inside the grid view as a means to start the highlighting.
-        _gridView.setOnItemClickListener(new CustomTouchListener());
-        _gridView.setOnDragListener(new CustomDragListener());
+        _gridView.setOnTouchListener(new CustomTouchListener());
+        //_gridView.setOnDragListener(new CustomDragListener());
     }
 
     @Override
@@ -114,22 +130,32 @@ public class MainActivity extends AppCompatActivity {
         public boolean onTouch(View view, MotionEvent motionEvent) {
             boolean value = false;
 
+            View node;
+
             switch(motionEvent.getAction())
             {
                 case MotionEvent.ACTION_DOWN:
-                    View node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
+                    node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
                     node.setBackgroundColor(Color.BLUE);
+                    value = true;
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                        
+                    node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
+                    if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
+                        node.setBackgroundColor(Color.BLUE);
+                    else
+                        node.setBackgroundColor(Color.TRANSPARENT);
+
+                    value = true;
                     break;
             }
-            return false;
+
+            return value;
         }
     }
 
-    private class CustomDragListener implements View.OnDragListener{
+    /*private class CustomDragListener implements View.OnDragListener{
 
         @Override
         public boolean onDrag(View v, DragEvent event) {
@@ -159,6 +185,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-    }
+    }*/
     // CUSTOM LISTENER
 }
