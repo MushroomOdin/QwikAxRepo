@@ -1,24 +1,29 @@
-package cmps121.qwikax;
+package cmps121.qwikax.Node_Related;
+
+import android.app.Activity;
+import android.view.Surface;
 
 /**
  * Created by andrew on 10/7/2017.
  */
 
-public class NodeOfGridView {
+public class IndividualNode {
 
     // FIELDS
 
     private int _image;
     private boolean _isHighlighted;
+    private CoordinateSystem _coordinateSystem;
 
     // FIELDS
 
     // CONSTRUCTOR
 
-    public NodeOfGridView(int image, boolean highlighted)
+    public IndividualNode(int image, boolean highlighted, CoordinateSystem coordinateSystem)
     {
         _image = image;
         _isHighlighted = highlighted;
+        _coordinateSystem = coordinateSystem;
     }
 
     // CONSTRUCTOR

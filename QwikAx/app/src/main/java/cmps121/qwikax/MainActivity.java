@@ -1,36 +1,26 @@
 package cmps121.qwikax;
 
-
-import android.content.ClipData;
-import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.constraint.solver.widgets.Rectangle;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+
+import cmps121.qwikax.Adapters.CustomGridAdapter;
+import cmps121.qwikax.Node_Related.CoordinateSystem;
+import cmps121.qwikax.Node_Related.IndividualNode;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private int _startPosition;
 
     private CustomGridAdapter _adapter;
-    private ArrayList<NodeOfGridView> _items;
+    private ArrayList<IndividualNode> _items;
     private ListView _listView;
     // FIELDS
 
@@ -111,10 +101,12 @@ public class MainActivity extends AppCompatActivity {
 
     // Sets the adapter to the grid view.
     private void SetAdapter() {
-        _items = new ArrayList<NodeOfGridView>();
+        _items = new ArrayList<IndividualNode>();
 
+        // TODO: need to fix this so it give the proper coordinates
         for (int i = 0; i < _rows * _columns; i++)
-            _items.add(i, new NodeOfGridView(R.drawable.main, false));
+            _items.add(i, new IndividualNode(R.drawable.main, false,
+                    new CoordinateSystem(0,0,0,0,getWindowManager().getDefaultDisplay().getRotation())));
 
         _adapter = new CustomGridAdapter(this, R.layout.node, _items, _rows, _columns);
         _gridView.setAdapter(_adapter);

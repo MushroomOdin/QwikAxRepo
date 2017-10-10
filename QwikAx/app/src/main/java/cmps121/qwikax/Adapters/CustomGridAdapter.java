@@ -1,4 +1,4 @@
-package cmps121.qwikax;
+package cmps121.qwikax.Adapters;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -10,19 +10,22 @@ import android.widget.ImageView;
 
 import java.util.List;
 
+import cmps121.qwikax.Node_Related.IndividualNode;
+import cmps121.qwikax.R;
+
 /**
  * Created by andrew on 10/4/2017.
  */
 
 // Allows us to set up the grid view in a custom manor rather than the existing adapter.
-public class CustomGridAdapter extends ArrayAdapter<NodeOfGridView>
+public class CustomGridAdapter extends ArrayAdapter<IndividualNode>
 {
 
     // FIELDS
 
     private Activity _activity;
     private int _resourceLayoutID;
-    private List<NodeOfGridView> _items;
+    private List<IndividualNode> _items;
     private int _rows;
     private int _columns;
 
@@ -31,7 +34,7 @@ public class CustomGridAdapter extends ArrayAdapter<NodeOfGridView>
     // CONSTRUCTOR
 
     //Constructor to initialize values
-    public CustomGridAdapter(Activity activity, int resourceLayout, List<NodeOfGridView> items, int rows, int columns) {
+    public CustomGridAdapter(Activity activity, int resourceLayout, List<IndividualNode> items, int rows, int columns) {
         super(activity, 0, items);
         _activity = activity;
         _resourceLayoutID = resourceLayout;
@@ -75,7 +78,7 @@ public class CustomGridAdapter extends ArrayAdapter<NodeOfGridView>
         }else
             holder = (ViewHolder) convertView.getTag();
 
-        NodeOfGridView item = _items.get(position);
+        IndividualNode item = _items.get(position);
 
         if(item.isHighLight())
             holder.background.setBackgroundColor(Color.BLUE);
