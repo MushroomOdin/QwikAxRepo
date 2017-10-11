@@ -52,19 +52,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 15;
-        _columns = 15;
+        _rows = 8;
+        _columns = 8;
 
         _gridView = (GridView) findViewById(R.id.gridView);
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
-        String[] arrayItemsInList = new String[] { "cat", "dog", "llama", "small", "retrieve", "ball", "animal"};
+        final String[] arrayItemsInList = new String[] { "cat", "dog", "llama", "small", "retrieve", "ball", "animal", "mammal", "Hello", "is", "it", "me", "your", "looking", "for"};
 
         ArrayList<String> itemsInList = new ArrayList<String>();
         itemsInList.addAll(Arrays.asList(arrayItemsInList));
         _listView = (ListView) findViewById(R.id.applicationListView);
         _listView.setAdapter(new ArrayAdapter<String>(this, R.layout.main_row, itemsInList));
+        _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getApplicationContext(), arrayItemsInList[i], Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _gridView.setOnTouchListener(new CustomTouchListener());

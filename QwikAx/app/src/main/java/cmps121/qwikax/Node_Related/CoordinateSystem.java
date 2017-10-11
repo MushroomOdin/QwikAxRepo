@@ -5,6 +5,7 @@ package cmps121.qwikax.Node_Related;
  */
 
 // Defines where we are and how we are looking at it.
+// TODO: Change the name, it does not fit what it does/is
 public class CoordinateSystem {
 
     // Top left x position.
