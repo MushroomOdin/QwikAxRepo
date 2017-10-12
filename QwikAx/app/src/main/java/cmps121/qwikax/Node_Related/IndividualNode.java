@@ -49,5 +49,7 @@ public class IndividualNode {
         return _isHighlighted;
     }
 
+    public CoordinateSystem get_coordinateSystem(){return _coordinateSystem;}
+
     // METHODS
 }

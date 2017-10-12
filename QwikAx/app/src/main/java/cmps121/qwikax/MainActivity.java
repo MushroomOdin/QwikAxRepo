@@ -1,10 +1,12 @@
 package cmps121.qwikax;
 
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -29,20 +31,34 @@ public class MainActivity extends AppCompatActivity {
     private GridView _gridView;
     private int _rows;
     private int _columns;
-    private int _startPosition;
 
     private CustomGridAdapter _adapter;
     private ArrayList<IndividualNode> _items;
     private ListView _listView;
+    private ArrayList<Integer> _pointsHit;
     // FIELDS
 
     // METHODS
 
+    // TODO: Need to clean this and its called fucntions, i am missing something such as padding or something in the calculation.
     private View FindViewByLocation(float x, float y, View parentView) {
-        float[][] areasOfViews = new float[4][_rows*_columns];
         View view;
+        int count = 0;
         // Find out how to tell location from
-        view = _gridView.getChildAt(1);
+        for (IndividualNode node: _items) {
+            if((node.get_coordinateSystem().isWithinBounds(x,y)) && (!node.isHighLight())){
+                node.setHighLight(true);
+                _pointsHit.add(count);
+                break;
+            }
+
+            count++;
+        }
+
+        if(count < _items.size())
+            view = _gridView.getChildAt(count);
+        else
+            view = null;
 
         return view;
     }
@@ -64,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> itemsInList = new ArrayList<String>();
         itemsInList.addAll(Arrays.asList(arrayItemsInList));
         _listView = (ListView) findViewById(R.id.applicationListView);
-        _listView.setAdapter(new ArrayAdapter<String>(this, R.layout.main_row, itemsInList));
+        _listView.setAdapter(new ArrayAdapter<String>(this, R.layout.list_view_row, itemsInList));
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -74,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _gridView.setOnTouchListener(new CustomTouchListener());
-        //_gridView.setOnDragListener(new CustomDragListener());
+        _pointsHit = new ArrayList<>();
     }
 
     @Override
@@ -108,11 +124,29 @@ public class MainActivity extends AppCompatActivity {
     // Sets the adapter to the grid view.
     private void SetAdapter() {
         _items = new ArrayList<IndividualNode>();
+        int xPos = 0, yPos = 0, xDistance, yDistance;
+        double weightFactor = .666666;
 
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        xDistance = size.x / _columns;
+        yDistance = (int) (size.y * weightFactor) / _rows;
         // TODO: need to fix this so it give the proper coordinates
         for (int i = 0; i < _rows * _columns; i++)
+        {
             _items.add(i, new IndividualNode(R.drawable.main, false,
-                    new CoordinateSystem(0,0,0,0,getWindowManager().getDefaultDisplay().getRotation())));
+                    new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation())));
+
+            if((xPos += xDistance) >= size.x) {
+                xPos = 0;
+                yPos += yDistance;
+            }
+
+
+
+        }
+
 
         _adapter = new CustomGridAdapter(this, R.layout.node, _items, _rows, _columns);
         _gridView.setAdapter(_adapter);
@@ -121,68 +155,55 @@ public class MainActivity extends AppCompatActivity {
     // METHODS
 
     // CUSTOM LISTENER
-
+    
     private final class CustomTouchListener implements View.OnTouchListener{
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
             boolean value = false;
-
             View node;
 
             switch(motionEvent.getAction())
             {
                 case MotionEvent.ACTION_DOWN:
                     node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
-                    node.setBackgroundColor(Color.BLUE);
-                    value = true;
+                    if(node != null){
+                        if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
+                            node.setBackgroundColor(Color.BLUE);
+                        
+                        value = true;
+                    }
+
                     break;
 
                 case MotionEvent.ACTION_MOVE:
                     node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
-                    if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
-                        node.setBackgroundColor(Color.BLUE);
-                    else
-                        node.setBackgroundColor(Color.TRANSPARENT);
+                    if(node != null)
+                    {
+                        if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
+                            node.setBackgroundColor(Color.BLUE);
 
-                    value = true;
+                        value = true;
+                    }
+
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    // Using this to restore the grid view back to its default view.
+                    StringBuilder sentence = new StringBuilder();
+                    for (int point: _pointsHit) {
+                        sentence.append(point + " ");
+                        _items.get(point).setHighLight(false);
+                        node = _gridView.getChildAt(point);
+                        node.setBackgroundColor(Color.TRANSPARENT);
+                    }
+
+                    Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
                     break;
             }
 
             return value;
         }
     }
-
-    /*private class CustomDragListener implements View.OnDragListener{
-
-        @Override
-        public boolean onDrag(View v, DragEvent event) {
-            switch(event.getAction()) {
-                case DragEvent.ACTION_DRAG_STARTED:
-                    Toast.makeText(getApplicationContext(), "you started a drag", Toast.LENGTH_SHORT).show();
-                    break;
-                case DragEvent.ACTION_DRAG_ENTERED:
-
-                    break;
-
-                case DragEvent.ACTION_DRAG_EXITED:
-                    Toast.makeText(getApplicationContext(), "you finished a drag", Toast.LENGTH_SHORT).show();
-                    break;
-
-                case DragEvent.ACTION_DROP:
-
-                    break;
-
-                case DragEvent.ACTION_DRAG_ENDED:
-                    v.setBackgroundColor(Color.TRANSPARENT);
-
-                default:
-                    break;
-            }
-
-            return true;
-        }
-
-    }*/
     // CUSTOM LISTENER
 }
