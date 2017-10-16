@@ -6,9 +6,11 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,11 +19,12 @@ import java.util.List;
 
 public class SettingsActivity extends AppCompatActivity {
 
-
+    String _extApp = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.settings_menu);
 
 
@@ -35,8 +38,10 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        Button btnGetAllApps = (Button) findViewById(R.id.btnGetAllApps);
         final ListView apps = (ListView) findViewById(R.id.lvwApps);
+        final TextView test = (TextView) findViewById(R.id.txtTest);
+
+        Button btnGetAllApps = (Button) findViewById(R.id.btnGetAllApps);
         btnGetAllApps.setOnClickListener((new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -45,14 +50,27 @@ public class SettingsActivity extends AppCompatActivity {
         }));
 
 
-        //Launch procedure for youtube.... only need the "com.~~~~" to launch any app
+        // On apps
+        apps.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                _extApp = removeChars(apps.getItemAtPosition(i).toString());
+                test.setText(_extApp);
+            }
+        });
+
+
+        // Attempts launch procedure.... only need the "com.~~~~" to launch any app
+        // _extApp contains the external app "com.~~~~"
         Button btnLaunchApp = (Button) findViewById(R.id.btnLaunchApp);
         btnLaunchApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent Launch = getPackageManager().getLaunchIntentForPackage("com.google.android.youtube");
-                if(Launch != null){
-                    startActivity(Launch);
+                if (_extApp != null){
+                    Intent Launch = getPackageManager().getLaunchIntentForPackage(_extApp);
+                    if(Launch != null) {
+                        startActivity(Launch);
+                    }
                 }
             }
         });
@@ -75,6 +93,10 @@ public class SettingsActivity extends AppCompatActivity {
         ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, appList);
 
         apps.setAdapter(appAdapter);
+    }
+
+    public String removeChars(String s){
+        return s.substring(24,s.length()-1);
     }
 
 }
