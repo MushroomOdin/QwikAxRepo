@@ -41,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
         final ListView apps = (ListView) findViewById(R.id.lvwApps);
         final TextView test = (TextView) findViewById(R.id.txtTest);
 
+        // Retrieves all apps on the device and stores them in the listview
         Button btnGetAllApps = (Button) findViewById(R.id.btnGetAllApps);
         btnGetAllApps.setOnClickListener((new View.OnClickListener() {
             @Override
@@ -50,7 +51,7 @@ public class SettingsActivity extends AppCompatActivity {
         }));
 
 
-        // On apps
+        // Formats and saves the selected item string for launch
         apps.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
