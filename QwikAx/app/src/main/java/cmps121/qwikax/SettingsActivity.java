@@ -1,27 +1,67 @@
 package cmps121.qwikax;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class SettingsActivity extends AppCompatActivity {
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_menu);
 
+
+        //Back button to return to MainActivity
         Button btnBack = (Button) findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new View.OnClickListener(){
+        btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
-            Intent startMain = new Intent(SettingsActivity.this, MainActivity.class);
-            startActivity(startMain);
+            public void onClick(View view) {
+                Intent startMain = new Intent(SettingsActivity.this, MainActivity.class);
+                startActivity(startMain);
             }
         });
+
+        Button btnGetAllApps = (Button) findViewById(R.id.btnGetAllApps);
+        final ListView apps = (ListView) findViewById(R.id.lvwApps);
+        btnGetAllApps.setOnClickListener((new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setList(apps);
+            }
+        }));
     }
-    
+
+    //Lists all the available apps on device
+    //Need to only show the useful apps like phone, text, ... instead of the system apps
+    //Clean up by adding the app pictures and setting to grid view
+    //Need to make items clickable to open the app itself
+    public void setList(ListView apps){
+        PackageManager pm = getPackageManager();
+        List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
+        String[] appArray = new String[allApps.size()];
+        for(int i=0; i<allApps.size(); i++){
+            appArray[i] = allApps.get(i).toString();
+        }
+
+        ArrayList<String> appList = new ArrayList<String>();
+        appList.addAll(Arrays.asList(appArray));
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, appList);
+
+        apps.setAdapter(appAdapter);
+    }
+
 }
