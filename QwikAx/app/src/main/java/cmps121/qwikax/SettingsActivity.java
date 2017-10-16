@@ -43,6 +43,19 @@ public class SettingsActivity extends AppCompatActivity {
                 setList(apps);
             }
         }));
+
+
+        //Launch procedure for youtube.... only need the "com.~~~~" to launch any app
+        Button btnLaunchApp = (Button) findViewById(R.id.btnLaunchApp);
+        btnLaunchApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent Launch = getPackageManager().getLaunchIntentForPackage("com.google.android.youtube");
+                if(Launch != null){
+                    startActivity(Launch);
+                }
+            }
+        });
     }
 
     //Lists all the available apps on device

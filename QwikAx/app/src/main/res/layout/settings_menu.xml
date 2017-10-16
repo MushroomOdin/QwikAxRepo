@@ -69,4 +69,12 @@
         android:layout_above="@+id/btnBack"
         android:layout_below="@+id/ColumnCountTextBox"/>
 
+    <Button
+        android:id="@+id/btnLaunchApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LaunchApp"
+        android:layout_below="@+id/lvwApps"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
