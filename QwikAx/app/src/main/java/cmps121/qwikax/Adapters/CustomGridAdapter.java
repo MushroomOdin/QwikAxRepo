@@ -2,10 +2,12 @@ package cmps121.qwikax.Adapters;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 
 import java.util.List;
@@ -28,19 +30,21 @@ public class CustomGridAdapter extends ArrayAdapter<IndividualNode>
     private List<IndividualNode> _items;
     private int _rows;
     private int _columns;
+    private int _yDistance;
 
     // FIELDS
 
     // CONSTRUCTOR
 
     //Constructor to initialize values
-    public CustomGridAdapter(Activity activity, int resourceLayout, List<IndividualNode> items, int rows, int columns) {
+    public CustomGridAdapter(Activity activity, int resourceLayout, List<IndividualNode> items, int rows, int columns, int yDistance) {
         super(activity, 0, items);
         _activity = activity;
         _resourceLayoutID = resourceLayout;
         _items = items;
         _rows = rows;
         _columns = columns;
+        _yDistance = yDistance;
     }
 
     // CONSTRUCTOR
@@ -79,6 +83,9 @@ public class CustomGridAdapter extends ArrayAdapter<IndividualNode>
             holder = (ViewHolder) convertView.getTag();
 
         IndividualNode item = _items.get(position);
+        convertView.setLayoutParams(new ViewGroup.LayoutParams(GridView.AUTO_FIT, _yDistance));
+        /*ViewGroup.LayoutParams params = convertView.getLayoutParams();
+        params.height = _yDistance;*/
 
         if(item.isHighLight())
             holder.background.setBackgroundColor(Color.BLUE);

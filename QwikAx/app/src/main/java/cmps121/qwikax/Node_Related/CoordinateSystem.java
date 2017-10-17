@@ -9,17 +9,17 @@ package cmps121.qwikax.Node_Related;
 public class CoordinateSystem {
 
     // Top left x position.
-    private float _xCoord;
+    private double _xCoord;
     // Top left y position.
-    private float _yCoord;
+    private double _yCoord;
     // Length of the individual view, these should all be the same.
-    private float _xDistance;
+    private double _xDistance;
     // Height of the individual view, these should all be the same.
-    private float _yDistance;
+    private double _yDistance;
     // Current orientation for the given coordinate system.
     private int _screenOrientation;
 
-    public CoordinateSystem(float xCoord, float yCoord, float xDist, float yDist, int screenOrientation) {
+    public CoordinateSystem(double xCoord, double yCoord, double xDist, double yDist, int screenOrientation) {
         _xCoord = xCoord;
         _yCoord = yCoord;
         _xDistance = xDist;
@@ -28,7 +28,7 @@ public class CoordinateSystem {
     }
 
     // Checks if the given x,y coordinates are within the bounds of this view.
-    public boolean isWithinBounds(float xPos, float yPos){
+    public boolean isWithinBounds(double xPos, double yPos){
         boolean value = false;
         if((xPos >= _xCoord) && (xPos < _xCoord + _xDistance) && (yPos >= _yCoord) && (yPos < _yCoord + _yDistance))
             value = true;
@@ -36,19 +36,19 @@ public class CoordinateSystem {
         return value;
     }
 
-    public float get_xCoord() {
+    public double get_xCoord() {
         return _xCoord;
     }
 
-    public float get_yCoord() {
+    public double get_yCoord() {
         return _yCoord;
     }
 
-    public float get_xDistance() {
+    public double get_xDistance() {
         return _xDistance;
     }
 
-    public float get_yDistance() {
+    public double get_yDistance() {
         return _yDistance;
     }
 

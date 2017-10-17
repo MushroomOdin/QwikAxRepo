@@ -6,11 +6,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
@@ -124,31 +126,35 @@ public class MainActivity extends AppCompatActivity {
     // Sets the adapter to the grid view.
     private void SetAdapter() {
         _items = new ArrayList<IndividualNode>();
-        int xPos = 0, yPos = 0, xDistance, yDistance;
-        double weightFactor = .666666;
+        double xPos = 0, yPos = 0, xDistance, yDistance;
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        xDistance = size.x / _columns;
-        yDistance = (int) (size.y * weightFactor) / _rows;
+        int width = getWindowManager().getDefaultDisplay().getWidth();
+        int height = getWindowManager().getDefaultDisplay().getHeight();
+
+        xDistance = (width * .8) / _columns;
+        yDistance = (height * .8) / _rows;
+
+        /*ViewGroup.LayoutParams params = _gridView.getLayoutParams();
+        params.height = (int) yDistance - 20;*/
+        /*View listView = _adapter.getView(0, null, _gridView);
+        int height = listView.getMeasuredHeight();
+        int width = listView.getMeasuredWidth();
+        xDistance = height / _columns;
+        yDistance = width / _rows;*/
+
         // TODO: need to fix this so it give the proper coordinates
         for (int i = 0; i < _rows * _columns; i++)
         {
             _items.add(i, new IndividualNode(R.drawable.main, false,
                     new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation())));
 
-            if((xPos += xDistance) >= size.x) {
+            if((xPos += xDistance) >= width) {
                 xPos = 0;
                 yPos += yDistance;
             }
-
-
-
         }
 
-
-        _adapter = new CustomGridAdapter(this, R.layout.node, _items, _rows, _columns);
+        _adapter = new CustomGridAdapter(this, R.layout.node, _items, _rows, _columns, (int) yDistance);
         _gridView.setAdapter(_adapter);
     }
 
@@ -166,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
             switch(motionEvent.getAction())
             {
                 case MotionEvent.ACTION_DOWN:
+                    _pointsHit.clear();
                     node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
                     if(node != null){
                         if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
