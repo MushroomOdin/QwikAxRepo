@@ -1,0 +1,7 @@
+#Sat Oct 07 18:51:08 PDT 2017
+base.0=C\:\\Users\\Michael Crane\\Desktop\\QwikAxRepo-master\\QwikAxRepo-master\\QwikAx\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10000\\instant-run-bootstrap_8d33c0da487f8f74affbd9d7709955f79ae5676c
+renamed.1=classes.dex
+renamed.0=classes2.dex
+file.1=C\:\\Users\\Michael Crane\\Desktop\\QwikAxRepo-master\\QwikAxRepo-master\\QwikAx\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10000\\instant-run_caccfc3c24e2121ab59cdbc8a11c170c624919bc\\classes.dex
+base.1=C\:\\Users\\Michael Crane\\Desktop\\QwikAxRepo-master\\QwikAxRepo-master\\QwikAx\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10000\\instant-run_caccfc3c24e2121ab59cdbc8a11c170c624919bc
+file.0=C\:\\Users\\Michael Crane\\Desktop\\QwikAxRepo-master\\QwikAxRepo-master\\QwikAx\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10000\\instant-run-bootstrap_8d33c0da487f8f74affbd9d7709955f79ae5676c\\classes.dex
