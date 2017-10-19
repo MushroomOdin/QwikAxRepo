@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -70,11 +71,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 8;
-        _columns = 8;
+        _rows = 10;
+        _columns = 10;
 
         _gridView = (GridView) findViewById(R.id.gridView);
-        _gridView.setNumColumns(_columns);
+         _gridView.setNumColumns(_columns);
         SetAdapter();
 
         final String[] arrayItemsInList = new String[] { "cat", "dog", "llama", "small", "retrieve", "ball", "animal", "mammal", "Hello", "is", "it", "me", "your", "looking", "for"};
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _gridView.setOnTouchListener(new CustomTouchListener());
         _pointsHit = new ArrayList<>();
+
     }
 
     @Override
@@ -131,16 +133,10 @@ public class MainActivity extends AppCompatActivity {
         int width = getWindowManager().getDefaultDisplay().getWidth();
         int height = getWindowManager().getDefaultDisplay().getHeight();
 
-        xDistance = (width * .8) / _columns;
-        yDistance = (height * .8) / _rows;
+        xDistance = width  / _columns;
+        yDistance = (height *.8) / _rows - 20;
 
-        /*ViewGroup.LayoutParams params = _gridView.getLayoutParams();
-        params.height = (int) yDistance - 20;*/
-        /*View listView = _adapter.getView(0, null, _gridView);
-        int height = listView.getMeasuredHeight();
-        int width = listView.getMeasuredWidth();
-        xDistance = height / _columns;
-        yDistance = width / _rows;*/
+        //_gridView.setLayoutParams(new GridView.LayoutParams(GridView.AUTO_FIT, (int) (height*.75)));
 
         // TODO: need to fix this so it give the proper coordinates
         for (int i = 0; i < _rows * _columns; i++)
