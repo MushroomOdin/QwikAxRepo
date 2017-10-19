@@ -1,11 +1,11 @@
 [
     {
-        "merged": "C:\\Users\\Michael Crane\\Desktop\\QwikAxRepo-master\\QwikAxRepo-master\\QwikAx\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\abc_text_cursor_material.xml",
-        "source": "C:\\Users\\Michael Crane\\.android\\build-cache\\53f95cf99829b8f530f08661bfedbe3cd22e619c\\output\\res\\drawable\\abc_text_cursor_material.xml"
-    },
-    {
         "merged": "C:\\Users\\Michael Crane\\Desktop\\QwikAxRepo-master\\QwikAxRepo-master\\QwikAx\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\abc_textfield_search_material.xml",
         "source": "C:\\Users\\Michael Crane\\.android\\build-cache\\53f95cf99829b8f530f08661bfedbe3cd22e619c\\output\\res\\drawable\\abc_textfield_search_material.xml"
+    },
+    {
+        "merged": "C:\\Users\\Michael Crane\\Desktop\\QwikAxRepo-master\\QwikAxRepo-master\\QwikAx\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\abc_text_cursor_material.xml",
+        "source": "C:\\Users\\Michael Crane\\.android\\build-cache\\53f95cf99829b8f530f08661bfedbe3cd22e619c\\output\\res\\drawable\\abc_text_cursor_material.xml"
     },
     {
         "merged": "C:\\Users\\Michael Crane\\Desktop\\QwikAxRepo-master\\QwikAxRepo-master\\QwikAx\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\abc_item_background_holo_light.xml",
