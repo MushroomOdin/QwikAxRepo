@@ -28,4 +28,9 @@
         android:orderInCategory="4"
         android:title="Open Image"
         appcompat:showAsAction="always" />
+    <item
+        android:id="@+id/action_run_save"
+        android:orderInCategory="5"
+        android:title="Run/Save"
+        app:showAsAction="always" />
 </menu>
