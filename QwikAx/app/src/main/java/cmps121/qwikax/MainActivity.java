@@ -90,12 +90,7 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
-        final String[] arrayItemsInList = new String[]{"cat", "dog", "llama", "small", "retrieve", "ball", "animal", "mammal", "Hello", "is", "it", "me", "your", "looking", "for"};
-
-        ArrayList<String> itemsInList = new ArrayList<String>();
-        itemsInList.addAll(Arrays.asList(arrayItemsInList));
         _listView = (ListView) findViewById(R.id.applicationListView);
-
         setList(_listView);
 
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
@@ -254,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
     //Lists all the available apps on device
     //Need to only show the useful apps like phone, text, ... instead of the system apps
     //Clean up by adding the app pictures and setting to grid view
-    //Need to make items clickable to open the app itself
+    //Need to make items clickable to open the app itself DONE
     public void setList(ListView apps){
         PackageManager pm = getPackageManager();
         List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
