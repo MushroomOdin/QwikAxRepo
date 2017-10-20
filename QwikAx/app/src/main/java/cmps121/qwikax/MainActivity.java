@@ -1,11 +1,15 @@
 package cmps121.qwikax;
 
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.support.v7.view.menu.MenuView;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Menu;
@@ -14,12 +18,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cmps121.qwikax.Adapters.CustomGridAdapter;
 import cmps121.qwikax.Data_Base.Movement;
@@ -30,9 +38,12 @@ public class MainActivity extends AppCompatActivity {
 
     // FIELDS
 
+    // Testing for push
+
     private GridView _gridView;
     private int _rows;
     private int _columns;
+    private boolean _runMode;
 
     private CustomGridAdapter _adapter;
     private ArrayList<IndividualNode> _items;
@@ -54,22 +65,31 @@ public class MainActivity extends AppCompatActivity {
 
         _rows = 10;
         _columns = 10;
+        _runMode = true;
 
         _gridView = (GridView) findViewById(R.id.gridView);
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
-        _movements = new Movement(_items, _rows, _columns);
-        final String[] arrayItemsInList = new String[] { "cat", "dog", "llama", "small", "retrieve", "ball", "animal", "mammal", "Hello", "is", "it", "me", "your", "looking", "for"};
-
-        ArrayList<String> itemsInList = new ArrayList<String>();
-        itemsInList.addAll(Arrays.asList(arrayItemsInList));
         _listView = (ListView) findViewById(R.id.applicationListView);
-        _listView.setAdapter(new ArrayAdapter<String>(this, R.layout.list_view_row, itemsInList));
+        setList(_listView);
+
+        // Attempts launch procedure.... only need the "com.~~~~" to launch any app
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getApplicationContext(), arrayItemsInList[i], Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), arrayItemsInList[i], Toast.LENGTH_SHORT).show();
+                if(_runMode == true) {
+                    String chosenApp = _listView.getItemAtPosition(i).toString();
+                    if (chosenApp != null) {
+                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                        if (Launch != null) {
+                            startActivity(Launch);
+                        }
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(), "Cannot run in save mode", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -95,13 +115,27 @@ public class MainActivity extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch(id) {
             case R.id.action_settings:
-                Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
-                // I believe i need to use intents and then launch the layout wiht the intent
+                //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
+
+                // Create new intent and launch the layout with the intent
+                Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(startSettings);
+
                 break;
 
             case R.id.action_profile:
                 Toast.makeText(getApplicationContext(), "you clicked profile", Toast.LENGTH_LONG).show();
                 break;
+
+            case R.id.action_run_save:
+                _runMode = !_runMode;
+                String status = "";
+                if (_runMode == true){
+                    status = "run ";
+                }else{
+                    status = "save ";
+                }
+                Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -134,6 +168,36 @@ public class MainActivity extends AppCompatActivity {
 
         _adapter = new CustomGridAdapter(this, R.layout.node, _items, _rows, _columns, (int) yDistance);
         _gridView.setAdapter(_adapter);
+    }
+
+    //Lists all the available apps on device
+    //Need to only show the useful apps like phone, text, ... instead of the system apps
+    //Clean up by adding the app pictures and setting to grid view
+    //Need to make items clickable to open the app itself DONE
+    public void setList(ListView apps){
+        PackageManager pm = getPackageManager();
+        List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
+        String[] appArray = new String[allApps.size()];
+        for(int i=0; i<allApps.size(); i++){
+            String app = removeChars(allApps.get(i).toString());
+            appArray[i] = app;
+        }
+
+        ArrayList<String> appList = new ArrayList<String>();
+        appList.addAll(Arrays.asList(appArray));
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, appList);
+
+        apps.setAdapter(appAdapter);
+    }
+
+    public String removeChars(String s){
+        String chopped = "Could Not Find";
+        Pattern pattern = Pattern.compile("(\\S+om\\S+)");
+        Matcher matcher = pattern.matcher(s);
+        if (matcher.find()){
+            chopped = matcher.group(1).substring(0,matcher.group(1).length() - 1);
+        }
+        return chopped;
     }
 
     // METHODS
@@ -193,5 +257,6 @@ public class MainActivity extends AppCompatActivity {
             return value;
         }
     }
+
     // CUSTOM LISTENER
 }
