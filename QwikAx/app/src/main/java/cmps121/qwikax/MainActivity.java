@@ -85,10 +85,10 @@ public class MainActivity extends AppCompatActivity {
         _runMode = true;
 
         _gridView = (GridView) findViewById(R.id.gridView);
-         _gridView.setNumColumns(_columns);
+        _gridView.setNumColumns(_columns);
         SetAdapter();
 
-        final String[] arrayItemsInList = new String[] { "cat", "dog", "llama", "small", "retrieve", "ball", "animal", "mammal", "Hello", "is", "it", "me", "your", "looking", "for"};
+        final String[] arrayItemsInList = new String[]{"cat", "dog", "llama", "small", "retrieve", "ball", "animal", "mammal", "Hello", "is", "it", "me", "your", "looking", "for"};
 
         ArrayList<String> itemsInList = new ArrayList<String>();
         itemsInList.addAll(Arrays.asList(arrayItemsInList));
@@ -101,35 +101,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //Toast.makeText(getApplicationContext(), arrayItemsInList[i], Toast.LENGTH_SHORT).show();
-                String chosenApp = _listView.getItemAtPosition(i).toString();
-                if (chosenApp != null){
-                    Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
-                    if(Launch != null){
-                        startActivity(Launch);
+                if(_runMode == true) {
+                    String chosenApp = _listView.getItemAtPosition(i).toString();
+                    if (chosenApp != null) {
+                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                        if (Launch != null) {
+                            startActivity(Launch);
+                        }
                     }
+                }else{
+                    Toast.makeText(getApplicationContext(), "Cannot run in save mode", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
-//        _gridView.setOnTouchListener(new CustomTouchListener());
-//        _pointsHit = new ArrayList<>();
-//
-//        Button runsave = (Button) findViewById(R.id.action_run_save);
-//        runsave.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view){
-//                _runMode = !_runMode;
-//                String status = "";
-//                if (_runMode == true){
-//                    status = "run ";
-//                }else{
-//                    status = "save ";
-//                }
-//                Toast.makeText(getApplicationContext(), "Changed to " + status + "mode.", Toast.LENGTH_LONG).show();
-//            }
-//        });
-
+        _gridView.setOnTouchListener(new CustomTouchListener());
+        _pointsHit = new ArrayList<>();
     }
 
     @Override
@@ -155,6 +143,16 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_profile:
                 Toast.makeText(getApplicationContext(), "you clicked profile", Toast.LENGTH_LONG).show();
                 break;
+
+            case R.id.action_run_save:
+                _runMode = !_runMode;
+                String status = "";
+                if (_runMode == true){
+                    status = "run ";
+                }else{
+                    status = "save ";
+                }
+                Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -274,4 +272,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return chopped;
     }
+
 }
