@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
     // FIELDS
 
+    // Testing for push
+
     private GridView _gridView;
     private int _rows;
     private int _columns;
@@ -118,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _gridView.setOnTouchListener(new CustomTouchListener());
         _pointsHit = new ArrayList<>();
+
     }
 
     @Override
@@ -136,8 +139,12 @@ public class MainActivity extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch(id) {
             case R.id.action_settings:
-                Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
-                // I believe i need to use intents and then launch the layout wiht the intent
+                //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
+
+                // Create new intent and launch the layout with the intent
+                Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(startSettings);
+
                 break;
 
             case R.id.action_profile:

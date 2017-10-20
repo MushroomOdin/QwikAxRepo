@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <EditText
         android:id="@+id/editText4"
@@ -9,18 +11,18 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="number"
-        android:layout_above="@+id/textView2"
-        android:layout_alignStart="@+id/ColumnCountTextBox"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginTop="23dp"
+        android:layout_alignTop="@+id/textView4"
+        android:layout_alignStart="@+id/ColumnCountTextBox" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
         android:text="Number Of Columns:"
-        android:layout_alignBottom="@+id/editText4"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp" />
 
     <EditText
         android:id="@+id/ColumnCountTextBox"
@@ -28,15 +30,16 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="number"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/editText4"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="23dp" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Number Of Rows:"
-        android:layout_above="@+id/ColumnCountTextBox"
+        android:layout_below="@+id/editText4"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
