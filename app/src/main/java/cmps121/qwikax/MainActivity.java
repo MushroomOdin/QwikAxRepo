@@ -295,14 +295,14 @@ public class MainActivity extends AppCompatActivity {
         CharSequence name = getString(R.string.channel_name);
         // description of the channel.
         String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_HIGH;
+        int importance = NotificationManager.IMPORTANCE_LOW;
         NotificationChannel mChannel = new NotificationChannel(id, name, importance);
         // Configure the notification channel.
         mChannel.setDescription(description);
         mNotificationManager.createNotificationChannel(mChannel);
 
 
-        //instance of notificationManager
+        //builds notification object with specifications
         NotificationCompat.Builder myBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("test notification")
@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
                 .setChannel(id);
 
 
-
+        //pass object to the system
         mNotificationManager.notify(1, myBuilder.build());
     }
     /////////////

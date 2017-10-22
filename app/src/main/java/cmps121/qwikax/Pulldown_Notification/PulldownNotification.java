@@ -1,5 +1,6 @@
 package cmps121.qwikax.Pulldown_Notification;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
@@ -16,19 +17,34 @@ import cmps121.qwikax.R;
 public class PulldownNotification extends MainActivity {
 
     public void sendNotification(View view){
-        //instance of notificationManager
-        NotificationCompat.Builder myBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("test notification")
-                .setContentText("suprise!");
         //instance of service
-        NotificationManager myNotificationManager =
+        NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+        //set channel
+        // id of the channel.
+        String id = "my_channel_01";
+        // name of the channel.
+        CharSequence name = getString(R.string.channel_name);
+        // description of the channel.
+        String description = getString(R.string.channel_description);
+        int importance = NotificationManager.IMPORTANCE_LOW;
+        NotificationChannel mChannel = new NotificationChannel(id, name, importance);
+        // Configure the notification channel.
+        mChannel.setDescription(description);
+        mNotificationManager.createNotificationChannel(mChannel);
 
 
-        //001 is the notifcation ID
-        myNotificationManager.notify(001, myBuilder.build());
+        //builds notification object with specifications
+        NotificationCompat.Builder myBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("test notification")
+                .setContentText("suprise!")
+                .setChannel(id);
+
+
+        //pass object to the system
+        mNotificationManager.notify(1, myBuilder.build());
     }
     
 
