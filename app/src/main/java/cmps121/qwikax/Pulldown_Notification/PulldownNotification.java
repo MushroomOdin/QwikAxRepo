@@ -26,9 +26,10 @@ public class PulldownNotification extends MainActivity {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-        //NotificationManager.notify().
+
+        //001 is the notifcation ID
         myNotificationManager.notify(001, myBuilder.build());
     }
-
+    
 
 }

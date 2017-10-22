@@ -1,11 +1,15 @@
 package cmps121.qwikax;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -34,6 +38,7 @@ import java.util.regex.Pattern;
 import cmps121.qwikax.Adapters.CustomGridAdapter;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
+import cmps121.qwikax.Pulldown_Notification.PulldownNotification;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<IndividualNode> _items;
     private ListView _listView;
     private ArrayList<Integer> _pointsHit;
+
     // FIELDS
 
     // METHODS
@@ -274,5 +280,39 @@ public class MainActivity extends AppCompatActivity {
         }
         return chopped;
     }
+
+    ////////////// this shouldn't be in main ///////
+    public void sendNotification(View view){
+
+        //instance of service
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        //set channel
+        // id of the channel.
+        String id = "my_channel_01";
+        // name of the channel.
+        CharSequence name = getString(R.string.channel_name);
+        // description of the channel.
+        String description = getString(R.string.channel_description);
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(id, name, importance);
+        // Configure the notification channel.
+        mChannel.setDescription(description);
+        mNotificationManager.createNotificationChannel(mChannel);
+
+
+        //instance of notificationManager
+        NotificationCompat.Builder myBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("test notification")
+                .setContentText("suprise!")
+                .setChannel(id);
+
+
+
+        mNotificationManager.notify(1, myBuilder.build());
+    }
+    /////////////
 
 }
