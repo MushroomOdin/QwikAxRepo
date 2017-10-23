@@ -61,6 +61,11 @@ public class Movement {
         Reset();
     }
 
+    public Movement(Movement movement){
+        _initialPosition = movement.get_initialPosition();
+        _movementsMade = movement.get_movementsMade();
+    }
+
     // CONSTRUCTORS
 
     // METHODS
@@ -204,8 +209,8 @@ public class Movement {
                 currentMove = MovementType.DOWN;
 
             _movementsMade.add(currentMove);
-            if (_lastMovement != null)
-                CheckForDiagonal(currentMove);
+            /*if (_lastMovement != null)
+                CheckForDiagonal(currentMove);*/
 
             _lastMovement = currentMove;
             int currentPosition = _possiblePositions[position];
@@ -233,5 +238,7 @@ public class Movement {
     public int[] get_possiblePositions() { return _possiblePositions; }
     public ArrayList<MovementType> get_movementsMade(){ return _movementsMade; }
     public ArrayList<Integer> get_movementPositions(){ return _movementPositions; }
+    public int get_initialPosition(){return _initialPosition;}
+
     // GETTERS AND SETTERS
 }
