@@ -2,7 +2,9 @@ package cmps121.qwikax;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
@@ -246,16 +248,32 @@ public class MainActivity extends AppCompatActivity {
     // CUSTOM LISTENER
 
 
-    //Lists all the available apps on device
-    //Need to only show the useful apps like phone, text, ... instead of the system apps
+    //Lists all the available apps on device DONE
+    //Need to only show the useful apps like phone, text, ... instead of the system apps DONE
     //Clean up by adding the app pictures and setting to grid view
     //Need to make items clickable to open the app itself DONE
     public void setList(ListView apps){
         PackageManager pm = getPackageManager();
-        List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
-        String[] appArray = new String[allApps.size()];
-        for(int i=0; i<allApps.size(); i++){
-            String app = removeChars(allApps.get(i).toString());
+        List<ApplicationInfo> allApps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        List<String> runnableApps = new ArrayList<String>();
+        List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
+
+        //Checks to make sure app is runnable before adding it to the list
+        for(ApplicationInfo currentApp : allApps){
+            if(getRunnableApps(currentApp)) {
+                    runnableApps.add(currentApp.toString());
+            }
+        }
+
+        String[] appArray = new String[runnableApps.size()];
+        int appArrayInsert = 0;
+        boolean first = false;
+        for(int i=0;i<runnableApps.size();i++){
+            appArray[i] = runnableApps.get(i).toString();
+        }
+
+        for(int i=0; i<runnableApps.size(); i++){
+            String app = removeChars(runnableApps.get(i).toString());
             appArray[i] = app;
         }
 
@@ -265,14 +283,25 @@ public class MainActivity extends AppCompatActivity {
 
         apps.setAdapter(appAdapter);
     }
+
+    //Formats strings to the com.~~~~~ so it can be launched
     public String removeChars(String s){
         String chopped = "Could Not Find";
         Pattern pattern = Pattern.compile("(\\S+om\\S+)");
         Matcher matcher = pattern.matcher(s);
         if (matcher.find()){
-            chopped = matcher.group(1).substring(0,matcher.group(1).length() - 1);
+            chopped = matcher.group(1).substring(0,matcher.group(1).length());
         }
+        chopped = chopped.substring(0, chopped.length()-1);
         return chopped;
     }
 
+    //Determines if an application can be launched
+    private boolean getRunnableApps(ApplicationInfo pkg) {
+        if(getPackageManager().getLaunchIntentForPackage(pkg.packageName) != null){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
