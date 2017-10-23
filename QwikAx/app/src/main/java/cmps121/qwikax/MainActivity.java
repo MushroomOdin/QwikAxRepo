@@ -4,21 +4,16 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.support.v7.view.menu.MenuView;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -55,16 +50,13 @@ public class MainActivity extends AppCompatActivity {
 
     // METHODS
 
-    // TODO: Need to clean this and its called fucntions, i am missing something such as padding or something in the calculation.
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 10;
-        _columns = 10;
+        _rows = 8;
+        _columns = 8;
         _runMode = true;
 
         _gridView = (GridView) findViewById(R.id.gridView);
@@ -94,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
-        _gridView.setOnTouchListener(new CustomTouchListener());
+        _gridView.setOnTouchListener(new CustomGridViewTouchListener());
         _pointsHit = new ArrayList<>();
-
+        _movements = new Movement(_items, _rows, _columns);
     }
 
     @Override
@@ -152,9 +144,6 @@ public class MainActivity extends AppCompatActivity {
         xDistance = width  / _columns;
         yDistance = (height *.8) / _rows - 20;
 
-        //_gridView.setLayoutParams(new GridView.LayoutParams(GridView.AUTO_FIT, (int) (height*.75)));
-
-        // TODO: need to fix this so it give the proper coordinates
         for (int i = 0; i < _rows * _columns; i++)
         {
             _items.add(i, new IndividualNode(R.drawable.main, false,
@@ -204,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
 
     // CUSTOM LISTENER
     
-    private final class CustomTouchListener implements View.OnTouchListener{
+    private final class CustomGridViewTouchListener implements View.OnTouchListener{
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -216,12 +205,14 @@ public class MainActivity extends AppCompatActivity {
             {
                 case MotionEvent.ACTION_DOWN:
                     position = _movements.InitialPosition(motionEvent.getX(), motionEvent.getY());
-                    if(position < _items.size())
+                    if((position < _items.size()) && (position > 0))
                         node = _gridView.getChildAt(position);
 
                     if(node != null){
-                        if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
+                        if(((ColorDrawable)node.getBackground()).getColor() != Color.BLUE) {
                             node.setBackgroundColor(Color.BLUE);
+                            _items.get(position).setHighLight(true);
+                        }
                         
                         value = true;
                     }
@@ -230,13 +221,15 @@ public class MainActivity extends AppCompatActivity {
 
                 case MotionEvent.ACTION_MOVE:
                     position = _movements.MovementOccurred(motionEvent.getX(), motionEvent.getY());
-                    if(position < _items.size())
+                    if((position < _items.size()) && (position > 0))
                         node = _gridView.getChildAt(position);
 
                     if(node != null)
                     {
-                        if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
+                        if(((ColorDrawable)node.getBackground()).getColor() != Color.BLUE){
+                            _items.get(position).setHighLight(true);
                             node.setBackgroundColor(Color.BLUE);
+                        }
 
                         value = true;
                     }
@@ -250,6 +243,12 @@ public class MainActivity extends AppCompatActivity {
                         sentence.append(point.toString() + " ");
                     }
 
+                    for (int point:_movements.get_movementPositions()) {
+                        View viewNode = _gridView.getChildAt(point);
+                        viewNode.setBackgroundColor(Color.TRANSPARENT);
+                    }
+
+                    _movements.Reset();
                     Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
                     break;
             }

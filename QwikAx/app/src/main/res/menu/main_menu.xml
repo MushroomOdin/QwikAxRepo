@@ -15,22 +15,15 @@
         android:title="profile"
         app:showAsAction="never"
         />
-
     <item
         android:id="@+id/action_search"
         android:orderInCategory="3"
         android:title="search"
         app:showAsAction="never"
         />
-
-    <item
-        android:id="@+id/action_open_image"
-        android:orderInCategory="4"
-        android:title="Open Image"
-        appcompat:showAsAction="always" />
     <item
         android:id="@+id/action_run_save"
-        android:orderInCategory="5"
+        android:orderInCategory="4"
         android:title="Run/Save"
         app:showAsAction="always" />
 </menu>

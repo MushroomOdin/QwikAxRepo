@@ -27,7 +27,8 @@ public class Movement {
         BOTTOM_RIGHT (4),
         BOTTOM_LEFT (5),
         TOP_RIGHT (6),
-        TOP_LEFT (7);
+        TOP_LEFT (7),
+        INITIAL_POSITION (8);
 
         private final int value;
         MovementType (int value) {this.value = value;}
@@ -46,6 +47,7 @@ public class Movement {
     private int _rows;
     private int _columns;
     private ArrayList<MovementType> _movementsMade;
+    private ArrayList<Integer> _movementPositions;
 
     // FIELDS
 
@@ -56,8 +58,7 @@ public class Movement {
         _possiblePositions = new int[4];
         _rows = rows;
         _columns = columns;
-        _movementsMade = new ArrayList<>();
-        _lastMovement = null;
+        Reset();
     }
 
     // CONSTRUCTORS
@@ -122,7 +123,7 @@ public class Movement {
         else
             _possiblePositions[MovementType.RIGHT.getValue()] = -1;
 
-        if(position - 1 > (_columns * (1 + (int) (position / _columns))))
+        if(position - 1 >= (_columns * (int) (position / _columns)))
             _possiblePositions[MovementType.LEFT.getValue()] = (position - 1);
         else
             _possiblePositions[MovementType.LEFT.getValue()] = -1;
@@ -151,6 +152,8 @@ public class Movement {
             count++;
         }
 
+        _movementPositions.add(count);
+
         if(count > _items.size())
             count = -1;
 
@@ -161,12 +164,11 @@ public class Movement {
     private int FindViewByLocation(float x, float y){
         int count = 0;
         for (int position: _possiblePositions) {
-            if(position != -1){
+            if(position != -1)
                 if(_items.get(position).get_coordinateSystem().isWithinBounds(x,y))
                     break;
-                else
-                    count++;
-            }
+
+            count++;
         }
 
         return count;
@@ -176,7 +178,9 @@ public class Movement {
     public int InitialPosition(float x, float y){
         int count = FindInitialViewByLocation(x,y);
         if(count != -1){
+            _movementPositions.add(count);
             _initialPosition = count;
+            _movementsMade.add(MovementType.INITIAL_POSITION);
             FindPossibleMovements(count);
         }
 
@@ -184,40 +188,48 @@ public class Movement {
     }
 
     // Tells us that a movement has occured, and that we need to figure out where we will go.
-    public int MovementOccurred(float x, float y){
-        int position = FindViewByLocation(x,y);
-        if(position < _possiblePositions.length){
-            FindPossibleMovements(_possiblePositions[position]);
-
+    public int MovementOccurred(float x, float y) {
+        int position = FindViewByLocation(x, y);
+        if (position < _possiblePositions.length) {
             MovementType currentMove = null;
-            if(position == MovementType.RIGHT.getValue())
+
+            if (position == MovementType.RIGHT.getValue())
                 currentMove = MovementType.RIGHT;
-            else if(position == MovementType.LEFT.getValue())
+            else if (position == MovementType.LEFT.getValue())
                 currentMove = MovementType.LEFT;
-            else if(position == MovementType.UP.getValue())
+            else if (position == MovementType.UP.getValue())
                 currentMove = MovementType.UP;
             else
                 currentMove = MovementType.DOWN;
 
-            if(_lastMovement != null)
+            if (_lastMovement != null)
                 CheckForDiagonal(currentMove);
 
             _movementsMade.add(currentMove);
             _lastMovement = currentMove;
             position = _possiblePositions[position];
-        }else
+            _movementPositions.add(position);
+            FindPossibleMovements(_possiblePositions[position]);
+        } else
             position = -1;
 
 
         return position;
     }
 
+    // Resets the class so that we start off fresh with a new down click.
+    public void Reset(){
+        _movementPositions = new ArrayList<>();
+        _movementsMade = new ArrayList<>();
+        _lastMovement = null;
+    }
+
     // METHODS
 
     // GETTERS AND SETTERS
 
-    public int[] get_possiblePositions() {return _possiblePositions;}
-    public ArrayList<MovementType> get_movementsMade(){return _movementsMade;}
-
+    public int[] get_possiblePositions() { return _possiblePositions; }
+    public ArrayList<MovementType> get_movementsMade(){ return _movementsMade; }
+    public ArrayList<Integer> get_movementPositions(){ return _movementPositions; }
     // GETTERS AND SETTERS
 }
