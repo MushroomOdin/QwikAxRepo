@@ -1,8 +1,10 @@
 package cmps121.qwikax.Pulldown_Notification;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
 
@@ -14,37 +16,39 @@ import cmps121.qwikax.R;
  * Created by Michael Crane on 10/21/2017.
  */
 
-public class PulldownNotification extends MainActivity {
+public class PulldownNotification extends ContextWrapper {
 
-    public void sendNotification(View view){
-        //instance of service
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    private static final String Channel_ID = "channel_01";
+    private static final String Channel_Name = "pulldown_channel";
+    private NotificationManager manager;
 
-        //set channel
-        // id of the channel.
-        String id = "my_channel_01";
-        // name of the channel.
-        CharSequence name = getString(R.string.channel_name);
-        // description of the channel.
-        String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_LOW;
-        NotificationChannel mChannel = new NotificationChannel(id, name, importance);
-        // Configure the notification channel.
-        mChannel.setDescription(description);
-        mNotificationManager.createNotificationChannel(mChannel);
+    public PulldownNotification(Context base){
+        super(base);
+        createChannel();
 
+    }
 
-        //builds notification object with specifications
-        NotificationCompat.Builder myBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("test notification")
-                .setContentText("suprise!")
-                .setChannel(id);
+    public void createChannel(){
+        NotificationChannel mChannel = new NotificationChannel(Channel_ID, Channel_Name, NotificationManager.IMPORTANCE_HIGH);
+        //note: we can enable lights/vibration/etc. here
+        mChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
+        getManager().createNotificationChannel(mChannel);
+    }
 
-        //pass object to the system
-        mNotificationManager.notify(1, myBuilder.build());
+    public NotificationManager getManager(){
+        if(manager == null){
+            manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+        return manager;
+    }
+
+    public Notification.Builder getmChannelNotification(String title, String body){
+        return new Notification.Builder(getApplicationContext(),Channel_ID)
+                .setContentText(body)
+                .setContentTitle(title)
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setAutoCancel(true);
     }
     
 

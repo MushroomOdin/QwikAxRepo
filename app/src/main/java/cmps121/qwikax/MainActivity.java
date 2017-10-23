@@ -295,8 +295,10 @@ public class MainActivity extends AppCompatActivity {
         CharSequence name = getString(R.string.channel_name);
         // description of the channel.
         String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_LOW;
+        int importance = NotificationManager.IMPORTANCE_HIGH; //shows everywhere
+
         NotificationChannel mChannel = new NotificationChannel(id, name, importance);
+
         // Configure the notification channel.
         mChannel.setDescription(description);
         mNotificationManager.createNotificationChannel(mChannel);
