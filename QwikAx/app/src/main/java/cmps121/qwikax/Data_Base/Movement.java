@@ -114,6 +114,27 @@ public class Movement {
 
     }
 
+    // Finds the location of the view depending on the initial x,y location.
+    private int FindInitialViewByLocation(float x, float y) {
+        int count = 0;
+        // Find out how to tell location from
+        for (IndividualNode node: _items) {
+            if((node.get_coordinateSystem().isWithinBounds(x,y)) && (!node.isHighLight())){
+                node.setHighLight(true);
+                break;
+            }
+
+            count++;
+        }
+
+        _movementPositions.add(count);
+
+        if(count > _items.size())
+            count = -1;
+
+        return count;
+    }
+
     // Finds the possible movements depending on the initial position
     private void FindPossibleMovements(int position){
         _possiblePositions = new int[4];
@@ -139,27 +160,6 @@ public class Movement {
             _possiblePositions[MovementType.UP.getValue()] = -1;
     }
 
-    // Finds the location of the view depending on the initial x,y location.
-    private int FindInitialViewByLocation(float x, float y) {
-        int count = 0;
-        // Find out how to tell location from
-        for (IndividualNode node: _items) {
-            if((node.get_coordinateSystem().isWithinBounds(x,y)) && (!node.isHighLight())){
-                node.setHighLight(true);
-                break;
-            }
-
-            count++;
-        }
-
-        _movementPositions.add(count);
-
-        if(count > _items.size())
-            count = -1;
-
-        return count;
-    }
-
     // Finds the location of the view we moved to.
     private int FindViewByLocation(float x, float y){
         int count = 0;
@@ -176,6 +176,7 @@ public class Movement {
 
     // Called by touch listener down press, will capture the initial position, and then find where the possible movements are.
     public int InitialPosition(float x, float y){
+        Reset();
         int count = FindInitialViewByLocation(x,y);
         if(count != -1){
             _movementPositions.add(count);
@@ -202,14 +203,15 @@ public class Movement {
             else
                 currentMove = MovementType.DOWN;
 
+            _movementsMade.add(currentMove);
             if (_lastMovement != null)
                 CheckForDiagonal(currentMove);
 
-            _movementsMade.add(currentMove);
             _lastMovement = currentMove;
-            position = _possiblePositions[position];
-            _movementPositions.add(position);
+            int currentPosition = _possiblePositions[position];
             FindPossibleMovements(_possiblePositions[position]);
+            _movementPositions.add(currentPosition);
+            position = currentPosition;
         } else
             position = -1;
 

@@ -4,10 +4,13 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -138,11 +141,14 @@ public class MainActivity extends AppCompatActivity {
         _items = new ArrayList<IndividualNode>();
         double xPos = 0, yPos = 0, xDistance, yDistance;
 
-        int width = getWindowManager().getDefaultDisplay().getWidth();
-        int height = getWindowManager().getDefaultDisplay().getHeight();
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
 
         xDistance = width  / _columns;
-        yDistance = (height *.8) / _rows - 20;
+        yDistance = (height *.8) / _rows - 22;
 
         for (int i = 0; i < _rows * _columns; i++)
         {
@@ -244,11 +250,11 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     for (int point:_movements.get_movementPositions()) {
-                        View viewNode = _gridView.getChildAt(point);
-                        viewNode.setBackgroundColor(Color.TRANSPARENT);
+                        node = _gridView.getChildAt(point);
+                        _items.get(point).setHighLight(false);
+                        node.setBackgroundColor(Color.TRANSPARENT);
                     }
 
-                    _movements.Reset();
                     Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
                     break;
             }
