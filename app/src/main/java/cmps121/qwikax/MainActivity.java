@@ -1,5 +1,6 @@
 package cmps121.qwikax;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -43,7 +44,8 @@ import cmps121.qwikax.Pulldown_Notification.PulldownNotification;
 public class MainActivity extends AppCompatActivity {
 
     // FIELDS
-
+    PulldownNotification helper;
+    Button sendNotification;
     // Testing for push
 
     private GridView _gridView;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<IndividualNode> _items;
     private ListView _listView;
     private ArrayList<Integer> _pointsHit;
+
 
     // FIELDS
 
@@ -91,6 +94,21 @@ public class MainActivity extends AppCompatActivity {
         _rows = 10;
         _columns = 10;
         _runMode = true;
+
+        //create notification
+        helper = new PulldownNotification(this);
+        //note: this button is temporary
+        sendNotification = (Button) findViewById(R.id.notif_button);
+
+        sendNotification.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                String title = "test title";
+                String content = "test content";
+                Notification.Builder builder = helper.getmChannelNotification(title, content);
+                helper.getManager().notify(1,builder.build());
+            }
+        });
 
         _gridView = (GridView) findViewById(R.id.gridView);
         _gridView.setNumColumns(_columns);
@@ -280,41 +298,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return chopped;
     }
-
-    ////////////// this shouldn't be in main ///////
-    public void sendNotification(View view){
-
-        //instance of service
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        //set channel
-        // id of the channel.
-        String id = "my_channel_01";
-        // name of the channel.
-        CharSequence name = getString(R.string.channel_name);
-        // description of the channel.
-        String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_HIGH; //shows everywhere
-
-        NotificationChannel mChannel = new NotificationChannel(id, name, importance);
-
-        // Configure the notification channel.
-        mChannel.setDescription(description);
-        mNotificationManager.createNotificationChannel(mChannel);
-
-
-        //builds notification object with specifications
-        NotificationCompat.Builder myBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("test notification")
-                .setContentText("suprise!")
-                .setChannel(id);
-
-
-        //pass object to the system
-        mNotificationManager.notify(1, myBuilder.build());
-    }
-    /////////////
 
 }
