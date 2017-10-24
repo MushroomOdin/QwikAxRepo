@@ -37,6 +37,10 @@ import cmps121.qwikax.Adapters.CustomGridAdapter;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
 
+import static java.lang.Math.floor;
+import static java.lang.Math.floorDiv;
+import static java.lang.Math.floorMod;
+
 public class MainActivity extends AppCompatActivity {
 
     // FIELDS
@@ -92,8 +96,10 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
+
         _listView = (ListView) findViewById(R.id.applicationListView);
-        setList(_listView);
+        final List<String> appInfo = setList(_listView);
+        //appInfo = setList(_listView);
 
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -101,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //Toast.makeText(getApplicationContext(), arrayItemsInList[i], Toast.LENGTH_SHORT).show();
                 if(_runMode == true) {
-                    String chosenApp = _listView.getItemAtPosition(i).toString();
+                    String chosenApp = appInfo.get(i).toString();
                     if (chosenApp != null) {
                         Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
                         if (Launch != null) {
@@ -252,56 +258,40 @@ public class MainActivity extends AppCompatActivity {
     //Need to only show the useful apps like phone, text, ... instead of the system apps DONE
     //Clean up by adding the app pictures and setting to grid view
     //Need to make items clickable to open the app itself DONE
-    public void setList(ListView apps){
+    public List<String> setList(ListView apps){
         PackageManager pm = getPackageManager();
         List<ApplicationInfo> allApps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-        List<String> runnableApps = new ArrayList<String>();
-        List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
+        List<String> runnableAppInfo = new ArrayList<String>();
+        List<String> runnableAppName = new ArrayList<String>();
 
         //Checks to make sure app is runnable before adding it to the list
         for(ApplicationInfo currentApp : allApps){
             if(getRunnableApps(currentApp)) {
-                    runnableApps.add(currentApp.toString());
+                    runnableAppInfo.add(currentApp.packageName);
+                    runnableAppName.add(currentApp.loadLabel(getApplicationContext().getPackageManager()).toString());
             }
         }
 
-        String[] appArray = new String[runnableApps.size()];
-        int appArrayInsert = 0;
-        boolean first = false;
-        for(int i=0;i<runnableApps.size();i++){
-            appArray[i] = runnableApps.get(i).toString();
-        }
+        //String[] launchableAppArray = new String[runnableAppInfo.size()];
+        String[] presentableAppArray = new String[runnableAppName.size()];
 
-        for(int i=0; i<runnableApps.size(); i++){
-            String app = removeChars(runnableApps.get(i).toString());
-            appArray[i] = app;
+        for(int i=0; i<runnableAppInfo.size(); i++){
+            String app = runnableAppInfo.get(i);
+            String app2 = runnableAppName.get(i);
+            //launchableAppArray[i] = app;
+            presentableAppArray[i] = app2;
         }
 
         ArrayList<String> appList = new ArrayList<String>();
-        appList.addAll(Arrays.asList(appArray));
+        appList.addAll(Arrays.asList(presentableAppArray));
         ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, appList);
 
         apps.setAdapter(appAdapter);
-    }
-
-    //Formats strings to the com.~~~~~ so it can be launched
-    public String removeChars(String s){
-        String chopped = "Could Not Find";
-        Pattern pattern = Pattern.compile("(\\S+om\\S+)");
-        Matcher matcher = pattern.matcher(s);
-        if (matcher.find()){
-            chopped = matcher.group(1).substring(0,matcher.group(1).length());
-        }
-        chopped = chopped.substring(0, chopped.length()-1);
-        return chopped;
+        return runnableAppInfo;
     }
 
     //Determines if an application can be launched
     private boolean getRunnableApps(ApplicationInfo pkg) {
-        if(getPackageManager().getLaunchIntentForPackage(pkg.packageName) != null){
-            return true;
-        }else{
-            return false;
-        }
+        return (getPackageManager().getLaunchIntentForPackage(pkg.packageName) != null);
     }
 }
