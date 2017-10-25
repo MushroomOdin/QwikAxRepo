@@ -11,8 +11,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+//<<<<<<< HEAD
 import android.support.v7.view.menu.MenuView;
 import android.text.Layout;
+//=======
+//>>>>>>> origin/master
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
@@ -21,10 +24,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -39,6 +40,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cmps121.qwikax.Adapters.CustomGridAdapter;
+import cmps121.qwikax.Data_Base.Movement;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
 
@@ -61,40 +63,19 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<IndividualNode> _items;
     private ListView _listView;
     private ArrayList<Integer> _pointsHit;
+    private Movement _movements;
+
     // FIELDS
 
     // METHODS
-
-    // TODO: Need to clean this and its called fucntions, i am missing something such as padding or something in the calculation.
-    private View FindViewByLocation(float x, float y, View parentView) {
-        View view;
-        int count = 0;
-        // Find out how to tell location from
-        for (IndividualNode node: _items) {
-            if((node.get_coordinateSystem().isWithinBounds(x,y)) && (!node.isHighLight())){
-                node.setHighLight(true);
-                _pointsHit.add(count);
-                break;
-            }
-
-            count++;
-        }
-
-        if(count < _items.size())
-            view = _gridView.getChildAt(count);
-        else
-            view = null;
-
-        return view;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 10;
-        _columns = 10;
+        _rows = 8;
+        _columns = 8;
         _runMode = true;
 
         _gridView = (GridView) findViewById(R.id.gridView);
@@ -125,9 +106,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
-        _gridView.setOnTouchListener(new CustomTouchListener());
+        _gridView.setOnTouchListener(new CustomGridViewTouchListener());
         _pointsHit = new ArrayList<>();
-
+        _movements = new Movement(_items, _rows, _columns);
     }
 
     @Override
@@ -186,15 +167,15 @@ public class MainActivity extends AppCompatActivity {
         _items = new ArrayList<IndividualNode>();
         double xPos = 0, yPos = 0, xDistance, yDistance;
 
-        int width = getWindowManager().getDefaultDisplay().getWidth();
-        int height = getWindowManager().getDefaultDisplay().getHeight();
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
 
         xDistance = width  / _columns;
-        yDistance = (height *.8) / _rows - 20;
+        yDistance = (height *.8) / _rows - 22;
 
-        //_gridView.setLayoutParams(new GridView.LayoutParams(GridView.AUTO_FIT, (int) (height*.75)));
-
-        // TODO: need to fix this so it give the proper coordinates
         for (int i = 0; i < _rows * _columns; i++)
         {
             _items.add(i, new IndividualNode(R.drawable.main, false,
@@ -210,25 +191,31 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setAdapter(_adapter);
     }
 
+
     // METHODS
 
     // CUSTOM LISTENER
     
-    private final class CustomTouchListener implements View.OnTouchListener{
+    private final class CustomGridViewTouchListener implements View.OnTouchListener{
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
             boolean value = false;
-            View node;
+            View node = null;
+            int position;
 
             switch(motionEvent.getAction())
             {
                 case MotionEvent.ACTION_DOWN:
-                    _pointsHit.clear();
-                    node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
+                    position = _movements.InitialPosition(motionEvent.getX(), motionEvent.getY());
+                    if((position < _items.size()) && (position > 0))
+                        node = _gridView.getChildAt(position);
+
                     if(node != null){
-                        if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
+                        if(((ColorDrawable)node.getBackground()).getColor() != Color.BLUE) {
                             node.setBackgroundColor(Color.BLUE);
+                            _items.get(position).setHighLight(true);
+                        }
                         
                         value = true;
                     }
@@ -236,11 +223,16 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    node = FindViewByLocation(motionEvent.getX(), motionEvent.getY(), view);
+                    position = _movements.MovementOccurred(motionEvent.getX(), motionEvent.getY());
+                    if((position < _items.size()) && (position > 0))
+                        node = _gridView.getChildAt(position);
+
                     if(node != null)
                     {
-                        if(((ColorDrawable)node.getBackground()).getColor() == Color.TRANSPARENT)
+                        if(((ColorDrawable)node.getBackground()).getColor() != Color.BLUE){
+                            _items.get(position).setHighLight(true);
                             node.setBackgroundColor(Color.BLUE);
+                        }
 
                         value = true;
                     }
@@ -250,10 +242,13 @@ public class MainActivity extends AppCompatActivity {
                 case MotionEvent.ACTION_UP:
                     // Using this to restore the grid view back to its default view.
                     StringBuilder sentence = new StringBuilder();
-                    for (int point: _pointsHit) {
-                        sentence.append(point + " ");
-                        _items.get(point).setHighLight(false);
+                    for (Movement.MovementType point: _movements.get_movementsMade()) {
+                        sentence.append(point.toString() + " ");
+                    }
+
+                    for (int point:_movements.get_movementPositions()) {
                         node = _gridView.getChildAt(point);
+                        _items.get(point).setHighLight(false);
                         node.setBackgroundColor(Color.TRANSPARENT);
                     }
 
@@ -264,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
             return value;
         }
     }
+
     // CUSTOM LISTENER
 
 
@@ -307,4 +303,5 @@ public class MainActivity extends AppCompatActivity {
     private boolean getRunnableApps(ApplicationInfo pkg) {
         return (getPackageManager().getLaunchIntentForPackage(pkg.packageName) != null);
     }
+
 }
