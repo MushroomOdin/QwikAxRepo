@@ -9,7 +9,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,8 +26,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cmps121.qwikax.Adapters.CustomGridAdapter;
-import cmps121.qwikax.Data_Base.Movement;
+import cmps121.qwikax.AdaptersAndStuff.CustomGridAdapter;
+import cmps121.qwikax.Node_Related.Movement;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
 

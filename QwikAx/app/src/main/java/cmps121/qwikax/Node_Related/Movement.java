@@ -1,12 +1,6 @@
-package cmps121.qwikax.Data_Base;
-
-import android.view.MotionEvent;
-import android.view.View;
+package cmps121.qwikax.Node_Related;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import cmps121.qwikax.Node_Related.IndividualNode;
 
 /**
  * Created by andrew on 10/18/2017.
@@ -33,6 +27,49 @@ public class Movement {
         private final int value;
         MovementType (int value) {this.value = value;}
         public int getValue() {return value;}
+
+        public static MovementType Convert(int position){
+            MovementType type = null;
+            switch (position){
+                case 0:
+                    type = RIGHT;
+                    break;
+
+                case 1:
+                    type = LEFT;
+                    break;
+
+                case 2:
+                    type = UP;
+                    break;
+
+                case 3:
+                    type = DOWN;
+                    break;
+
+                case 4:
+                    type = BOTTOM_RIGHT;
+                    break;
+
+                case 5:
+                    type = BOTTOM_LEFT;
+                    break;
+
+                case 6:
+                    type = TOP_RIGHT;
+                    break;
+
+                case 7:
+                    type = TOP_LEFT;
+                    break;
+
+                case 8:
+                    type = INITIAL_POSITION;
+                    break;
+            }
+
+            return type;
+        }
     }
 
 
@@ -209,8 +246,8 @@ public class Movement {
                 currentMove = MovementType.DOWN;
 
             _movementsMade.add(currentMove);
-            /*if (_lastMovement != null)
-                CheckForDiagonal(currentMove);*/
+            if (_lastMovement != null)
+                CheckForDiagonal(currentMove);
 
             _lastMovement = currentMove;
             int currentPosition = _possiblePositions[position];
