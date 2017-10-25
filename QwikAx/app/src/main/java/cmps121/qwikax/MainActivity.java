@@ -9,13 +9,9 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
-
 import android.os.Bundle;
-//<<<<<<< HEAD
 import android.support.v7.view.menu.MenuView;
 import android.text.Layout;
-//=======
-//>>>>>>> origin/master
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
