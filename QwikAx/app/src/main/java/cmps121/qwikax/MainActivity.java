@@ -12,8 +12,11 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.support.v7.view.menu.MenuView;
+import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -25,6 +28,8 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -96,10 +101,9 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
-
+        //Populates app list and creates a list of "com.~~~~~"
         _listView = (ListView) findViewById(R.id.applicationListView);
         final List<String> appInfo = setList(_listView);
-        //appInfo = setList(_listView);
 
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -145,8 +149,17 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
 
                 // Create new intent and launch the layout with the intent
-                Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(startSettings);
+                //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                //startActivity(startSettings);
+
+                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popup = inflater.inflate(R.layout.settings_menu, null);
+
+                View main = (View) findViewById(R.id.activity_main);
+                PopupWindow settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                settings.showAtLocation(main, Gravity.CENTER, 0, 0);
 
                 break;
 
