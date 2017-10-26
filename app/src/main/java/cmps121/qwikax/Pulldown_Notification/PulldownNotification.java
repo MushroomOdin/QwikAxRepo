@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
+import android.widget.RemoteViews;
 
 
 import cmps121.qwikax.MainActivity;
@@ -44,10 +45,15 @@ public class PulldownNotification extends ContextWrapper {
     }
 
     public Notification.Builder getmChannelNotification(String title, String body){
+
+        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.custom_notification);
+
         return new Notification.Builder(getApplicationContext(),Channel_ID)
-                .setContentText(body)
-                .setContentTitle(title)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+               // .setContentText(body)
+               // .setContentTitle(title)
+
+                .setCustomBigContentView(contentView)
+               // .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setAutoCancel(true);
     }
     
