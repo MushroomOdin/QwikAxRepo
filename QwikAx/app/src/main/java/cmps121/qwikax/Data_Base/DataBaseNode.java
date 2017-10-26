@@ -1,5 +1,7 @@
 package cmps121.qwikax.Data_Base;
 
+import android.provider.ContactsContract;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -13,13 +15,22 @@ public class DataBaseNode implements Serializable {
 
     // CONSTRUCTORS
 
+    //DO not use this but for a mast node.
     public DataBaseNode(){
-        _pointers = new DataBaseNode[8];
+        _pointers = new DataBaseNode[9];
         _appStorage = new ArrayList<>();
     }
 
-    public DataBaseNode(AppStorage appStorage){
-        _pointers = new DataBaseNode[8];
+    // This should be used for most constructors.
+    public DataBaseNode(DataBaseNode previousNode){
+        _pointers = new DataBaseNode[9];
+        _pointers[8] = previousNode;
+        _appStorage = new ArrayList<>();
+    }
+
+    public DataBaseNode(AppStorage appStorage, DataBaseNode previousNode){
+        _pointers = new DataBaseNode[9];
+        _pointers[8] = previousNode;
         _appStorage = new ArrayList<>();
         _appStorage.add(appStorage);
     }
@@ -42,7 +53,7 @@ public class DataBaseNode implements Serializable {
 
     // METHODS
 
-    public DataBaseNode GetDesiredDataBaseNode(Movement.MovementType type){
+    public DataBaseNode MoveToDesiredDataBaseNode(Movement.MovementType type){
         return _pointers[type.getValue()];
     }
 

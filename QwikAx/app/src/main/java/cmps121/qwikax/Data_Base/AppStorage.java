@@ -25,10 +25,14 @@ public class AppStorage implements Serializable{
     // ENUMERATIONS
 
     public enum AccessabilityLevels{
-        LOW,
-        MEDIUM,
-        HIGH,
-        NONE;
+        LOW (1),
+        MEDIUM (2),
+        HIGH(3),
+        NONE(0);
+
+        private final int value;
+        AccessabilityLevels (int value) {this.value = value;}
+        public int getValue() {return value;}
     }
 
     // ENUMERATIONS
