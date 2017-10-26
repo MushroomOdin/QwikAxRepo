@@ -47,15 +47,15 @@ public class PulldownNotification extends ContextWrapper {
     public Notification.Builder getmChannelNotification(String title, String body){
 
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.custom_notification);
-        contentView.setImageViewResource(R.id.image, R.mipmap.ic_launcher);
+       // contentView.setImageViewResource(R.id.image, R.mipmap.ic_launcher);
         contentView.setTextViewText(R.id.title, "QuikAx");
-        contentView.setTextViewText(R.id.text, "This is a custom layout");
+        contentView.setTextViewText(R.id.text, "Draw your symbol:");
 
         return new Notification.Builder(getApplicationContext(),Channel_ID)
                // .setContentText(body)
                // .setContentTitle(title)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
-                .setCustomContentView(contentView)
+                .setCustomBigContentView(contentView)
 
                 .setAutoCancel(true);
     }
