@@ -91,25 +91,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //create notifcation when app starts
+        helper = new PulldownNotification(this);
+        String title = "test title";
+        String content = "test content";
+        Notification.Builder builder = helper.getmChannelNotification(title, content);
+        helper.getManager().notify(1,builder.build());
+
         _rows = 10;
         _columns = 10;
         _runMode = true;
-
-        //create notification
-        helper = new PulldownNotification(this);
-        //note: this button is temporary
-        sendNotification = (Button) findViewById(R.id.notif_button);
-
-        sendNotification.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                String title = "test title";
-                String content = "test content";
-                Notification.Builder builder = helper.getmChannelNotification(title, content);
-                helper.getManager().notify(1,builder.build());
-            }
-        });
-
         _gridView = (GridView) findViewById(R.id.gridView);
         _gridView.setNumColumns(_columns);
         SetAdapter();
