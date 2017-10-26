@@ -1,18 +1,11 @@
 package cmps121.qwikax;
 
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.menu.MenuView;
-import android.text.Layout;
-import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,23 +19,16 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import cmps121.qwikax.Adapters.CustomGridAdapter;
+import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.Movement;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
-
-import static java.lang.Math.floor;
-import static java.lang.Math.floorDiv;
-import static java.lang.Math.floorMod;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,9 +64,12 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
-        //Populates app list and creates a list of "com.~~~~~"
+        //Populates _listView and creates appInfo(list of "com.~~~~~")
+        ListOps apps = new ListOps(getPackageManager(), getBaseContext());
+        final List<String> appInfo = apps.getInfo(getPackageManager());
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, apps.getName());
         _listView = (ListView) findViewById(R.id.applicationListView);
-        final List<String> appInfo = setList(_listView);
+        _listView.setAdapter(appAdapter);
 
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -255,49 +244,6 @@ public class MainActivity extends AppCompatActivity {
             return value;
         }
     }
-
     // CUSTOM LISTENER
-
-
-    //Lists all the available apps on device DONE
-    //Need to only show the useful apps like phone, text, ... instead of the system apps DONE
-    //Clean up by adding the app pictures and setting to grid view
-    //Need to make items clickable to open the app itself DONE
-    public List<String> setList(ListView apps){
-        PackageManager pm = getPackageManager();
-        List<ApplicationInfo> allApps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-        List<String> runnableAppInfo = new ArrayList<String>();
-        List<String> runnableAppName = new ArrayList<String>();
-
-        //Checks to make sure app is runnable before adding it to the list
-        for(ApplicationInfo currentApp : allApps){
-            if(getRunnableApps(currentApp)) {
-                    runnableAppInfo.add(currentApp.packageName);
-                    runnableAppName.add(currentApp.loadLabel(getApplicationContext().getPackageManager()).toString());
-            }
-        }
-
-        //String[] launchableAppArray = new String[runnableAppInfo.size()];
-        String[] presentableAppArray = new String[runnableAppName.size()];
-
-        for(int i=0; i<runnableAppInfo.size(); i++){
-            String app = runnableAppInfo.get(i);
-            String app2 = runnableAppName.get(i);
-            //launchableAppArray[i] = app;
-            presentableAppArray[i] = app2;
-        }
-
-        ArrayList<String> appList = new ArrayList<String>();
-        appList.addAll(Arrays.asList(presentableAppArray));
-        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, appList);
-
-        apps.setAdapter(appAdapter);
-        return runnableAppInfo;
-    }
-
-    //Determines if an application can be launched
-    private boolean getRunnableApps(ApplicationInfo pkg) {
-        return (getPackageManager().getLaunchIntentForPackage(pkg.packageName) != null);
-    }
 
 }
