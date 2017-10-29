@@ -113,7 +113,12 @@ public class Movement {
 
         if(change != null){
             _lastMovement = change;
-            _movementsMade.remove(_movementsMade.size() - 1);
+            int cont = 1;
+            //Removes last two actions (ie {UP RIGHT} => {})
+            while(cont < 3){
+                _movementsMade.remove(_movementsMade.size() - 1);
+                cont++;
+            }
             _movementsMade.add(change);
         }
 
@@ -209,8 +214,8 @@ public class Movement {
                 currentMove = MovementType.DOWN;
 
             _movementsMade.add(currentMove);
-            /*if (_lastMovement != null)
-                CheckForDiagonal(currentMove);*/
+            if (_lastMovement != null)
+                CheckForDiagonal(currentMove);
 
             _lastMovement = currentMove;
             int currentPosition = _possiblePositions[position];
