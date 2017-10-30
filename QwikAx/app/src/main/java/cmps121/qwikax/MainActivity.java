@@ -16,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
@@ -48,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private GridView _gridView;
     private int _rows;
     private int _columns;
+    private int _width;
+    private int _height;
     private boolean _runMode;
 
     private CustomGridAdapter _adapter;
@@ -74,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
             _dataBase = new DataBaseHandler();
         }
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,12 +158,10 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_run_save:
                 _runMode = !_runMode;
-                String status = "";
-                if (_runMode == true){
-                    status = "run ";
-                }else{
-                    status = "save ";
-                }
+                String status = (_runMode) ? "run" : "Save";
+
+
+                _listView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
         }
 
@@ -185,18 +186,18 @@ public class MainActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        int width = size.x;
-        int height = size.y;
+        _width = size.x;
+        _height = size.y;
 
-        xDistance = width  / _columns;
-        yDistance = (height *.8) / _rows - 22;
+        xDistance = _width  / _columns;
+        yDistance = (_height *.8) / _rows - 22;
 
         for (int i = 0; i < _rows * _columns; i++)
         {
             _items.add(i, new IndividualNode(R.drawable.main, false,
                     new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation())));
 
-            if((xPos += xDistance) >= width) {
+            if((xPos += xDistance) >= _width) {
                 xPos = 0;
                 yPos += yDistance;
             }
