@@ -1,5 +1,6 @@
 package cmps121.qwikax;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -9,6 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +22,10 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +33,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cmps121.qwikax.AdaptersAndStuff.CustomGridAdapter;
+import cmps121.qwikax.Data_Base.DataBaseHandler;
 import cmps121.qwikax.Node_Related.Movement;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
+import cmps121.qwikax.Settings.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,10 +55,26 @@ public class MainActivity extends AppCompatActivity {
     private ListView _listView;
     private ArrayList<Integer> _pointsHit;
     private Movement _movements;
+    private DataBaseHandler _dataBase;
 
     // FIELDS
 
     // METHODS
+
+    // Restores our Data Base object from a file.
+    private void LoadDataBaseFromFile(String fileName) {
+        try{
+            FileInputStream fis = getApplicationContext().openFileInput(fileName);
+            ObjectInputStream is = new ObjectInputStream(fis);
+            _dataBase = (DataBaseHandler) is.readObject();
+            is.close();
+            fis.close();
+        }catch(Exception ex){
+            Log.e("Error", ex.getMessage().toString());
+            _dataBase = new DataBaseHandler();
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
         _rows = 8;
         _columns = 8;
         _runMode = true;
+
+        LoadDataBaseFromFile("QwikAxSaveFile.txt");
 
         _gridView = (GridView) findViewById(R.id.gridView);
         _gridView.setNumColumns(_columns);
@@ -101,6 +127,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        SaveDataBaseToFile("QwikAxSaveFile.txt");
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -133,6 +165,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public String removeChars(String s){
+        String chopped = "Could Not Find";
+        Pattern pattern = Pattern.compile("(\\S+om\\S+)");
+        Matcher matcher = pattern.matcher(s);
+        if (matcher.find()){
+            chopped = matcher.group(1).substring(0,matcher.group(1).length() - 1);
+        }
+        return chopped;
     }
 
     // Sets the adapter to the grid view.
@@ -184,14 +226,17 @@ public class MainActivity extends AppCompatActivity {
         apps.setAdapter(appAdapter);
     }
 
-    public String removeChars(String s){
-        String chopped = "Could Not Find";
-        Pattern pattern = Pattern.compile("(\\S+om\\S+)");
-        Matcher matcher = pattern.matcher(s);
-        if (matcher.find()){
-            chopped = matcher.group(1).substring(0,matcher.group(1).length() - 1);
+    private void SaveDataBaseToFile(String fileName){
+        try{
+            FileOutputStream fos = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
+            ObjectOutputStream os = new ObjectOutputStream(fos);
+            os.writeObject(_dataBase);
+            os.close();
+            fos.close();
+        }catch (Exception ex){
+            Log.e("Error", ex.getMessage());
+            Toast.makeText(this,"Data Base was not saved", Toast.LENGTH_LONG).show();
         }
-        return chopped;
     }
 
     // METHODS
@@ -214,11 +259,15 @@ public class MainActivity extends AppCompatActivity {
                         node = _gridView.getChildAt(position);
 
                     if(node != null){
-                        if(((ColorDrawable)node.getBackground()).getColor() != Color.BLUE) {
-                            node.setBackgroundColor(Color.BLUE);
-                            _items.get(position).setHighLight(true);
+                        if(_runMode) {
+                            if (((ColorDrawable) node.getBackground()).getColor() != Color.BLUE) {
+                                node.setBackgroundColor(Color.BLUE);
+                            }
+                        }else{
+                            if (((ColorDrawable) node.getBackground()).getColor() != Color.RED) {
+                                node.setBackgroundColor(Color.RED);
+                            }
                         }
-                        
                         value = true;
                     }
 
@@ -231,9 +280,14 @@ public class MainActivity extends AppCompatActivity {
 
                     if(node != null)
                     {
-                        if(((ColorDrawable)node.getBackground()).getColor() != Color.BLUE){
-                            _items.get(position).setHighLight(true);
-                            node.setBackgroundColor(Color.BLUE);
+                        if(_runMode) {
+                            if (((ColorDrawable) node.getBackground()).getColor() != Color.BLUE) {
+                                node.setBackgroundColor(Color.BLUE);
+                            }
+                        }else{
+                            if (((ColorDrawable) node.getBackground()).getColor() != Color.RED) {
+                                node.setBackgroundColor(Color.RED);
+                            }
                         }
 
                         value = true;
@@ -253,6 +307,9 @@ public class MainActivity extends AppCompatActivity {
                         _items.get(point).setHighLight(false);
                         node.setBackgroundColor(Color.TRANSPARENT);
                     }
+
+                    //if(!_runMode)
+                        //_dataBase.AddNewItemToTree(new AppStorage(,_movements));
 
                     Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
                     break;

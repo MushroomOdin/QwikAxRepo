@@ -49,6 +49,8 @@ public class DataBaseHandler implements Serializable {
 
     // METHODS
 
+    // Used in the creation of the tree / adding a new item to it. This should only be used when adding.
+    // AppStorage contains the Movement class thusly we do not need to worry about adding it in anywhere else.
     public void AddNewItemToTree(AppStorage item){
         Movement movements = item.get_movement();
         DataBaseNode temp = _masterNode;
@@ -79,6 +81,7 @@ public class DataBaseHandler implements Serializable {
         }
     }
 
+    // Used for comparison of a run mode based item only.
     public void NextMovement(Movement.MovementType type) {
         DataBaseNode nextNode;
         if (_traversableNode == null)
@@ -91,13 +94,6 @@ public class DataBaseHandler implements Serializable {
                 case TOP_RIGHT:
                     _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(Movement.MovementType.INITIAL_POSITION);
                     nextNode = _traversableNode.MoveToDesiredDataBaseNode(type);
-                    if (nextNode != null)
-                        _traversableNode = nextNode;
-                    else {
-                        _traversableNode.SetDesiredDataBaseNode(type, new DataBaseNode(_traversableNode));
-                        _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
-                    }
-
                     break;
 
                 case DOWN:
@@ -105,18 +101,19 @@ public class DataBaseHandler implements Serializable {
                 case LEFT:
                 case RIGHT:
                     nextNode = _traversableNode.MoveToDesiredDataBaseNode(type);
-                    if (nextNode != null)
-                        _traversableNode = nextNode;
-                    else {
-                        _traversableNode.SetDesiredDataBaseNode(type, new DataBaseNode(_traversableNode));
-                        _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
-                    }
-                    break;
+
+                default:
+                    nextNode = null;
+            }
+
+            if (nextNode != null)
+                _traversableNode = nextNode;
+            else {
+                _traversableNode.SetDesiredDataBaseNode(type, new DataBaseNode(_traversableNode));
+                _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
             }
 
         }
-
-        _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
 
         FindAllPossibleApplicationsInTree(_traversableNode);
         SortPossibleApplicationsList();
