@@ -2,27 +2,28 @@ package cmps121.qwikax;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
-import android.support.v7.app.AppCompatActivity;
-
 import android.os.Bundle;
-<<<<<<< HEAD
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-=======
->>>>>>> master
 import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
@@ -35,15 +36,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-<<<<<<< HEAD
 import cmps121.qwikax.AdaptersAndStuff.CustomGridAdapter;
+import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
-import cmps121.qwikax.Node_Related.Movement;
-=======
->>>>>>> master
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
-import cmps121.qwikax.Settings.SettingsActivity;
+import cmps121.qwikax.Node_Related.Movement;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
         final List<String> appInfo = apps.getInfo(getPackageManager());
         ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, apps.getName());
         _listView = (ListView) findViewById(R.id.applicationListView);
-        setList(_listView);
         _listView.setAdapter(appAdapter);
 
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
@@ -112,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //Toast.makeText(getApplicationContext(), arrayItemsInList[i], Toast.LENGTH_SHORT).show();
                 if(_runMode == true) {
-                    String chosenApp = _listView.getItemAtPosition(i).toString();
                     String chosenApp = appInfo.get(i).toString();
                     if (chosenApp != null) {
                         Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
@@ -157,6 +153,17 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
 
                 // Create new intent and launch the layout with the intent
+                //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                //startActivity(startSettings);
+
+                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popup = inflater.inflate(R.layout.settings_menu, null);
+
+                View main = (View) findViewById(R.id.activity_main);
+                PopupWindow settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                settings.showAtLocation(main, Gravity.CENTER, 0, 0);
 
                 break;
 
@@ -215,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setAdapter(_adapter);
     }
 
-<<<<<<< HEAD
     //Lists all the available apps on device
     //Need to only show the useful apps like phone, text, ... instead of the system apps
     //Clean up by adding the app pictures and setting to grid view
@@ -248,8 +254,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this,"Data Base was not saved", Toast.LENGTH_LONG).show();
         }
     }
-=======
->>>>>>> master
 
     // METHODS
 
