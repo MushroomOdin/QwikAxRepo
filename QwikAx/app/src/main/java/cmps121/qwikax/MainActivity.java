@@ -2,15 +2,16 @@ package cmps121.qwikax;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+<<<<<<< HEAD
 import android.util.Log;
+=======
+>>>>>>> master
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,9 +35,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+<<<<<<< HEAD
 import cmps121.qwikax.AdaptersAndStuff.CustomGridAdapter;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
 import cmps121.qwikax.Node_Related.Movement;
+=======
+>>>>>>> master
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
 import cmps121.qwikax.Settings.SettingsActivity;
@@ -94,8 +98,13 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
+        //Populates _listView and creates appInfo(list of "com.~~~~~")
+        ListOps apps = new ListOps(getPackageManager(), getBaseContext());
+        final List<String> appInfo = apps.getInfo(getPackageManager());
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, apps.getName());
         _listView = (ListView) findViewById(R.id.applicationListView);
         setList(_listView);
+        _listView.setAdapter(appAdapter);
 
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -104,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), arrayItemsInList[i], Toast.LENGTH_SHORT).show();
                 if(_runMode == true) {
                     String chosenApp = _listView.getItemAtPosition(i).toString();
+                    String chosenApp = appInfo.get(i).toString();
                     if (chosenApp != null) {
                         Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
                         if (Launch != null) {
@@ -147,8 +157,6 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
 
                 // Create new intent and launch the layout with the intent
-                Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(startSettings);
 
                 break;
 
@@ -207,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setAdapter(_adapter);
     }
 
+<<<<<<< HEAD
     //Lists all the available apps on device
     //Need to only show the useful apps like phone, text, ... instead of the system apps
     //Clean up by adding the app pictures and setting to grid view
@@ -239,6 +248,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this,"Data Base was not saved", Toast.LENGTH_LONG).show();
         }
     }
+=======
+>>>>>>> master
 
     // METHODS
 
@@ -319,6 +330,6 @@ public class MainActivity extends AppCompatActivity {
             return value;
         }
     }
-
     // CUSTOM LISTENER
+
 }
