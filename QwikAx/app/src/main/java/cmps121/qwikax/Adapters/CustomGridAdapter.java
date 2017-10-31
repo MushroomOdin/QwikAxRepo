@@ -1,4 +1,4 @@
-package cmps121.qwikax.AdaptersAndStuff;
+package cmps121.qwikax.Adapters;
 
 import android.app.Activity;
 import android.graphics.Color;

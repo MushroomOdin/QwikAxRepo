@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cmps121.qwikax.AdaptersAndStuff.CustomGridAdapter;
+import cmps121.qwikax.Adapters.CustomGridAdapter;
 import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
@@ -46,8 +46,6 @@ import cmps121.qwikax.Node_Related.Movement;
 public class MainActivity extends AppCompatActivity {
 
     // FIELDS
-
-    // Testing for push
 
     private GridView _gridView;
     private int _rows;
@@ -148,23 +146,21 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        View main;
+        View popup;
+        LayoutInflater inflater;
+        PopupWindow settings;
+
         switch(id) {
             case R.id.action_settings:
-                //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
+                inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                popup = inflater.inflate(R.layout.settings_menu, null);
 
-                // Create new intent and launch the layout with the intent
-                //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
-                //startActivity(startSettings);
-
-                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popup = inflater.inflate(R.layout.settings_menu, null);
-
-                View main = (View) findViewById(R.id.activity_main);
-                PopupWindow settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
+                main = (View) findViewById(R.id.activity_main);
+                settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
 
                 settings.showAtLocation(main, Gravity.CENTER, 0, 0);
-
                 break;
 
             case R.id.action_profile:
@@ -175,8 +171,14 @@ public class MainActivity extends AppCompatActivity {
                 _runMode = !_runMode;
                 String status = (_runMode) ? "run" : "Save";
 
+                inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                popup = inflater.inflate(R.layout.activity_save_mode, null);
 
-                _listView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                main = (View) findViewById(R.id.activity_main);
+                settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                settings.showAtLocation(main, Gravity.CENTER, 0, 0);
                 Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
         }
 
@@ -191,6 +193,19 @@ public class MainActivity extends AppCompatActivity {
             chopped = matcher.group(1).substring(0,matcher.group(1).length() - 1);
         }
         return chopped;
+    }
+
+    private void SaveDataBaseToFile(String fileName){
+        try{
+            FileOutputStream fos = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
+            ObjectOutputStream os = new ObjectOutputStream(fos);
+            os.writeObject(_dataBase);
+            os.close();
+            fos.close();
+        }catch (Exception ex){
+            Log.e("Error", ex.getMessage());
+            Toast.makeText(this,"Data Base was not saved", Toast.LENGTH_LONG).show();
+        }
     }
 
     // Sets the adapter to the grid view.
@@ -240,19 +255,6 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, appList);
 
         apps.setAdapter(appAdapter);
-    }
-
-    private void SaveDataBaseToFile(String fileName){
-        try{
-            FileOutputStream fos = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
-            ObjectOutputStream os = new ObjectOutputStream(fos);
-            os.writeObject(_dataBase);
-            os.close();
-            fos.close();
-        }catch (Exception ex){
-            Log.e("Error", ex.getMessage());
-            Toast.makeText(this,"Data Base was not saved", Toast.LENGTH_LONG).show();
-        }
     }
 
     // METHODS
@@ -334,6 +336,7 @@ public class MainActivity extends AppCompatActivity {
             return value;
         }
     }
+
     // CUSTOM LISTENER
 
 }
