@@ -26,6 +26,7 @@ import java.util.List;
 
 import cmps121.qwikax.Adapters.CustomGridAdapter;
 import cmps121.qwikax.App_List.ListOps;
+import cmps121.qwikax.Data_Base.ApplicationStorage;
 import cmps121.qwikax.Data_Base.Movement;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
@@ -46,6 +47,11 @@ public class MainActivity extends AppCompatActivity {
     private ListView _listView;
     private ArrayList<Integer> _pointsHit;
     private Movement _movements;
+    private List<ApplicationStorage> _storedApps = new ArrayList<>();
+
+    private String _selectedAppName;
+    private String _selectedAppRunnable;
+    private Boolean _hasSelection = false;
 
     // FIELDS
 
@@ -67,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         //Populates _listView and creates appInfo(list of "com.~~~~~")
         ListOps apps = new ListOps(getPackageManager(), getBaseContext());
         final List<String> appInfo = apps.getInfo(getPackageManager());
-        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, apps.getName());
+        final ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, apps.getName());
         _listView = (ListView) findViewById(R.id.applicationListView);
         _listView.setAdapter(appAdapter);
 
@@ -85,7 +91,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }else{
-                    Toast.makeText(getApplicationContext(), "Cannot run in save mode", Toast.LENGTH_SHORT).show();
+                    _selectedAppName = _listView.getItemAtPosition(i).toString();
+                    _selectedAppRunnable = appInfo.get(i).toString();
+                    Toast.makeText(getApplicationContext(), "Please enter your gesture for "
+                                            + _selectedAppName, Toast.LENGTH_SHORT).show();
+                    _hasSelection = true;
                 }
             }
         });
@@ -237,7 +247,37 @@ public class MainActivity extends AppCompatActivity {
                         node.setBackgroundColor(Color.TRANSPARENT);
                     }
 
-                    Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
+                    // movementEquals isnt working yet
+                    if(_runMode == true) {
+                        if (!_storedApps.isEmpty()) {
+                            for (ApplicationStorage current : _storedApps) {
+                                if(current.movementEquals(_movements)) {
+                                    // Run the app that matches the movement
+                                    //Toast.makeText(getApplicationContext(), current.getName(), Toast.LENGTH_SHORT).show();
+
+                                    String chosenApp = current.get_absoluteName();
+                                    if (chosenApp != null) {
+                                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                                        if (Launch != null) {
+                                            startActivity(Launch);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }else{
+                        if(_hasSelection){
+                            // Save the selection
+                            ApplicationStorage savedApp = new ApplicationStorage(_movements, _selectedAppRunnable, _selectedAppName);
+                            _storedApps.add(savedApp);
+                            Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+
+                        }else{
+                            Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    //Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
                     break;
             }
 
