@@ -19,7 +19,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".Settings.SettingsActivity" />
-        <activity android:name=".Settings.SaveMode"></activity>
     </application>
 
 </manifest>

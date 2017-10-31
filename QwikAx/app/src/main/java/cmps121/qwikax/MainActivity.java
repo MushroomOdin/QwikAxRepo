@@ -155,12 +155,8 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_run_save:
                 _runMode = !_runMode;
-                String status = "";
-                if (_runMode == true){
-                    status = "run ";
-                }else{
-                    status = "save ";
-                }
+
+                String status = (_runMode)? "run": "save";
                 Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
         }
 
