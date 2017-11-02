@@ -21,20 +21,13 @@
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-        <GridView
-            android:id="@+id/gridView"
+        <cmps121.qwikax.AdaptersAndStuff.DrawingView
+            android:id="@+id/drawingView"
             android:layout_width="fill_parent"
             android:layout_height="0px"
             android:layout_weight="4"
-            android:gravity="center"
-            android:stretchMode="columnWidth"/>
 
-    <!--    <include
-            android:layout_width="fill_parent"
-            android:layout_height="0px"
-            android:layout_weight="4"
-            layout="@layout/grid_view"
-            />-->
+            android:background="#87cefa"/>
 
         <ListView
             android:id="@+id/applicationListView"
