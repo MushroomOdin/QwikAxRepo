@@ -21,13 +21,22 @@
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-        <GridView
-            android:id="@+id/gridView"
+        <com.cmps121.qwikax.SquareLayout
+            android:id="@+id/layout"
             android:layout_width="fill_parent"
-            android:layout_height="0px"
-            android:layout_weight="4"
-            android:gravity="center"
-            android:stretchMode="columnWidth"/>
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+            <GridView
+                android:id="@+id/gridView"
+                android:layout_width="fill_parent"
+                android:layout_height="0px"
+                android:layout_weight="4"
+                android:gravity="center"
+                android:stretchMode="columnWidth"/>
+
+        </com.cmps121.qwikax.SquareLayout>
+
 
     <!--    <include
             android:layout_width="fill_parent"
