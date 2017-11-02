@@ -72,12 +72,11 @@ public class Movement {
         }
     }
 
-
     // ENUMERATION
 
     // FIELDS
 
-    private ArrayList<IndividualNode> _items;
+    private ArrayList<CoordinateSystem> _items;
     private int[] _possiblePositions;
     private int _initialPosition;
     private MovementType _lastMovement;
@@ -90,7 +89,7 @@ public class Movement {
 
     // CONSTRUCTORS
 
-    public Movement(ArrayList<IndividualNode> items, int rows, int columns){
+    public Movement(ArrayList<CoordinateSystem> items, int rows, int columns){
         _items = items;
         _possiblePositions = new int[4];
         _rows = rows;
@@ -156,13 +155,17 @@ public class Movement {
 
     }
 
+    // Coppies the current object to presever the original.
+    public Movement Copy(){
+       return new Movement(this._items, this._rows, this._columns);
+    }
+
     // Finds the location of the view depending on the initial x,y location.
     private int FindInitialViewByLocation(float x, float y) {
         int count = 0;
         // Find out how to tell location from
-        for (IndividualNode node: _items) {
-            if((node.get_coordinateSystem().isWithinBounds(x,y)) && (!node.isHighLight())){
-                node.setHighLight(true);
+        for (CoordinateSystem node: _items) {
+            if(node.isWithinBounds(x,y)){
                 break;
             }
 
@@ -207,7 +210,7 @@ public class Movement {
         int count = 0;
         for (int position: _possiblePositions) {
             if(position != -1)
-                if(_items.get(position).get_coordinateSystem().isWithinBounds(x,y))
+                if(_items.get(position).isWithinBounds(x,y))
                     break;
 
             count++;
@@ -276,7 +279,7 @@ public class Movement {
     public ArrayList<MovementType> get_movementsMade(){ return _movementsMade; }
     public ArrayList<Integer> get_movementPositions(){ return _movementPositions; }
     public int get_initialPosition(){return _initialPosition; }
-    public ArrayList<IndividualNode> get_items(){return _items; }
+    public ArrayList<CoordinateSystem> get_items(){return _items; }
 
     // GETTERS AND SETTERS
 }

@@ -84,6 +84,12 @@ public class DataBaseHandler implements Serializable {
         }
     }
 
+    public void InitialMovement(){
+        _traversableNode = _masterNode;
+        _currentMatches.clear();
+         FindAllPossibleApplicationsInTree(_traversableNode,_currentMatches);
+    }
+
     // Used for comparison of a run mode based item only.
     public void NextMovement(Movement.MovementType type, ArrayList<Movement> movements) {
         DataBaseNode nextNode;
@@ -112,16 +118,14 @@ public class DataBaseHandler implements Serializable {
 
             if (nextNode != null) {
                 _traversableNode = nextNode;
+                _currentMatches.clear();
                 FindAllPossibleApplicationsInTree(_traversableNode, _currentMatches);
                 _currentMatches = SortPossibleApplicationsList(_currentMatches);
             }else {
                 _traversableNode.SetDesiredDataBaseNode(type, new DataBaseNode(_traversableNode));
                 _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
             }
-
         }
-
-
     }
 
     private void RemoveDuplicatesFromList(ArrayList<AppStorage> list){

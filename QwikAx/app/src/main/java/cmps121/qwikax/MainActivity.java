@@ -33,6 +33,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cmps121.qwikax.AdaptersAndStuff.CustomGridAdapter;
+import cmps121.qwikax.AdaptersAndStuff.DrawingView;
+import cmps121.qwikax.Data_Base.AppStorage;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
 import cmps121.qwikax.Node_Related.Movement;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
@@ -45,14 +47,14 @@ public class MainActivity extends AppCompatActivity {
 
     // Testing for push
 
-    private GridView _gridView;
+    //private GridView _gridView;
     private int _rows;
     private int _columns;
     private boolean _runMode;
 
-    private CustomGridAdapter _adapter;
+   //private CustomGridAdapter _adapter;
     private ListView _listView;
-    private ArrayList<Integer> _pointsHit;
+    private DrawingView _drawingView;
     private Movement _movements;
     private DataBaseHandler _dataBase;
 
@@ -84,11 +86,12 @@ public class MainActivity extends AppCompatActivity {
         _columns = 8;
         _runMode = true;
 
-        LoadDataBaseFromFile("QwikAxSaveFile.txt");
+        //LoadDataBaseFromFile("QwikAxSaveFile.txt");
 
-        _gridView = (GridView) findViewById(R.id.gridView);
-        _gridView.setNumColumns(_columns);
-        ArrayList<IndividualNode> items = SetAdapter();
+        _drawingView = (DrawingView) findViewById(R.id.drawingView);
+        //_drawingView.Initialize();
+
+        ArrayList<CoordinateSystem> items = SetAdapter();
 
         _listView = (ListView) findViewById(R.id.applicationListView);
         setList(_listView);
@@ -113,8 +116,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
-        _gridView.setOnTouchListener(new CustomGridViewTouchListener());
-        _pointsHit = new ArrayList<>();
+        _drawingView.setOnTouchListener(new CustomGridViewTouchListener());
         _movements = new Movement(items, _rows, _columns);
     }
 
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        SaveDataBaseToFile("QwikAxSaveFile.txt");
+        //SaveDataBaseToFile("QwikAxSaveFile.txt");
         super.onDestroy();
     }
 
@@ -173,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Sets the adapter to the grid view.
-    private ArrayList<IndividualNode> SetAdapter() {
-        ArrayList<IndividualNode> items = new ArrayList<IndividualNode>();
+    private ArrayList<CoordinateSystem> SetAdapter() {
+        ArrayList<CoordinateSystem> items = new ArrayList<>();
         double xPos = 0, yPos = 0, xDistance, yDistance;
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -184,12 +186,12 @@ public class MainActivity extends AppCompatActivity {
         int height = size.y;
 
         xDistance = width  / _columns;
-        yDistance = (height *.8) / _rows - 22;
+        // TODO: get rid of the constant.
+        yDistance = (height *.8) / _rows;
 
         for (int i = 0; i < _rows * _columns; i++)
         {
-            items.add(i, new IndividualNode(R.drawable.main, false,
-                    new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation())));
+            items.add(i, new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation()));
 
             if((xPos += xDistance) >= width) {
                 xPos = 0;
@@ -197,8 +199,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        _adapter = new CustomGridAdapter(this, R.layout.node, items, _rows, _columns, (int) yDistance);
-        _gridView.setAdapter(_adapter);
+        //_adapter = new CustomGridAdapter(this, R.layout.node, items, _rows, _columns, (int) yDistance);
+        //_gridView.setAdapter(_adapter);
 
         return items;
     }
@@ -246,70 +248,34 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
             boolean value = false;
-            View node = null;
-            int position;
+            float x,y;
+
+            x = motionEvent.getX();
+            y = motionEvent.getY();
 
             switch(motionEvent.getAction())
             {
                 case MotionEvent.ACTION_DOWN:
-                    position = _movements.InitialPosition(motionEvent.getX(), motionEvent.getY());
-                    if((position < _movements.get_items().size()) && (position > 0))
-                        node = _gridView.getChildAt(position);
-
-                    if(node != null){
-                        if(_runMode) {
-                            if (((ColorDrawable) node.getBackground()).getColor() != Color.BLUE) {
-                                node.setBackgroundColor(Color.BLUE);
-                            }
-                        }else{
-                            if (((ColorDrawable) node.getBackground()).getColor() != Color.RED) {
-                                node.setBackgroundColor(Color.RED);
-                            }
-                        }
-                        value = true;
-                    }
+                    _movements.InitialPosition(x, y);
+                    _drawingView.touch_start(x, y);
+                    _drawingView.invalidate();
+                    //_dataBase.InitialMovement();
 
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    position = _movements.MovementOccurred(motionEvent.getX(), motionEvent.getY());
-                    if((position < _movements.get_items().size()) && (position > 0))
-                        node = _gridView.getChildAt(position);
-
-                    if(node != null)
-                    {
-                        if(_runMode) {
-                            if (((ColorDrawable) node.getBackground()).getColor() != Color.BLUE) {
-                                node.setBackgroundColor(Color.BLUE);
-                            }
-                        }else{
-                            if (((ColorDrawable) node.getBackground()).getColor() != Color.RED) {
-                                node.setBackgroundColor(Color.RED);
-                            }
-                        }
-
-                        value = true;
-                    }
+                    _movements.MovementOccurred(x, y);
+                    _drawingView.touch_move(x,y);
+                    _drawingView.invalidate();
 
                     break;
 
                 case MotionEvent.ACTION_UP:
-                    // Using this to restore the grid view back to its default view.
-                    StringBuilder sentence = new StringBuilder();
-                    for (Movement.MovementType point: _movements.get_movementsMade()) {
-                        sentence.append(point.toString() + " ");
-                    }
-
-                    for (int point:_movements.get_movementPositions()) {
-                        node = _gridView.getChildAt(point);
-                        _movements.get_items().get(point).setHighLight(false);
-                        node.setBackgroundColor(Color.TRANSPARENT);
-                    }
-
+                    _drawingView.touch_up();
+                    _drawingView.invalidate();
                     //if(!_runMode)
-                        //_dataBase.AddNewItemToTree(new AppStorage(,_movements));
+                    //    _dataBase.AddNewItemToTree(new AppStorage(_movements.Copy(), AppStorage.AccessabilityLevels.NONE,null, null));
 
-                    Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
                     break;
             }
 
