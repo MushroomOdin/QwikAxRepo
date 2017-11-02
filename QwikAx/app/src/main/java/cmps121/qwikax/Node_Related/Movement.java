@@ -275,7 +275,8 @@ public class Movement {
     public int[] get_possiblePositions() { return _possiblePositions; }
     public ArrayList<MovementType> get_movementsMade(){ return _movementsMade; }
     public ArrayList<Integer> get_movementPositions(){ return _movementPositions; }
-    public int get_initialPosition(){return _initialPosition;}
+    public int get_initialPosition(){return _initialPosition; }
+    public ArrayList<IndividualNode> get_items(){return _items; }
 
     // GETTERS AND SETTERS
 }

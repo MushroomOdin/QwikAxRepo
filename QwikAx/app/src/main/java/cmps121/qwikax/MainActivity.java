@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean _runMode;
 
     private CustomGridAdapter _adapter;
-    private ArrayList<IndividualNode> _items;
     private ListView _listView;
     private ArrayList<Integer> _pointsHit;
     private Movement _movements;
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
         _gridView = (GridView) findViewById(R.id.gridView);
         _gridView.setNumColumns(_columns);
-        SetAdapter();
+        ArrayList<IndividualNode> items = SetAdapter();
 
         _listView = (ListView) findViewById(R.id.applicationListView);
         setList(_listView);
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _gridView.setOnTouchListener(new CustomGridViewTouchListener());
         _pointsHit = new ArrayList<>();
-        _movements = new Movement(_items, _rows, _columns);
+        _movements = new Movement(items, _rows, _columns);
     }
 
     @Override
@@ -174,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Sets the adapter to the grid view.
-    private void SetAdapter() {
-        _items = new ArrayList<IndividualNode>();
+    private ArrayList<IndividualNode> SetAdapter() {
+        ArrayList<IndividualNode> items = new ArrayList<IndividualNode>();
         double xPos = 0, yPos = 0, xDistance, yDistance;
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -189,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < _rows * _columns; i++)
         {
-            _items.add(i, new IndividualNode(R.drawable.main, false,
+            items.add(i, new IndividualNode(R.drawable.main, false,
                     new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation())));
 
             if((xPos += xDistance) >= width) {
@@ -198,8 +197,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        _adapter = new CustomGridAdapter(this, R.layout.node, _items, _rows, _columns, (int) yDistance);
+        _adapter = new CustomGridAdapter(this, R.layout.node, items, _rows, _columns, (int) yDistance);
         _gridView.setAdapter(_adapter);
+
+        return items;
     }
 
     //Lists all the available apps on device
@@ -222,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
         apps.setAdapter(appAdapter);
     }
 
+    // Used to save the data base to a file.
     private void SaveDataBaseToFile(String fileName){
         try{
             FileOutputStream fos = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
@@ -251,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 case MotionEvent.ACTION_DOWN:
                     position = _movements.InitialPosition(motionEvent.getX(), motionEvent.getY());
-                    if((position < _items.size()) && (position > 0))
+                    if((position < _movements.get_items().size()) && (position > 0))
                         node = _gridView.getChildAt(position);
 
                     if(node != null){
@@ -271,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
 
                 case MotionEvent.ACTION_MOVE:
                     position = _movements.MovementOccurred(motionEvent.getX(), motionEvent.getY());
-                    if((position < _items.size()) && (position > 0))
+                    if((position < _movements.get_items().size()) && (position > 0))
                         node = _gridView.getChildAt(position);
 
                     if(node != null)
@@ -300,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
                     for (int point:_movements.get_movementPositions()) {
                         node = _gridView.getChildAt(point);
-                        _items.get(point).setHighLight(false);
+                        _movements.get_items().get(point).setHighLight(false);
                         node.setBackgroundColor(Color.TRANSPARENT);
                     }
 

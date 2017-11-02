@@ -20,13 +20,15 @@ public class DataBaseHandler implements Serializable {
     public DataBaseHandler(){
         _masterNode = new DataBaseNode();
         _traversableNode = null;
-        _possibleMatches = new ArrayList<>();
+        _currentMatches = new ArrayList<>();
+        _potentialMatches = null;
     }
 
     public DataBaseHandler(DataBaseNode master){
         _masterNode = master;
         _traversableNode = null;
-        _possibleMatches = new ArrayList<>();
+        _currentMatches = new ArrayList<>();
+        _potentialMatches = null;
     }
 
     // CONSTRUCTORS
@@ -35,14 +37,15 @@ public class DataBaseHandler implements Serializable {
 
     private DataBaseNode _masterNode;
     private DataBaseNode _traversableNode;
-    private ArrayList<AppStorage> _possibleMatches;
+    private ArrayList<AppStorage> _currentMatches;
+    private ArrayList<AppStorage> _potentialMatches;
 
     // FIELDS
 
     // GETTERS
 
     public DataBaseNode get_masterNode(){return _masterNode;}
-    public ArrayList<AppStorage> get_possibleMatches(){return _possibleMatches;}
+    public ArrayList<AppStorage> get_currentMatches(){return _currentMatches;}
     public DataBaseNode get_traversableNode(){return _traversableNode;}
 
     // GETTERS
@@ -67,22 +70,22 @@ public class DataBaseHandler implements Serializable {
         temp.AddAppStorageToList(item);
     }
 
-    private void FindAllPossibleApplicationsInTree(DataBaseNode node){
+    private void FindAllPossibleApplicationsInTree(DataBaseNode node, ArrayList<AppStorage> list){
         for(int count = 0; count < 8; count++){
             DataBaseNode currentNode = node.MoveToDesiredDataBaseNode(Movement.MovementType.Convert(count));
             if( currentNode != null) {
                 if(currentNode.get_appStorage().size() != 0) {
-                    _possibleMatches.addAll(currentNode.get_appStorage());
-                    RemoveDuplicatesFromList();
+                    list.addAll(currentNode.get_appStorage());
+                    RemoveDuplicatesFromList(list);
                 }
 
-                FindAllPossibleApplicationsInTree(currentNode);
+                FindAllPossibleApplicationsInTree(currentNode, list);
             }
         }
     }
 
     // Used for comparison of a run mode based item only.
-    public void NextMovement(Movement.MovementType type) {
+    public void NextMovement(Movement.MovementType type, ArrayList<Movement> movements) {
         DataBaseNode nextNode;
         if (_traversableNode == null)
             _traversableNode = _masterNode.MoveToDesiredDataBaseNode(type);
@@ -101,31 +104,33 @@ public class DataBaseHandler implements Serializable {
                 case LEFT:
                 case RIGHT:
                     nextNode = _traversableNode.MoveToDesiredDataBaseNode(type);
+                break;
 
                 default:
                     nextNode = null;
             }
 
-            if (nextNode != null)
+            if (nextNode != null) {
                 _traversableNode = nextNode;
-            else {
+                FindAllPossibleApplicationsInTree(_traversableNode, _currentMatches);
+                _currentMatches = SortPossibleApplicationsList(_currentMatches);
+            }else {
                 _traversableNode.SetDesiredDataBaseNode(type, new DataBaseNode(_traversableNode));
                 _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
             }
 
         }
 
-        FindAllPossibleApplicationsInTree(_traversableNode);
-        SortPossibleApplicationsList();
+
     }
 
-    private void RemoveDuplicatesFromList(){
+    private void RemoveDuplicatesFromList(ArrayList<AppStorage> list){
         ArrayList<String> itemNames = new ArrayList<>();
         int count = 0;
-        while(count < _possibleMatches.size()) {
-            String name = _possibleMatches.get(count).get_abesoluteName();
+        while(count < list.size()) {
+            String name = list.get(count).get_abesoluteName();
             if (itemNames.contains(name))
-                _possibleMatches.remove(count);
+                list.remove(count);
             else
                 itemNames.add(name);
 
@@ -133,13 +138,13 @@ public class DataBaseHandler implements Serializable {
         }
     }
 
-    private void SortPossibleApplicationsList() {
+    private ArrayList<AppStorage> SortPossibleApplicationsList(ArrayList<AppStorage> list) {
         ArrayList<AppStorage> comparison = new ArrayList<>();
-        for (int count = 0; count < _possibleMatches.size(); count++) {
+        for (int count = 0; count < list.size(); count++) {
             if (comparison.size() == 0)
-                comparison.add(_possibleMatches.get(count));
+                comparison.add(list.get(count));
             else {
-                AppStorage temp = _possibleMatches.get(count);
+                AppStorage temp = list.get(count);
                 Boolean added = false;
                 for (int i = 0; i < comparison.size(); i++) {
                     AppStorage.AccessabilityLevels level = comparison.get(i).get_accessabilityLevel();
@@ -157,7 +162,7 @@ public class DataBaseHandler implements Serializable {
             }
         }
 
-        _possibleMatches = comparison;
+        return comparison;
     }
 
     // METHODS
