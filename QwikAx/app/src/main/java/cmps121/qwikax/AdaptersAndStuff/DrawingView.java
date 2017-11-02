@@ -23,17 +23,17 @@ public class DrawingView extends View {
     private Paint _bitmapPaint;
     private Paint _circlePaint;
     private Path _circlePath;
-
     private Paint _paint;
 
     private static final String CHECK = "MyActivity";
     private static final float TOUCH_TOLERANCE = 4;
+
     public DrawingView(Context c, AttributeSet set) {
         super(c, set);
         Initialize();
     }
 
-    // Intializes the drawing view and what we draw to it.
+    // Initializes the drawing view and what we draw to it.
     public void Initialize(){
         _path = new Path();
         _bitmapPaint = new Paint(Paint.DITHER_FLAG);
@@ -53,6 +53,11 @@ public class DrawingView extends View {
         _paint.setStrokeJoin(Paint.Join.ROUND);
         _paint.setStrokeCap(Paint.Cap.ROUND);
         _paint.setStrokeWidth(10);
+    }
+
+    public void ClearCanvas(){
+        _bitmap.eraseColor(Color.TRANSPARENT);
+        _canvas = new Canvas(_bitmap);
     }
 
     @Override
@@ -99,6 +104,8 @@ public class DrawingView extends View {
         Log.i(CHECK, "check: " + _canvas.getWidth());
         _path.reset();
     }
+
+
 
     // GETTERS AND SETTERS
 

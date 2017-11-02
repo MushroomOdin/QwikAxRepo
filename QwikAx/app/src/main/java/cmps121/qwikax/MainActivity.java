@@ -32,27 +32,21 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cmps121.qwikax.AdaptersAndStuff.CustomGridAdapter;
+
 import cmps121.qwikax.AdaptersAndStuff.DrawingView;
-import cmps121.qwikax.Data_Base.AppStorage;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
 import cmps121.qwikax.Node_Related.Movement;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
-import cmps121.qwikax.Node_Related.IndividualNode;
 import cmps121.qwikax.Settings.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     // FIELDS
 
-    // Testing for push
-
-    //private GridView _gridView;
     private int _rows;
     private int _columns;
     private boolean _runMode;
 
-   //private CustomGridAdapter _adapter;
     private ListView _listView;
     private DrawingView _drawingView;
     private Movement _movements;
@@ -89,8 +83,6 @@ public class MainActivity extends AppCompatActivity {
         //LoadDataBaseFromFile("QwikAxSaveFile.txt");
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
-        //_drawingView.Initialize();
-
         ArrayList<CoordinateSystem> items = SetAdapter();
 
         _listView = (ListView) findViewById(R.id.applicationListView);
@@ -199,9 +191,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        //_adapter = new CustomGridAdapter(this, R.layout.node, items, _rows, _columns, (int) yDistance);
-        //_gridView.setAdapter(_adapter);
-
         return items;
     }
 
@@ -258,27 +247,34 @@ public class MainActivity extends AppCompatActivity {
                 case MotionEvent.ACTION_DOWN:
                     _movements.InitialPosition(x, y);
                     _drawingView.touch_start(x, y);
-                    _drawingView.invalidate();
-                    //_dataBase.InitialMovement();
-
+                    _drawingView.ClearCanvas();
+                    //_dataBase.InitialMoClearCanvasvement();
+                    value = true;
                     break;
 
                 case MotionEvent.ACTION_MOVE:
                     _movements.MovementOccurred(x, y);
                     _drawingView.touch_move(x,y);
-                    _drawingView.invalidate();
-
+                    value = true;
                     break;
 
                 case MotionEvent.ACTION_UP:
                     _drawingView.touch_up();
-                    _drawingView.invalidate();
+                    value = true;
+
+                    StringBuilder sentence = new StringBuilder();
+                    for(Movement.MovementType move : _movements.get_movementsMade()){
+                        sentence.append(move.toString() + " ");
+                    }
+
+                    Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
                     //if(!_runMode)
                     //    _dataBase.AddNewItemToTree(new AppStorage(_movements.Copy(), AppStorage.AccessabilityLevels.NONE,null, null));
 
                     break;
             }
 
+            _drawingView.postInvalidate();
             return value;
         }
     }

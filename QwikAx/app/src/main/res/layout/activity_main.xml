@@ -24,7 +24,8 @@
             android:id="@+id/drawingView"
             android:layout_width="fill_parent"
             android:layout_height="0px"
-            android:layout_weight="4" />
+            android:layout_weight="4"
+            android:background="#87cefa"/>
 
     <!--    <include
             android:layout_width="fill_parent"
