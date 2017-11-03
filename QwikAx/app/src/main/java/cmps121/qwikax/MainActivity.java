@@ -38,7 +38,7 @@ import cmps121.qwikax.Node_Related.IndividualNode;
 public class MainActivity extends AppCompatActivity {
 
     // FIELDS
-
+    //
     // Testing for push
 
     private GridView _gridView;
