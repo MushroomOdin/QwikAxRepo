@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //create notifcation when app starts
-        helper = new PulldownNotification(this);
+        //TODO: add toggle
         String title = "test title";
         String content = "test content";
         Notification.Builder builder = helper.getmChannelNotification(title, content);
