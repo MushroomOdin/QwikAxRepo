@@ -1,0 +1,26 @@
+[
+    {
+        "outputFile": "C:\\Users\\Michael Crane\\Desktop\\121\\QwikAxRepo-master\\QwikAx\\QwikAx\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-port\\values-port.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 55,
+                    "endColumn": 55,
+                    "endOffset": 106
+                },
+                "from": {
+                    "file": "C:\\Users\\Michael Crane\\.android\\build-cache\\53f95cf99829b8f530f08661bfedbe3cd22e619c\\output\\res\\values-port\\values-port.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 4,
+                        "startOffset": 55,
+                        "endColumn": 55,
+                        "endOffset": 106
+                    }
+                }
+            }
+        ]
+    }
+]
