@@ -198,6 +198,34 @@ public class Movement {
         return positions;
     }
 
+    private ArrayList<MovementType> FindShortestPath(int[] start, int[] end){
+        ArrayList<MovementType> movements = new ArrayList<>();
+        int xDifference = start[0] - end[0];
+        int yDifference = start[1] - end[1];
+
+        while((xDifference != 0) || (yDifference != 0)){
+            if(xDifference > 0){
+                movements.add(MovementType.LEFT);
+                xDifference--;
+            }else if(xDifference < 0){
+                movements.add(MovementType.RIGHT);
+                xDifference++;
+            }
+
+            if(yDifference > 0){
+                movements.add(MovementType.DOWN);
+                xDifference--;
+            }else if(yDifference < 0){
+                movements.add(MovementType.UP);
+                xDifference++;
+            }
+
+            CheckForDiagonal(movements);
+        }
+
+        return movements;
+    }
+
     // Called by touch listener down press, will capture the initial position, and then find where the possible movements are.
     public int[] InitialPosition(float x, float y){
         Reset();
@@ -213,21 +241,14 @@ public class Movement {
     // Tells us that a movement has occured, and that we need to figure out where we will go.
     public int MovementOccurred(float x, float y) {
         int count = 1;
-        int[] startPosition;
+        int[] endPosition;
         do {
             FindPossibleMovements(_previousPosition, count);
-            startPosition = FindViewByLocation(x, y, count++);
-        }while(startPosition[0]!= -1);
+            endPosition = FindViewByLocation(x, y, count++);
+        }while(endPosition[0]!= -1);
 
-        if (position < _possiblePositions.length) {
-            _lastMovement = MovementType.Convert(position);
-            _movementsMade.add(_lastMovement);
-            int currentPosition = _possiblePositions[position];
-            FindPrimaryRowPossibleMovements(_possiblePositions[position]);
-            position = currentPosition;
-        } else
-            position = -1;
-
+        ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
+        _movementsMade.addAll(movements);
 
         return position;
     }
