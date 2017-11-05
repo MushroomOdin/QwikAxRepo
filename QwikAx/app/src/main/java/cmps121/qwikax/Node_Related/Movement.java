@@ -149,11 +149,12 @@ public class Movement {
                     break;
             }
         }
+
         if(change != null){
+            _movementsMade.remove(_movementsMade.size() - 1);
             _movementsMade.remove(_movementsMade.size() - 1);
             _movementsMade.add(change);
         }
-
     }
 
     // Coppies the current object to presever the original.
