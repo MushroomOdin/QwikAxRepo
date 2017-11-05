@@ -79,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 8;
-        _columns = 8;
+        _rows = 20;
+        _columns = 20;
         _runMode = true;
 
         //LoadDataBaseFromFile("QwikAxSaveFile.txt");

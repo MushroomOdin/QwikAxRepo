@@ -101,10 +101,6 @@ public class DataBaseHandler implements Serializable {
                 case BOTTOM_RIGHT:
                 case TOP_LEFT:
                 case TOP_RIGHT:
-                    _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(Movement.MovementType.INITIAL_POSITION);
-                    nextNode = _traversableNode.MoveToDesiredDataBaseNode(type);
-                    break;
-
                 case DOWN:
                 case UP:
                 case LEFT:

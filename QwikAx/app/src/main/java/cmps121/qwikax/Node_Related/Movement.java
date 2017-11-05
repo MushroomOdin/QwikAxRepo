@@ -76,186 +76,154 @@ public class Movement {
 
     // FIELDS
 
-    private ArrayList<CoordinateSystem> _items;
-    private int[] _possiblePositions;
-    private int _initialPosition;
+    private CoordinateSystem[][] _items;
+    private int[] _xPossiblePositions;
+    private int[] _yPossiblePositions;
+    private int[] _previousPosition;
     private MovementType _lastMovement;
     private int _rows;
     private int _columns;
     private ArrayList<MovementType> _movementsMade;
-    private ArrayList<Integer> _movementPositions;
 
     // FIELDS
 
     // CONSTRUCTORS
 
-    public Movement(ArrayList<CoordinateSystem> items, int rows, int columns){
+    public Movement(CoordinateSystem[][] items, int rows, int columns){
         _items = items;
-        _possiblePositions = new int[4];
         _rows = rows;
         _columns = columns;
         Reset();
     }
 
-    public Movement(Movement movement){
-        _initialPosition = movement.get_initialPosition();
-        _movementsMade = movement.get_movementsMade();
+    public Movement(CoordinateSystem[][] items, int rows, int columns, ArrayList<MovementType> types){
+        _items = items;
+        _rows = rows;
+        _columns = columns;
+        _movementsMade = types;
     }
 
     // CONSTRUCTORS
 
     // METHODS
 
-    // Checks if we can make it a shorter distance by adding a diagonal.
-    private void CheckForDiagonal(MovementType currentMovement){
-
-        MovementType change = null;
-        switch (_lastMovement){
-            case UP:
-                if(currentMovement == MovementType.RIGHT)
-                    change = MovementType.TOP_RIGHT;
-                else if(currentMovement == MovementType.LEFT)
-                    change = MovementType.TOP_LEFT;
-                break;
-
-            case DOWN:
-                if(currentMovement == MovementType.RIGHT)
-                    change = MovementType.BOTTOM_RIGHT;
-                else if(currentMovement == MovementType.LEFT)
-                    change = MovementType.BOTTOM_LEFT;
-                break;
-
-            case LEFT:
-                if(currentMovement == MovementType.UP)
-                    change = MovementType.TOP_LEFT;
-                else if(currentMovement == MovementType.DOWN)
-                    change = MovementType.BOTTOM_LEFT;
-                break;
-
-            case RIGHT:
-                if(currentMovement == MovementType.UP)
-                    change = MovementType.TOP_RIGHT;
-                else if(currentMovement == MovementType.DOWN)
-                    change = MovementType.BOTTOM_RIGHT;
-                break;
-
-            case BOTTOM_LEFT:
-            case BOTTOM_RIGHT:
-            case TOP_LEFT:
-            case TOP_RIGHT:
-                // Does nothing
-                break;
-        }
-
-        if(change != null){
-            _lastMovement = change;
-            _movementsMade.remove(_movementsMade.size() - 1);
-            _movementsMade.add(change);
-        }
-
-    }
-
     // Coppies the current object to presever the original.
     public Movement Copy(){
-       return new Movement(this._items, this._rows, this._columns);
+       return new Movement(this._items, this._rows, this._columns, this._movementsMade);
     }
 
     // Finds the location of the view depending on the initial x,y location.
-    private int FindInitialViewByLocation(float x, float y) {
-        int count = 0;
+    private int[] FindInitialViewByLocation(float x, float y) {
+        int[] positions = {-1,-1};
         // Find out how to tell location from
-        for (CoordinateSystem node: _items) {
-            if(node.isWithinBounds(x,y)){
-                break;
+        for (int row = 0; row < _rows; row++) {
+            for(int column = 0; column < _columns; column++){
+                if(_items[row][column].isWithinBounds(x,y)){
+                    positions[0] = row;
+                    positions[1] = column;
+                    row = _rows;
+                    column = _columns;
+                }
             }
-
-            count++;
         }
 
-        _movementPositions.add(count);
-
-        if(count > _items.size())
-            count = -1;
-
-        return count;
+        return positions;
     }
 
-    // Finds the possible movements depending on the initial position
-    private void FindPossibleMovements(int position){
-        _possiblePositions = new int[4];
+    private void FindPossibleMovements(int[] positions, int distance) {
+        int tiles = 8 * distance, tileCount = 0;
+        int verticalGap = 1 + (2 * (distance - 1)), count = 0;
+        int xPos = positions[0], yPos = positions[1];
+        int horizontalGap = (2 * (distance)) + 1;
+        _xPossiblePositions = new int[tiles];
+        _yPossiblePositions = new int[tiles];
+        // This does the horizontal areas around the start position
+        while(xPos - distance + count <= xPos + distance) {
+            if ((xPos - distance + count >= 0) && (xPos - distance + count < _columns) && (yPos - distance >= 0)) {
+                _xPossiblePositions[count] = xPos - distance + count;
+                _yPossiblePositions[count] = yPos - distance;
+            } else {
+                _xPossiblePositions[count] = -1;
+                _yPossiblePositions[count] = -1;
+            }
 
-        if(position + 1 < (_columns * (1 + (int) (position / _columns))))
-            _possiblePositions[MovementType.RIGHT.getValue()] = (position + 1);
-        else
-            _possiblePositions[MovementType.RIGHT.getValue()] = -1;
+            if ((yPos + distance < _rows) && (xPos + distance - count >= 0) && (xPos + distance - count < _columns)) {
+                _xPossiblePositions[count + horizontalGap + verticalGap] = xPos + distance - count;
+                _yPossiblePositions[count++ + (horizontalGap + verticalGap] = yPos + distance;
+            } else {
+                _xPossiblePositions[count + horizontalGap] = -1;
+                _yPossiblePositions[count++ + horizontalGap] = -1;
+            }
 
-        if(position - 1 >= (_columns * (int) (position / _columns)))
-            _possiblePositions[MovementType.LEFT.getValue()] = (position - 1);
-        else
-            _possiblePositions[MovementType.LEFT.getValue()] = -1;
+        }
 
-        if(position + _columns < _items.size())
-            _possiblePositions[MovementType.DOWN.getValue()] = (position + _columns);
-        else
-            _possiblePositions[MovementType.DOWN.getValue()] = -1;
+        count = 0;
+        // this does the vertical areas around the start position
+        while(yPos - (verticalGap - 1) + count <= yPos + (verticalGap - 1)) {
+            if ((yPos - (verticalGap - 1) + count >= 0) && (yPos + (verticalGap - 1) + count < _rows) && (xPos + distance < _columns)) {
+                _xPossiblePositions[count + horizontalGap] = xPos + verticalGap;
+                _yPossiblePositions[count + horizontalGap] = yPos - (verticalGap - 1) + count;
+            } else {
+                _xPossiblePositions[count + horizontalGap] = -1;
+                _yPossiblePositions[count + horizontalGap] = -1;
+            }
 
-        if(position - _columns > 0)
-            _possiblePositions[MovementType.UP.getValue()] = (position - _columns);
-        else
-            _possiblePositions[MovementType.UP.getValue()] = -1;
+            if ((yPos + (verticalGap - 1) - count >= 0) && (yPos + (verticalGap - 1) - count < _rows) &&(xPos + distance >= 0)) {
+                _xPossiblePositions[count + horizontalGap + verticalGap] = xPos - verticalGap;
+                _yPossiblePositions[count++ + horizontalGap + verticalGap] = yPos + (verticalGap - 1) + count;
+            } else {
+                _xPossiblePositions[count + horizontalGap + verticalGap] = -1;
+                _yPossiblePositions[count++ + horizontalGap + verticalGap] = -1;
+            }
+
+        }
     }
 
     // Finds the location of the view we moved to.
-    private int FindViewByLocation(float x, float y){
-        int count = 0;
-        for (int position: _possiblePositions) {
-            if(position != -1)
-                if(_items.get(position).isWithinBounds(x,y))
-                    break;
-
-            count++;
+    private int[] FindViewByLocation(float x, float y, int distance){
+        int[] positions = {-1,-1};
+        int count;
+        for(count = 0; count < _xPossiblePositions.length; count++){
+            int xPos = _xPossiblePositions[count];
+            int yPos = _yPossiblePositions[count];
+            if(((xPos != -1) && (yPos != -1)) ? _items[xPos][yPos].isWithinBounds(x,y) : false)
+                break;
         }
 
-        return count;
+        if(count < _xPossiblePositions.length){
+            positions[0] = _xPossiblePositions[count];
+            positions[1] = _yPossiblePositions[count];
+        }
+
+        return positions;
     }
 
     // Called by touch listener down press, will capture the initial position, and then find where the possible movements are.
-    public int InitialPosition(float x, float y){
+    public int[] InitialPosition(float x, float y){
         Reset();
-        int count = FindInitialViewByLocation(x,y);
-        if(count != -1){
-            _movementPositions.add(count);
-            _initialPosition = count;
+        int[] positions = FindInitialViewByLocation(x,y);
+        if(positions[0] != -1){
             _movementsMade.add(MovementType.INITIAL_POSITION);
-            FindPossibleMovements(count);
+            _previousPosition = positions;
         }
 
-        return count;
+        return positions;
     }
 
     // Tells us that a movement has occured, and that we need to figure out where we will go.
     public int MovementOccurred(float x, float y) {
-        int position = FindViewByLocation(x, y);
+        int count = 1;
+        int[] startPosition;
+        do {
+            FindPossibleMovements(_previousPosition, count);
+            startPosition = FindViewByLocation(x, y, count++);
+        }while(startPosition[0]!= -1);
+
         if (position < _possiblePositions.length) {
-            MovementType currentMove = null;
-
-            if (position == MovementType.RIGHT.getValue())
-                currentMove = MovementType.RIGHT;
-            else if (position == MovementType.LEFT.getValue())
-                currentMove = MovementType.LEFT;
-            else if (position == MovementType.UP.getValue())
-                currentMove = MovementType.UP;
-            else
-                currentMove = MovementType.DOWN;
-
-            _movementsMade.add(currentMove);
-            if (_lastMovement != null)
-                CheckForDiagonal(currentMove);
-
-            _lastMovement = currentMove;
+            _lastMovement = MovementType.Convert(position);
+            _movementsMade.add(_lastMovement);
             int currentPosition = _possiblePositions[position];
-            FindPossibleMovements(_possiblePositions[position]);
-            _movementPositions.add(currentPosition);
+            FindPrimaryRowPossibleMovements(_possiblePositions[position]);
             position = currentPosition;
         } else
             position = -1;
@@ -266,7 +234,6 @@ public class Movement {
 
     // Resets the class so that we start off fresh with a new down click.
     public void Reset(){
-        _movementPositions = new ArrayList<>();
         _movementsMade = new ArrayList<>();
         _lastMovement = null;
     }
@@ -275,11 +242,8 @@ public class Movement {
 
     // GETTERS AND SETTERS
 
-    public int[] get_possiblePositions() { return _possiblePositions; }
     public ArrayList<MovementType> get_movementsMade(){ return _movementsMade; }
-    public ArrayList<Integer> get_movementPositions(){ return _movementPositions; }
-    public int get_initialPosition(){return _initialPosition; }
-    public ArrayList<CoordinateSystem> get_items(){return _items; }
+    public CoordinateSystem[][] get_items(){return _items; }
 
     // GETTERS AND SETTERS
 }
