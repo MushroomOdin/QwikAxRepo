@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         //LoadDataBaseFromFile("QwikAxSaveFile.txt");
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
-        ArrayList<CoordinateSystem> items = SetAdapter();
+        CoordinateSystem[][] items = SetAdapter();
 
         //Populates _listView and creates appInfo(list of "com.~~~~~")
         ListOps apps = new ListOps(getPackageManager(), getBaseContext());
@@ -183,8 +183,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Sets the adapter to the grid view.
-    private ArrayList<CoordinateSystem> SetAdapter() {
-        ArrayList<CoordinateSystem> items = new ArrayList<>();
+    private CoordinateSystem[][] SetAdapter() {
+        CoordinateSystem[][] items = new CoordinateSystem[_rows][_columns];
         double xPos = 0, yPos = 0, xDistance, yDistance;
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -197,13 +197,15 @@ public class MainActivity extends AppCompatActivity {
         // TODO: get rid of the constant.
         yDistance = (height *.8) / _rows;
 
-        for (int i = 0; i < _rows * _columns; i++)
+        for (int i = 0; i < _rows; i++)
         {
-            items.add(i, new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation()));
+            for(int j = 0; j < _columns; j++){
+                items[i][j] = new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation());
 
-            if((xPos += xDistance) >= width) {
-                xPos = 0;
-                yPos += yDistance;
+                if((xPos += xDistance) >= width) {
+                    xPos = 0;
+                    yPos += yDistance;
+                }
             }
         }
 

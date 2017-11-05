@@ -80,7 +80,7 @@ public class Movement {
     private int[] _xPossiblePositions;
     private int[] _yPossiblePositions;
     private int[] _previousPosition;
-    private MovementType _lastMovement;
+
     private int _rows;
     private int _columns;
     private ArrayList<MovementType> _movementsMade;
@@ -106,6 +106,55 @@ public class Movement {
     // CONSTRUCTORS
 
     // METHODS
+
+    private void CheckForDiagonal(ArrayList<MovementType> movements){
+        MovementType currentMovement = movements.get(movements.size() - 1);
+        MovementType change = null;
+        if(movements.size() > 2) {
+            MovementType lastMovement = movements.get(movements.size() - 2);
+            switch (lastMovement) {
+                case UP:
+                    if (currentMovement == MovementType.RIGHT)
+                        change = MovementType.TOP_RIGHT;
+                    else if (currentMovement == MovementType.LEFT)
+                        change = MovementType.TOP_LEFT;
+                    break;
+
+                case DOWN:
+                    if (currentMovement == MovementType.RIGHT)
+                        change = MovementType.BOTTOM_RIGHT;
+                    else if (currentMovement == MovementType.LEFT)
+                        change = MovementType.BOTTOM_LEFT;
+                    break;
+
+                case LEFT:
+                    if (currentMovement == MovementType.UP)
+                        change = MovementType.TOP_LEFT;
+                    else if (currentMovement == MovementType.DOWN)
+                        change = MovementType.BOTTOM_LEFT;
+                    break;
+
+                case RIGHT:
+                    if (currentMovement == MovementType.UP)
+                        change = MovementType.TOP_RIGHT;
+                    else if (currentMovement == MovementType.DOWN)
+                        change = MovementType.BOTTOM_RIGHT;
+                    break;
+
+                case BOTTOM_LEFT:
+                case BOTTOM_RIGHT:
+                case TOP_LEFT:
+                case TOP_RIGHT:
+                    // Does nothing
+                    break;
+            }
+        }
+        if(change != null){
+            _movementsMade.remove(_movementsMade.size() - 1);
+            _movementsMade.add(change);
+        }
+
+    }
 
     // Coppies the current object to presever the original.
     public Movement Copy(){
@@ -149,7 +198,7 @@ public class Movement {
 
             if ((yPos + distance < _rows) && (xPos + distance - count >= 0) && (xPos + distance - count < _columns)) {
                 _xPossiblePositions[count + horizontalGap + verticalGap] = xPos + distance - count;
-                _yPossiblePositions[count++ + (horizontalGap + verticalGap] = yPos + distance;
+                _yPossiblePositions[count++ + horizontalGap + verticalGap] = yPos + distance;
             } else {
                 _xPossiblePositions[count + horizontalGap] = -1;
                 _yPossiblePositions[count++ + horizontalGap] = -1;
@@ -239,7 +288,7 @@ public class Movement {
     }
 
     // Tells us that a movement has occured, and that we need to figure out where we will go.
-    public int MovementOccurred(float x, float y) {
+    public int[] MovementOccurred(float x, float y) {
         int count = 1;
         int[] endPosition;
         do {
@@ -250,13 +299,12 @@ public class Movement {
         ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
         _movementsMade.addAll(movements);
 
-        return position;
+        return endPosition;
     }
 
     // Resets the class so that we start off fresh with a new down click.
     public void Reset(){
         _movementsMade = new ArrayList<>();
-        _lastMovement = null;
     }
 
     // METHODS
