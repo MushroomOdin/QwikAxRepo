@@ -1,5 +1,7 @@
 package cmps121.qwikax.Data_Base;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 
 import java.io.Serializable;
@@ -34,6 +36,7 @@ public class DataBaseNode implements Serializable {
         _appStorage = new ArrayList<>();
         _appStorage.add(appStorage);
     }
+
 
     // CONSTRUCTORS
 

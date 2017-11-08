@@ -1,8 +1,10 @@
 package cmps121.qwikax.Data_Base;
 
 import android.app.Activity;
+import android.util.Log;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -24,12 +26,6 @@ public class DataBaseHandler implements Serializable {
         _potentialMatches = null;
     }
 
-    public DataBaseHandler(DataBaseNode master){
-        _masterNode = master;
-        _traversableNode = null;
-        _currentMatches = new ArrayList<>();
-        _potentialMatches = null;
-    }
 
     // CONSTRUCTORS
 
@@ -54,11 +50,10 @@ public class DataBaseHandler implements Serializable {
 
     // Used in the creation of the tree / adding a new item to it. This should only be used when adding.
     // AppStorage contains the Movement class thusly we do not need to worry about adding it in anywhere else.
-    public void AddNewItemToTree(AppStorage item){
-        Movement movements = item.get_movement();
+    public void AddNewItemToTree(AppStorage item, ArrayList<Movement.MovementType> movementsMade){
         DataBaseNode temp = _masterNode;
 
-        for (Movement.MovementType type: movements.get_movementsMade()) {
+        for (Movement.MovementType type: movementsMade) {
             if(temp.MoveToDesiredDataBaseNode(type) == null){
                 DataBaseNode[] currentNodeArray = temp.get_pointers();
                 currentNodeArray[type.getValue()] = new DataBaseNode(temp);
@@ -72,7 +67,7 @@ public class DataBaseHandler implements Serializable {
 
     private void FindAllPossibleApplicationsInTree(DataBaseNode node, ArrayList<AppStorage> list){
         for(int count = 0; count < 8; count++){
-            DataBaseNode currentNode = node.MoveToDesiredDataBaseNode(Movement.MovementType.Convert(count));
+            DataBaseNode currentNode = node.get_pointers()[count];
             if( currentNode != null) {
                 if(currentNode.get_appStorage().size() != 0) {
                     list.addAll(currentNode.get_appStorage());
@@ -91,36 +86,14 @@ public class DataBaseHandler implements Serializable {
     }
 
     // Used for comparison of a run mode based item only.
-    public void NextMovement(Movement.MovementType type, ArrayList<Movement> movements) {
-        DataBaseNode nextNode;
+    public void NextMovement(Movement.MovementType type) {
         if (_traversableNode == null)
             _traversableNode = _masterNode.MoveToDesiredDataBaseNode(type);
         else {
-            switch (type) {
-                case BOTTOM_LEFT:
-                case BOTTOM_RIGHT:
-                case TOP_LEFT:
-                case TOP_RIGHT:
-                case DOWN:
-                case UP:
-                case LEFT:
-                case RIGHT:
-                    nextNode = _traversableNode.MoveToDesiredDataBaseNode(type);
-                break;
-
-                default:
-                    nextNode = null;
-            }
-
-            if (nextNode != null) {
-                _traversableNode = nextNode;
-                _currentMatches.clear();
-                FindAllPossibleApplicationsInTree(_traversableNode, _currentMatches);
-                _currentMatches = SortPossibleApplicationsList(_currentMatches);
-            }else {
-                _traversableNode.SetDesiredDataBaseNode(type, new DataBaseNode(_traversableNode));
-                _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
-            }
+            _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
+            _currentMatches.clear();
+            FindAllPossibleApplicationsInTree(_traversableNode, _currentMatches);
+            _currentMatches = SortPossibleApplicationsList(_currentMatches);
         }
     }
 
@@ -166,4 +139,21 @@ public class DataBaseHandler implements Serializable {
     }
 
     // METHODS
+
+    // SERIALIZABLE METHODS
+
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException{
+        out.defaultWriteObject();
+        out.close();
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException{
+            in.defaultReadObject();
+            in.close();
+
+    }
+
+
+
+    // SERIALIZABLE METHODS
 }

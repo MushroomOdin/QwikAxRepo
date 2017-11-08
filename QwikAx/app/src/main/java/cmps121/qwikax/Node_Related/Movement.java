@@ -163,7 +163,7 @@ public class Movement {
     }
 
     // Finds the location of the view depending on the initial x,y location.
-    private int[] FindInitialViewByLocation(float x, float y) {
+    public int[] FindInitialViewByLocation(float x, float y) {
         int[] positions = {-1,-1};
         // Find out how to tell location from
         for (int row = 0; row < _rows; row++) {
@@ -255,18 +255,18 @@ public class Movement {
 
         while((xDifference != 0) || (yDifference != 0)){
             if(xDifference > 0){
-                movements.add(MovementType.LEFT);
+                movements.add(MovementType.DOWN);
                 xDifference--;
             }else if(xDifference < 0){
-                movements.add(MovementType.RIGHT);
+                movements.add(MovementType.UP);
                 xDifference++;
             }
 
             if(yDifference > 0){
-                movements.add(MovementType.DOWN);
+                movements.add(MovementType.LEFT);
                 yDifference--;
             }else if(yDifference < 0){
-                movements.add(MovementType.UP);
+                movements.add(MovementType.RIGHT);
                 yDifference++;
             }
 
@@ -292,24 +292,30 @@ public class Movement {
         return positions;
     }
 
+
     // Tells us that a movement has occured, and that we need to figure out where we will go.
-    public int[] MovementOccurred(float x, float y) {
+    public boolean MovementOccurred(float x, float y) {
         int count = 1;
+        boolean moved = false;
         int[] endPosition = new int[2];
         if(!_items[_previousPosition[0]][_previousPosition[1]].isWithinBounds(x,y)) {
             do {
                 FindPossibleMovements(_previousPosition, count);
                 endPosition = FindViewByLocation(x, y, count++);
-            } while (endPosition[0] == -1);
+            } while (endPosition[0] == -1 && (count < 5));
+
+            if(endPosition[0] == -1)
+                endPosition = FindInitialViewByLocation(x,y);
 
             ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
             _movementsMade.addAll(movements);
+            moved = true;
         }else{
             endPosition[0] = _previousPosition[0];
             endPosition[1] = _previousPosition[1];
         }
 
-        return endPosition;
+        return moved;
     }
 
     // Resets the class so that we start off fresh with a new down click.

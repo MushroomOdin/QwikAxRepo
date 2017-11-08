@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -78,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         _columns = 20;
         _runMode = true;
 
-        LoadDataBaseFromFile("QwikAxSaveFile.txt");
+        LoadDataBaseFromFile(Environment.getExternalStorageDirectory().getPath() + "/QwikAxSaveFile.txt");
         _dataBase = new DataBaseHandler();
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        SaveDataBaseToFile("QwikAxSaveFile.txt");
+        SaveDataBaseToFile(Environment.getExternalStorageDirectory().getPath() + "/QwikAxSaveFile.txt");
         super.onDestroy();
     }
 
@@ -247,11 +247,9 @@ public class MainActivity extends AppCompatActivity {
     // Used to save the data base to a file.
     private void SaveDataBaseToFile(String fileName){
         try{
-            FileOutputStream fos = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
-            ObjectOutputStream os = new ObjectOutputStream(fos);
+            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(fileName));
             os.writeObject(_dataBase);
             os.close();
-            fos.close();
         }catch (Exception ex){
             Log.e("Error", ex.getMessage());
             Toast.makeText(this,"Data Base was not saved", Toast.LENGTH_LONG).show();
@@ -278,25 +276,18 @@ public class MainActivity extends AppCompatActivity {
             {
                 case MotionEvent.ACTION_DOWN:
                     _movements.InitialPosition(x, y);
-                    //_dataBase.InitialMovement();
+                    _dataBase.InitialMovement();
                     _drawingView.touch_start(x, y);
                     _drawingView.ClearCanvas();
                     value = true;
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    _movements.MovementOccurred(x, y);
+                    int[] position = _movements.FindInitialViewByLocation(x,y);
                     _drawingView.touch_move(x,y);
-                    value = true;
-
                     //Passing in a fake list for testing
-                    ArrayList<Movement> fakeList = new ArrayList<Movement>();
-                    fakeList.add(_movements);
-
-                    // Only gets
-
-                    if(_runMode){
-                        _dataBase.NextMovement(_movements.GetLastMovement(), fakeList);
+                    if(_runMode && _movements.MovementOccurred(x, y)){
+                        _dataBase.NextMovement(_movements.GetLastMovement());
                         ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
                         matchingAppNames = "Matched with:";
@@ -304,22 +295,22 @@ public class MainActivity extends AppCompatActivity {
                             matchingAppNames = matchingAppNames + " " + current.get_relativeName();
                         }
                     }
+
+                    value = true;
                     break;
 
                 case MotionEvent.ACTION_UP:
                     _drawingView.touch_up();
-                    value = true;
-
                     StringBuilder sentence = new StringBuilder();
                     for(Movement.MovementType move : _movements.get_movementsMade()){
                         sentence.append(move.toString() + " ");
                     }
 
-                    //Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
                     if(!_runMode) {
                         if (_hasSelection) {
                             // Save the selection
-                            _dataBase.AddNewItemToTree(new AppStorage(_movements.Copy(), AppStorage.AccessabilityLevels.NONE, _selectedAppRunnable, _selectedAppName));
+                            _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessabilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
                             Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
 
                         } else {
@@ -329,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
                     }
 
+                    value = true;
                     break;
             }
 
