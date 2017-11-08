@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 
 import cmps121.qwikax.AdaptersAndStuff.DrawingView;
 import cmps121.qwikax.App_List.ListOps;
+import cmps121.qwikax.Data_Base.AppStorage;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
 import cmps121.qwikax.Node_Related.Movement;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
@@ -54,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
     private DrawingView _drawingView;
     private Movement _movements;
     private DataBaseHandler _dataBase;
+
+    private String _selectedAppName;
+    private String _selectedAppRunnable;
+    private boolean _hasSelection = false;
 
     // FIELDS
 
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         _runMode = true;
 
         //LoadDataBaseFromFile("QwikAxSaveFile.txt");
+        _dataBase = new DataBaseHandler();
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
         ArrayList<CoordinateSystem> items = SetAdapter();
@@ -99,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //Toast.makeText(getApplicationContext(), arrayItemsInList[i], Toast.LENGTH_SHORT).show();
+
                 if(_runMode == true) {
                     String chosenApp = appInfo.get(i).toString();
                     if (chosenApp != null) {
@@ -109,8 +115,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }else{
-                    Toast.makeText(getApplicationContext(), "Cannot run in save mode", Toast.LENGTH_SHORT).show();
+                    _selectedAppName = _listView.getItemAtPosition(i).toString();
+                    _selectedAppRunnable = appInfo.get(i).toString();
+                    Toast.makeText(getApplicationContext(), "Please enter your gesture for "
+                            + _selectedAppName, Toast.LENGTH_SHORT).show();
+                    _hasSelection = true;
                 }
+
+
             }
         });
 
@@ -254,6 +266,8 @@ public class MainActivity extends AppCompatActivity {
         public boolean onTouch(View view, MotionEvent motionEvent) {
             boolean value = false;
             float x,y;
+            String matchingAppNames = "";
+
 
             x = motionEvent.getX();
             y = motionEvent.getY();
@@ -272,6 +286,22 @@ public class MainActivity extends AppCompatActivity {
                     _movements.MovementOccurred(x, y);
                     _drawingView.touch_move(x,y);
                     value = true;
+
+                    //Passing in a fake list for testing
+                    ArrayList<Movement> fakeList = new ArrayList<Movement>();
+                    fakeList.add(_movements);
+
+                    // Only gets
+
+                    if(_runMode){
+                        _dataBase.NextMovement(_movements.get_lastMovement(), fakeList);
+                        ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_traversableNode().get_appStorage());
+
+                        matchingAppNames = "Matched with:";
+                        for(AppStorage current : matchingApps){
+                            matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                        }
+                    }
                     break;
 
                 case MotionEvent.ACTION_UP:
@@ -283,9 +313,19 @@ public class MainActivity extends AppCompatActivity {
                         sentence.append(move.toString() + " ");
                     }
 
-                    Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
-                    //if(!_runMode)
-                    //    _dataBase.AddNewItemToTree(new AppStorage(_movements.Copy(), AppStorage.AccessabilityLevels.NONE,null, null));
+                    //Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_LONG).show();
+                    if(!_runMode) {
+                        if (_hasSelection) {
+                            // Save the selection
+                            _dataBase.AddNewItemToTree(new AppStorage(_movements, AppStorage.AccessabilityLevels.NONE, _selectedAppRunnable, _selectedAppName));
+                            Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
+                        }
+                    }else{
+                        Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
+                    }
 
                     break;
             }

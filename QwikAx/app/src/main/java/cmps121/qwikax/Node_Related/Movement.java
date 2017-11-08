@@ -280,6 +280,7 @@ public class Movement {
     public ArrayList<Integer> get_movementPositions(){ return _movementPositions; }
     public int get_initialPosition(){return _initialPosition; }
     public ArrayList<CoordinateSystem> get_items(){return _items; }
+    public MovementType get_lastMovement(){return _lastMovement; }
 
     // GETTERS AND SETTERS
 }
