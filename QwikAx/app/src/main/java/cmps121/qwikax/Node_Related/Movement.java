@@ -110,7 +110,7 @@ public class Movement {
     private void CheckForDiagonal(ArrayList<MovementType> movements){
         MovementType currentMovement = movements.get(movements.size() - 1);
         MovementType change = null;
-        if(movements.size() > 2) {
+        if(movements.size() >= 2) {
             MovementType lastMovement = movements.get(movements.size() - 2);
             switch (lastMovement) {
                 case UP:
@@ -183,7 +183,7 @@ public class Movement {
     private void FindPossibleMovements(int[] positions, int distance) {
         int tiles = 8 * distance, tileCount = 0;
         int verticalGap = 1 + (2 * (distance - 1)), count = 0;
-        int xPos = positions[0], yPos = positions[1];
+        int xPos = positions[0], yPos =  positions[1];
         int horizontalGap = (2 * (distance)) + 1;
         _xPossiblePositions = new int[tiles];
         _yPossiblePositions = new int[tiles];
@@ -209,18 +209,18 @@ public class Movement {
 
         count = 0;
         // this does the vertical areas around the start position
-        while(yPos - (verticalGap - 1) + count <= yPos + (verticalGap - 1)) {
-            if ((yPos - (verticalGap - 1) + count >= 0) && (yPos + (verticalGap - 1) + count < _rows) && (xPos + distance < _columns)) {
-                _xPossiblePositions[count + horizontalGap] = xPos + verticalGap;
-                _yPossiblePositions[count + horizontalGap] = yPos - (verticalGap - 1) + count;
+        while(yPos - (distance - 1) + count <= yPos + (distance - 1)) {
+            if ((yPos - (distance - 1) + count >= 0) && (yPos + (distance - 1) + count < _rows) && (xPos + distance < _columns)) {
+                _xPossiblePositions[count + horizontalGap] = xPos + distance;
+                _yPossiblePositions[count + horizontalGap] = yPos - (distance - 1) + count;
             } else {
                 _xPossiblePositions[count + horizontalGap] = -1;
                 _yPossiblePositions[count + horizontalGap] = -1;
             }
 
-            if ((yPos + (verticalGap - 1) - count >= 0) && (yPos + (verticalGap - 1) - count < _rows) &&(xPos + distance >= 0)) {
-                _xPossiblePositions[count + horizontalGap + verticalGap] = xPos - verticalGap;
-                _yPossiblePositions[count++ + horizontalGap + verticalGap] = yPos + (verticalGap - 1) + count;
+            if ((yPos + (distance - 1) - count >= 0) && (yPos + (distance - 1) - count < _rows) && (xPos + distance >= 0)) {
+                _xPossiblePositions[count + (horizontalGap * 2) + verticalGap] = xPos - distance;
+                _yPossiblePositions[count + (horizontalGap * 2) + verticalGap] = yPos + (distance - 1) + count++;
             } else {
                 _xPossiblePositions[count + horizontalGap + verticalGap] = -1;
                 _yPossiblePositions[count++ + horizontalGap + verticalGap] = -1;
@@ -264,16 +264,20 @@ public class Movement {
 
             if(yDifference > 0){
                 movements.add(MovementType.DOWN);
-                xDifference--;
+                yDifference--;
             }else if(yDifference < 0){
                 movements.add(MovementType.UP);
-                xDifference++;
+                yDifference++;
             }
 
             CheckForDiagonal(movements);
         }
 
         return movements;
+    }
+
+    public MovementType GetLastMovement(){
+        return _movementsMade.get(_movementsMade.size() - 1);
     }
 
     // Called by touch listener down press, will capture the initial position, and then find where the possible movements are.
@@ -291,14 +295,19 @@ public class Movement {
     // Tells us that a movement has occured, and that we need to figure out where we will go.
     public int[] MovementOccurred(float x, float y) {
         int count = 1;
-        int[] endPosition;
-        do {
-            FindPossibleMovements(_previousPosition, count);
-            endPosition = FindViewByLocation(x, y, count++);
-        }while(endPosition[0]== -1);
+        int[] endPosition = new int[2];
+        if(!_items[_previousPosition[0]][_previousPosition[1]].isWithinBounds(x,y)) {
+            do {
+                FindPossibleMovements(_previousPosition, count);
+                endPosition = FindViewByLocation(x, y, count++);
+            } while (endPosition[0] == -1);
 
-        ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
-        _movementsMade.addAll(movements);
+            ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
+            _movementsMade.addAll(movements);
+        }else{
+            endPosition[0] = _previousPosition[0];
+            endPosition[1] = _previousPosition[1];
+        }
 
         return endPosition;
     }

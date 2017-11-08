@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         _columns = 20;
         _runMode = true;
 
-        //LoadDataBaseFromFile("QwikAxSaveFile.txt");
+        LoadDataBaseFromFile("QwikAxSaveFile.txt");
         _dataBase = new DataBaseHandler();
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        //SaveDataBaseToFile("QwikAxSaveFile.txt");
+        SaveDataBaseToFile("QwikAxSaveFile.txt");
         super.onDestroy();
     }
 
@@ -278,9 +278,9 @@ public class MainActivity extends AppCompatActivity {
             {
                 case MotionEvent.ACTION_DOWN:
                     _movements.InitialPosition(x, y);
+                    //_dataBase.InitialMovement();
                     _drawingView.touch_start(x, y);
                     _drawingView.ClearCanvas();
-                    //_dataBase.InitialMoClearCanvasvement();
                     value = true;
                     break;
 
@@ -296,8 +296,8 @@ public class MainActivity extends AppCompatActivity {
                     // Only gets
 
                     if(_runMode){
-                        _dataBase.NextMovement(_movements.get_lastMovement(), fakeList);
-                        ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_traversableNode().get_appStorage());
+                        _dataBase.NextMovement(_movements.GetLastMovement(), fakeList);
+                        ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
                         matchingAppNames = "Matched with:";
                         for(AppStorage current : matchingApps){
@@ -319,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
                     if(!_runMode) {
                         if (_hasSelection) {
                             // Save the selection
-                            _dataBase.AddNewItemToTree(new AppStorage(_movements, AppStorage.AccessabilityLevels.NONE, _selectedAppRunnable, _selectedAppName));
+                            _dataBase.AddNewItemToTree(new AppStorage(_movements.Copy(), AppStorage.AccessabilityLevels.NONE, _selectedAppRunnable, _selectedAppName));
                             Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
 
                         } else {
