@@ -295,7 +295,7 @@ public class Movement {
         do {
             FindPossibleMovements(_previousPosition, count);
             endPosition = FindViewByLocation(x, y, count++);
-        }while(endPosition[0]!= -1);
+        }while(endPosition[0]== -1);
 
         ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
         _movementsMade.addAll(movements);
