@@ -1,14 +1,9 @@
 package cmps121.qwikax.Data_Base;
 
-import android.app.Activity;
-import android.util.Log;
-import android.widget.Toast;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import cmps121.qwikax.MainActivity;
 import cmps121.qwikax.Node_Related.Movement;
 
 /**
@@ -35,6 +30,8 @@ public class DataBaseHandler implements Serializable {
     private DataBaseNode _traversableNode;
     private ArrayList<AppStorage> _currentMatches;
     private ArrayList<AppStorage> _potentialMatches;
+
+    private static final long serialVersionUID = 3128594851129501738L;
 
     // FIELDS
 
@@ -86,15 +83,18 @@ public class DataBaseHandler implements Serializable {
     }
 
     // Used for comparison of a run mode based item only.
-    public void NextMovement(Movement.MovementType type) {
-        if (_traversableNode == null)
-            _traversableNode = _masterNode.MoveToDesiredDataBaseNode(type);
-        else {
-            _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(type);
-            _currentMatches.clear();
-            FindAllPossibleApplicationsInTree(_traversableNode, _currentMatches);
-            _currentMatches = SortPossibleApplicationsList(_currentMatches);
+    public void NextMovement(ArrayList<Movement.MovementType> type) {
+        for (Movement.MovementType current:type) {
+            if (_traversableNode == null)
+                _traversableNode = _masterNode.MoveToDesiredDataBaseNode(current);
+            else {
+                _traversableNode = _traversableNode.MoveToDesiredDataBaseNode(current);
+                _currentMatches.clear();
+                FindAllPossibleApplicationsInTree(_traversableNode, _currentMatches);
+                _currentMatches = SortPossibleApplicationsList(_currentMatches);
+            }
         }
+
     }
 
     private void RemoveDuplicatesFromList(ArrayList<AppStorage> list){
@@ -120,7 +120,7 @@ public class DataBaseHandler implements Serializable {
                 AppStorage temp = list.get(count);
                 Boolean added = false;
                 for (int i = 0; i < comparison.size(); i++) {
-                    AppStorage.AccessabilityLevels level = comparison.get(i).get_accessabilityLevel();
+                    AppStorage.AccessibilityLevels level = comparison.get(i).get_accessabilityLevel();
                     if (level.getValue() < temp.get_accessabilityLevel().getValue()) {
                         comparison.add(i, temp);
                         added = true;

@@ -4,10 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +17,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -84,11 +80,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 20;
-        _columns = 20;
+        _rows = 10;
+        _columns = 10;
         _runMode = true;
 
-        LoadDataBaseFromFile(Environment.getExternalStorageDirectory().getPath() + "/QwikAxSaveFile.txt");
+        LoadDataBaseFromFile(getApplicationContext().getFilesDir() + "/QwikAxSaveFile.txt");
         _dataBase = new DataBaseHandler();
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
@@ -140,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        SaveDataBaseToFile(Environment.getExternalStorageDirectory().getPath() + "/QwikAxSaveFile.txt");
+        SaveDataBaseToFile("QwikAxSaveFile.txt");
         super.onDestroy();
     }
 
@@ -247,7 +243,8 @@ public class MainActivity extends AppCompatActivity {
     // Used to save the data base to a file.
     private void SaveDataBaseToFile(String fileName){
         try{
-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(fileName));
+            FileOutputStream out = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
+            ObjectOutputStream os = new ObjectOutputStream(out);
             os.writeObject(_dataBase);
             os.close();
         }catch (Exception ex){
@@ -287,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
                     _drawingView.touch_move(x,y);
                     //Passing in a fake list for testing
                     if(_runMode && _movements.MovementOccurred(x, y)){
-                        _dataBase.NextMovement(_movements.GetLastMovement());
+                        _dataBase.NextMovement(_movements.GetMovements());
                         ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
                         matchingAppNames = "Matched with:";
@@ -310,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
                     if(!_runMode) {
                         if (_hasSelection) {
                             // Save the selection
-                            _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessabilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
+                            _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
                             Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
 
                         } else {

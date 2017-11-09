@@ -84,6 +84,7 @@ public class Movement {
     private int _rows;
     private int _columns;
     private ArrayList<MovementType> _movementsMade;
+    private ArrayList<MovementType> _currentMovements;
 
     // FIELDS
 
@@ -93,6 +94,7 @@ public class Movement {
         _items = items;
         _rows = rows;
         _columns = columns;
+        _currentMovements = new ArrayList<>();
         Reset();
     }
 
@@ -101,6 +103,7 @@ public class Movement {
         _rows = rows;
         _columns = columns;
         _movementsMade = types;
+        _currentMovements = new ArrayList<>();
     }
 
     // CONSTRUCTORS
@@ -276,8 +279,8 @@ public class Movement {
         return movements;
     }
 
-    public MovementType GetLastMovement(){
-        return _movementsMade.get(_movementsMade.size() - 1);
+    public ArrayList<MovementType> GetMovements(){
+        return _currentMovements;
     }
 
     // Called by touch listener down press, will capture the initial position, and then find where the possible movements are.
@@ -307,7 +310,9 @@ public class Movement {
             if(endPosition[0] == -1)
                 endPosition = FindInitialViewByLocation(x,y);
 
+            _currentMovements.clear();
             ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
+            _currentMovements.addAll(movements);
             _movementsMade.addAll(movements);
             moved = true;
         }else{

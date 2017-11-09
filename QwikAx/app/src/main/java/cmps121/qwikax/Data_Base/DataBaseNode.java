@@ -45,6 +45,8 @@ public class DataBaseNode implements Serializable {
     private DataBaseNode[] _pointers;
     private ArrayList<AppStorage> _appStorage;
 
+    private static final long serialVersionUID = 3128594851129501739L;
+
     // FIELDS
 
     // GETTERS
