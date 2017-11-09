@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 closePopup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        _inputNum = Integer.valueOf(txtInputNum.getText().toString()) - 1;
+                        _inputNum = Integer.valueOf(txtInputNum.getText().toString());
                         _settings.dismiss();
                     }
                 });
