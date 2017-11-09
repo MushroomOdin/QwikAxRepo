@@ -164,25 +164,6 @@ public class MainActivity extends AppCompatActivity {
                 //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
                 //startActivity(startSettings);
 
-//                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-//                final View popup = inflater.inflate(R.layout.settings_menu, null);
-//
-//                View main = (View) findViewById(R.id.activity_main);
-//                _settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
-//                                                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
-//
-//                final TextView txtInputNum = (TextView) popup.findViewById(R.id.txtInputNum);
-//                Button closePopup = (Button) popup.findViewById(R.id.btnDone);
-//
-//                closePopup.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        _inputNum = Integer.valueOf(txtInputNum.getText().toString());
-//                        _settings.dismiss();
-//                    }
-//                });
-//                _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
-
                 break;
 
             case R.id.action_profile:
@@ -208,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 closePopup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        _inputNum = Integer.valueOf(txtInputNum.getText().toString());
+                        _inputNum = Integer.valueOf(txtInputNum.getText().toString()) - 1;
                         _settings.dismiss();
                     }
                 });
@@ -343,15 +324,22 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
                     if(!_runMode) {
                         if (_hasSelection) {
-                            // Save the selection
-                            _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessabilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
-                            Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
-
+                                // Save the selection
+                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessabilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
+                                _inputNum--;
                         } else {
                             Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
                         }
                     }else{
                         Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
+                    }
+
+                    if(_inputNum != 0){
+                        Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
+                    }else{
+                        _runMode = true;
+                        Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
                     }
 
                     value = true;
