@@ -20,10 +20,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private int _rows;
     private int _columns;
     private boolean _runMode;
+    private int _inputNum;
 
     private ListView _listView;
     private DrawingView _drawingView;
@@ -60,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
     private String _selectedAppName;
     private String _selectedAppRunnable;
     private boolean _hasSelection = false;
+
+    private PopupWindow _settings;
 
     // FIELDS
 
@@ -159,14 +164,24 @@ public class MainActivity extends AppCompatActivity {
                 //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
                 //startActivity(startSettings);
 
-                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popup = inflater.inflate(R.layout.settings_menu, null);
-
-                View main = (View) findViewById(R.id.activity_main);
-                PopupWindow settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
-
-                settings.showAtLocation(main, Gravity.CENTER, 0, 0);
+//                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+//                final View popup = inflater.inflate(R.layout.settings_menu, null);
+//
+//                View main = (View) findViewById(R.id.activity_main);
+//                _settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
+//                                                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
+//
+//                final TextView txtInputNum = (TextView) popup.findViewById(R.id.txtInputNum);
+//                Button closePopup = (Button) popup.findViewById(R.id.btnDone);
+//
+//                closePopup.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        _inputNum = Integer.valueOf(txtInputNum.getText().toString());
+//                        _settings.dismiss();
+//                    }
+//                });
+//                _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
 
                 break;
 
@@ -179,6 +194,25 @@ public class MainActivity extends AppCompatActivity {
 
                 String status = (_runMode)? "run": "save";
                 Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
+
+                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                final View popup = inflater.inflate(R.layout.settings_menu, null);
+
+                View main = (View) findViewById(R.id.activity_main);
+                _settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                final TextView txtInputNum = (TextView) popup.findViewById(R.id.txtInputNum);
+                Button closePopup = (Button) popup.findViewById(R.id.btnDone);
+
+                closePopup.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        _inputNum = Integer.valueOf(txtInputNum.getText().toString());
+                        _settings.dismiss();
+                    }
+                });
+                _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
         }
 
         return super.onOptionsItemSelected(item);
