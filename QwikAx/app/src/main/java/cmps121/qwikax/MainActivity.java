@@ -80,11 +80,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 10;
-        _columns = 10;
+        _rows = 20;
+        _columns = 20;
         _runMode = true;
 
-        LoadDataBaseFromFile(getApplicationContext().getFilesDir() + "/QwikAxSaveFile.txt");
+        LoadDataBaseFromFile("QwikAxSaveFile.txt");
         _dataBase = new DataBaseHandler();
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
@@ -265,7 +265,6 @@ public class MainActivity extends AppCompatActivity {
             float x,y;
             String matchingAppNames = "";
 
-
             x = motionEvent.getX();
             y = motionEvent.getY();
 
@@ -280,20 +279,25 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    int[] position = _movements.FindInitialViewByLocation(x,y);
-                    _drawingView.touch_move(x,y);
-                    //Passing in a fake list for testing
-                    if(_runMode && _movements.MovementOccurred(x, y)){
-                        _dataBase.NextMovement(_movements.GetMovements());
-                        ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
+                    if(!_movements.get_errorThrown() && !_movements.get_errorThrown()) {
+                        // TODO: remove this before publication.
+                        int[] position = _movements.FindInitialViewByLocation(x, y);
+                        _drawingView.touch_move(x, y);
+                        //Passing in a fake list for testing
+                        if (_runMode && _movements.MovementOccurred(x, y)) {
+                            _dataBase.NextMovement(_movements.get_currentMovements());
+                            ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
-                        matchingAppNames = "Matched with:";
-                        for(AppStorage current : matchingApps){
-                            matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                            matchingAppNames = "Matched with:";
+                            for (AppStorage current : matchingApps) {
+                                matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                            }
                         }
-                    }
 
-                    value = true;
+                        value = true;
+                    }else
+                        value = false;
+
                     break;
 
                 case MotionEvent.ACTION_UP:
@@ -304,7 +308,8 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
-                    if(!_runMode) {
+                    Toast.makeText(getApplicationContext(), _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
+                    if(!_runMode && !_movements.get_errorThrown() && !_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                         if (_hasSelection) {
                             // Save the selection
                             _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());

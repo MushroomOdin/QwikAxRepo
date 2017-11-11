@@ -1,5 +1,7 @@
 package cmps121.qwikax.Node_Related;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
@@ -85,6 +87,7 @@ public class Movement {
     private int _columns;
     private ArrayList<MovementType> _movementsMade;
     private ArrayList<MovementType> _currentMovements;
+    private boolean _errorThrown;
 
     // FIELDS
 
@@ -110,54 +113,61 @@ public class Movement {
 
     // METHODS
 
-    private void CheckForDiagonal(ArrayList<MovementType> movements){
-        MovementType currentMovement = movements.get(movements.size() - 1);
-        MovementType change = null;
-        if(movements.size() >= 2) {
-            MovementType lastMovement = movements.get(movements.size() - 2);
-            switch (lastMovement) {
-                case UP:
-                    if (currentMovement == MovementType.RIGHT)
-                        change = MovementType.TOP_RIGHT;
-                    else if (currentMovement == MovementType.LEFT)
-                        change = MovementType.TOP_LEFT;
-                    break;
+    private ArrayList<MovementType> CheckForDiagonal(ArrayList<MovementType> movements){
+        try {
+            MovementType currentMovement = movements.get(movements.size() - 1);
+            MovementType change = null;
+            if (movements.size() >= 2) {
+                MovementType lastMovement = movements.get(movements.size() - 2);
+                switch (lastMovement) {
+                    case UP:
+                        if (currentMovement == MovementType.RIGHT)
+                            change = MovementType.TOP_RIGHT;
+                        else if (currentMovement == MovementType.LEFT)
+                            change = MovementType.TOP_LEFT;
+                        break;
 
-                case DOWN:
-                    if (currentMovement == MovementType.RIGHT)
-                        change = MovementType.BOTTOM_RIGHT;
-                    else if (currentMovement == MovementType.LEFT)
-                        change = MovementType.BOTTOM_LEFT;
-                    break;
+                    case DOWN:
+                        if (currentMovement == MovementType.RIGHT)
+                            change = MovementType.BOTTOM_RIGHT;
+                        else if (currentMovement == MovementType.LEFT)
+                            change = MovementType.BOTTOM_LEFT;
+                        break;
 
-                case LEFT:
-                    if (currentMovement == MovementType.UP)
-                        change = MovementType.TOP_LEFT;
-                    else if (currentMovement == MovementType.DOWN)
-                        change = MovementType.BOTTOM_LEFT;
-                    break;
+                    case LEFT:
+                        if (currentMovement == MovementType.UP)
+                            change = MovementType.TOP_LEFT;
+                        else if (currentMovement == MovementType.DOWN)
+                            change = MovementType.BOTTOM_LEFT;
+                        break;
 
-                case RIGHT:
-                    if (currentMovement == MovementType.UP)
-                        change = MovementType.TOP_RIGHT;
-                    else if (currentMovement == MovementType.DOWN)
-                        change = MovementType.BOTTOM_RIGHT;
-                    break;
+                    case RIGHT:
+                        if (currentMovement == MovementType.UP)
+                            change = MovementType.TOP_RIGHT;
+                        else if (currentMovement == MovementType.DOWN)
+                            change = MovementType.BOTTOM_RIGHT;
+                        break;
 
-                case BOTTOM_LEFT:
-                case BOTTOM_RIGHT:
-                case TOP_LEFT:
-                case TOP_RIGHT:
-                    // Does nothing
-                    break;
+                    case BOTTOM_LEFT:
+                    case BOTTOM_RIGHT:
+                    case TOP_LEFT:
+                    case TOP_RIGHT:
+                        // Does nothing
+                        break;
+                }
             }
+
+            if (change != null) {
+                movements.remove(movements.size() - 1);
+                movements.remove(movements.size() - 1);
+                movements.add(change);
+            }
+        }catch (Exception ex){
+            Log.e("ERROR", "Check for diagonal inside of Movement had an error.\n" + ex.getMessage());
+            _errorThrown = true;
         }
 
-        if(change != null){
-            _movementsMade.remove(_movementsMade.size() - 1);
-            _movementsMade.remove(_movementsMade.size() - 1);
-            _movementsMade.add(change);
-        }
+        return movements;
     }
 
     // Coppies the current object to presever the original.
@@ -168,16 +178,21 @@ public class Movement {
     // Finds the location of the view depending on the initial x,y location.
     public int[] FindInitialViewByLocation(float x, float y) {
         int[] positions = {-1,-1};
-        // Find out how to tell location from
-        for (int row = 0; row < _rows; row++) {
-            for(int column = 0; column < _columns; column++){
-                if(_items[row][column].isWithinBounds(x,y)){
-                    positions[0] = row;
-                    positions[1] = column;
-                    row = _rows;
-                    column = _columns;
+        try {
+            // Find out how to tell location from
+            for (int row = 0; row < _rows; row++) {
+                for (int column = 0; column < _columns; column++) {
+                    if (_items[row][column].isWithinBounds(x, y)) {
+                        positions[0] = row;
+                        positions[1] = column;
+                        row = _rows;
+                        column = _columns;
+                    }
                 }
             }
+        }catch (Exception ex){
+            Log.e("ERROR", "Find initial view by location inside of Movement had an error.\n" + ex.getMessage());
+            _errorThrown = true;
         }
 
         return positions;
@@ -190,45 +205,52 @@ public class Movement {
         int horizontalGap = (2 * (distance)) + 1;
         _xPossiblePositions = new int[tiles];
         _yPossiblePositions = new int[tiles];
-        // This does the horizontal areas around the start position
-        while(xPos - distance + count <= xPos + distance) {
-            if ((xPos - distance + count >= 0) && (xPos - distance + count < _columns) && (yPos - distance >= 0)) {
-                _xPossiblePositions[count] = xPos - distance + count;
-                _yPossiblePositions[count] = yPos - distance;
-            } else {
-                _xPossiblePositions[count] = -1;
-                _yPossiblePositions[count] = -1;
+        try {
+            // This does the horizontal areas around the start position
+            while (xPos - distance + count <= xPos + distance) {
+                if ((xPos - distance + count >= 0) && (xPos - distance + count < _columns) && (yPos - distance >= 0)) {
+                    _xPossiblePositions[count] = xPos - distance + count;
+                    _yPossiblePositions[count] = yPos - distance;
+                } else {
+                    _xPossiblePositions[count] = -1;
+                    _yPossiblePositions[count] = -1;
+                }
+
+                if ((yPos + distance < _rows) && (xPos + distance - count >= 0) && (xPos + distance - count < _columns)) {
+                    _xPossiblePositions[count + horizontalGap + verticalGap] = xPos + distance - count;
+                    _yPossiblePositions[count++ + horizontalGap + verticalGap] = yPos + distance;
+                } else {
+                    _xPossiblePositions[count + horizontalGap] = -1;
+                    _yPossiblePositions[count++ + horizontalGap] = -1;
+                }
+
             }
 
-            if ((yPos + distance < _rows) && (xPos + distance - count >= 0) && (xPos + distance - count < _columns)) {
-                _xPossiblePositions[count + horizontalGap + verticalGap] = xPos + distance - count;
-                _yPossiblePositions[count++ + horizontalGap + verticalGap] = yPos + distance;
-            } else {
-                _xPossiblePositions[count + horizontalGap] = -1;
-                _yPossiblePositions[count++ + horizontalGap] = -1;
+            count = 0;
+            // this does the vertical areas around the start position
+            while (yPos - (distance - 1) + count <= yPos + (distance - 1)) {
+                if ((yPos - (distance - 1) + count >= 0) && (yPos + (distance - 1) + count < _rows) && (xPos + distance < _columns)) {
+                    _xPossiblePositions[count + horizontalGap] = xPos + distance;
+                    _yPossiblePositions[count + horizontalGap] = yPos - (distance - 1) + count;
+                } else {
+                    _xPossiblePositions[count + horizontalGap] = -1;
+                    _yPossiblePositions[count + horizontalGap] = -1;
+                }
+
+                if ((yPos + (distance - 1) - count >= 0) && (yPos + (distance - 1) - count < _rows) && (xPos + distance >= 0)) {
+                    _xPossiblePositions[count + (horizontalGap * 2) + verticalGap] = xPos - distance;
+                    _yPossiblePositions[count + (horizontalGap * 2) + verticalGap] = yPos + (distance - 1) + count++;
+                } else {
+                    _xPossiblePositions[count + horizontalGap + verticalGap] = -1;
+                    _yPossiblePositions[count++ + horizontalGap + verticalGap] = -1;
+                }
+
             }
-
-        }
-
-        count = 0;
-        // this does the vertical areas around the start position
-        while(yPos - (distance - 1) + count <= yPos + (distance - 1)) {
-            if ((yPos - (distance - 1) + count >= 0) && (yPos + (distance - 1) + count < _rows) && (xPos + distance < _columns)) {
-                _xPossiblePositions[count + horizontalGap] = xPos + distance;
-                _yPossiblePositions[count + horizontalGap] = yPos - (distance - 1) + count;
-            } else {
-                _xPossiblePositions[count + horizontalGap] = -1;
-                _yPossiblePositions[count + horizontalGap] = -1;
-            }
-
-            if ((yPos + (distance - 1) - count >= 0) && (yPos + (distance - 1) - count < _rows) && (xPos + distance >= 0)) {
-                _xPossiblePositions[count + (horizontalGap * 2) + verticalGap] = xPos - distance;
-                _yPossiblePositions[count + (horizontalGap * 2) + verticalGap] = yPos + (distance - 1) + count++;
-            } else {
-                _xPossiblePositions[count + horizontalGap + verticalGap] = -1;
-                _yPossiblePositions[count++ + horizontalGap + verticalGap] = -1;
-            }
-
+        }catch (Exception ex){
+            Log.e("Error", "Find possible movements inside of Movement class had an error.\n" + ex.getMessage());
+            _errorThrown = true;
+            _xPossiblePositions = null;
+            _yPossiblePositions = null;
         }
     }
 
@@ -236,16 +258,20 @@ public class Movement {
     private int[] FindViewByLocation(float x, float y, int distance){
         int[] positions = {-1,-1};
         int count;
-        for(count = 0; count < _xPossiblePositions.length; count++){
-            int xPos = _xPossiblePositions[count];
-            int yPos = _yPossiblePositions[count];
-            if(((xPos != -1) && (yPos != -1)) ? _items[xPos][yPos].isWithinBounds(x,y) : false)
-                break;
-        }
-
-        if(count < _xPossiblePositions.length){
-            positions[0] = _xPossiblePositions[count];
-            positions[1] = _yPossiblePositions[count];
+        try {
+            for (count = 0; count < _xPossiblePositions.length; count++) {
+                int xPos = _xPossiblePositions[count];
+                int yPos = _yPossiblePositions[count];
+                if (((xPos != -1) && (yPos != -1)) ? _items[xPos][yPos].isWithinBounds(x, y) : false)
+                    break;
+            }
+            if (count < _xPossiblePositions.length) {
+                positions[0] = _xPossiblePositions[count];
+                positions[1] = _yPossiblePositions[count];
+            }
+        }catch (Exception ex){
+            Log.e("Error", "Find view by location inside of Movement class had an error.\n" + ex.getMessage());
+            _errorThrown = true;
         }
 
         return positions;
@@ -253,34 +279,35 @@ public class Movement {
 
     private ArrayList<MovementType> FindShortestPath(int[] start, int[] end){
         ArrayList<MovementType> movements = new ArrayList<>();
-        int xDifference = start[0] - end[0];
-        int yDifference = start[1] - end[1];
+        try {
+            int xDifference = start[0] - end[0];
+            int yDifference = start[1] - end[1];
 
-        while((xDifference != 0) || (yDifference != 0)){
-            if(xDifference > 0){
-                movements.add(MovementType.DOWN);
-                xDifference--;
-            }else if(xDifference < 0){
-                movements.add(MovementType.UP);
-                xDifference++;
+            while ((xDifference != 0) || (yDifference != 0)) {
+                if (xDifference > 0) {
+                    movements.add(MovementType.UP);
+                    xDifference--;
+                } else if (xDifference < 0) {
+                    movements.add(MovementType.DOWN);
+                    xDifference++;
+                }
+
+                if (yDifference > 0) {
+                    movements.add(MovementType.LEFT);
+                    yDifference--;
+                } else if (yDifference < 0) {
+                    movements.add(MovementType.RIGHT);
+                    yDifference++;
+                }
+
+                movements = CheckForDiagonal(movements);
             }
-
-            if(yDifference > 0){
-                movements.add(MovementType.LEFT);
-                yDifference--;
-            }else if(yDifference < 0){
-                movements.add(MovementType.RIGHT);
-                yDifference++;
-            }
-
-            CheckForDiagonal(movements);
+        }catch (Exception ex){
+            Log.e("Error", "Find shortest path inside of Movement class had an error.\n" + ex.getMessage());
+            _errorThrown = true;
         }
 
         return movements;
-    }
-
-    public ArrayList<MovementType> GetMovements(){
-        return _currentMovements;
     }
 
     // Called by touch listener down press, will capture the initial position, and then find where the possible movements are.
@@ -301,23 +328,28 @@ public class Movement {
         int count = 1;
         boolean moved = false;
         int[] endPosition = new int[2];
-        if(!_items[_previousPosition[0]][_previousPosition[1]].isWithinBounds(x,y)) {
-            do {
-                FindPossibleMovements(_previousPosition, count);
-                endPosition = FindViewByLocation(x, y, count++);
-            } while (endPosition[0] == -1 && (count < 5));
+        try {
+            if (!_items[_previousPosition[0]][_previousPosition[1]].isWithinBounds(x, y)) {
+                do {
+                    FindPossibleMovements(_previousPosition, count);
+                    endPosition = FindViewByLocation(x, y, count++);
+                } while (endPosition[0] == -1 && (count < 5));
 
-            if(endPosition[0] == -1)
-                endPosition = FindInitialViewByLocation(x,y);
+                if (endPosition[0] == -1)
+                    endPosition = FindInitialViewByLocation(x, y);
 
-            _currentMovements.clear();
-            ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
-            _currentMovements.addAll(movements);
-            _movementsMade.addAll(movements);
-            moved = true;
-        }else{
-            endPosition[0] = _previousPosition[0];
-            endPosition[1] = _previousPosition[1];
+                _currentMovements.clear();
+                ArrayList<MovementType> movements = FindShortestPath(_previousPosition, endPosition);
+                _currentMovements.addAll(movements);
+                _movementsMade.addAll(movements);
+                moved = true;
+            } else {
+                endPosition[0] = _previousPosition[0];
+                endPosition[1] = _previousPosition[1];
+            }
+        }catch (Exception ex){
+            Log.e("Error", "Movement occurred inside of Movement class had an error.\n" + ex.getMessage());
+            _errorThrown = true;
         }
 
         return moved;
@@ -326,14 +358,19 @@ public class Movement {
     // Resets the class so that we start off fresh with a new down click.
     public void Reset(){
         _movementsMade = new ArrayList<>();
+        _errorThrown = false;
     }
 
     // METHODS
 
     // GETTERS AND SETTERS
 
+    public ArrayList<MovementType> get_currentMovements(){
+        return _currentMovements;
+    }
     public ArrayList<MovementType> get_movementsMade(){ return _movementsMade; }
     public CoordinateSystem[][] get_items(){return _items; }
+    public boolean get_errorThrown(){return _errorThrown;}
 
     // GETTERS AND SETTERS
 }
