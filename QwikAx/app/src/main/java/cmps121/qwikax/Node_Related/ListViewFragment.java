@@ -1,6 +1,8 @@
 package cmps121.qwikax.Node_Related;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -10,6 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cmps121.qwikax.R;
 
@@ -39,6 +47,32 @@ public class ListViewFragment extends android.support.v4.app.Fragment {
         return view;
     }
 
+    public void setList(ListView apps){
+
+        PackageManager pm = getActivity().getPackageManager();
+        List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
+        String[] appArray = new String[allApps.size()];
+        for(int i=0; i<allApps.size(); i++){
+            String app = removeChars(allApps.get(i).toString());
+            appArray[i] = app;
+        }
+
+        ArrayList<String> appList = new ArrayList<String>();
+        appList.addAll(Arrays.asList(appArray));
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, appList);
+
+        apps.setAdapter(appAdapter);
+    }
+
+    public String removeChars(String s){
+        String chopped = "Could Not Find";
+        Pattern pattern = Pattern.compile("(\\S+om\\S+)");
+        Matcher matcher = pattern.matcher(s);
+        if (matcher.find()){
+            chopped = matcher.group(1).substring(0,matcher.group(1).length() - 1);
+        }
+        return chopped;
+    }
     /*
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
