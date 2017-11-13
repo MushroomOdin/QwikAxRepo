@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="cmps121.qwikax.MainActivity"
-    android:id="@+id/container">
+    >
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
@@ -34,13 +34,21 @@
             android:layout_weight="4"
             layout="@layout/grid_view"
             />-->
-
+<!--
         <ListView
             android:id="@+id/applicationListView"
             android:layout_width="fill_parent"
             android:layout_height="0px"
             android:layout_weight="1" />
+-->
+        <LinearLayout
+            android:id="@+id/container"
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:orientation="vertical"
+            android:layout_weight="1"></LinearLayout>
 
     </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

@@ -97,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
         _gridView.setNumColumns(_columns);
         SetAdapter();
 
-        _listView = (ListView) findViewById(R.id.applicationListView);
+     //   _listView = (ListView) findViewById(R.id.applicationListView);
       //  setList(_listView);
-
+/*
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
+*/
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _gridView.setOnTouchListener(new CustomTouchListener());
         _pointsHit = new ArrayList<>();
