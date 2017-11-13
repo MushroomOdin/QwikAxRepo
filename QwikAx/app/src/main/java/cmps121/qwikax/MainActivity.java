@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.regex.Pattern;
 import cmps121.qwikax.Adapters.CustomGridAdapter;
 import cmps121.qwikax.Node_Related.CoordinateSystem;
 import cmps121.qwikax.Node_Related.IndividualNode;
+import cmps121.qwikax.Node_Related.ListViewFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -82,6 +84,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ListViewFragment mList = new ListViewFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.container, mList).commit();
+
+
+
         _rows = 10;
         _columns = 10;
         _runMode = true;
@@ -91,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         SetAdapter();
 
         _listView = (ListView) findViewById(R.id.applicationListView);
-        setList(_listView);
+      //  setList(_listView);
 
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -250,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
     //Need to only show the useful apps like phone, text, ... instead of the system apps
     //Clean up by adding the app pictures and setting to grid view
     //Need to make items clickable to open the app itself DONE
+    /*
     public void setList(ListView apps){
         PackageManager pm = getPackageManager();
         List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
@@ -274,5 +282,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return chopped;
     }
-
+*/
 }

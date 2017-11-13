@@ -7,18 +7,39 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
 
 import cmps121.qwikax.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ListViewFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ListViewFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ListViewFragment extends Fragment {
+
+public class ListViewFragment extends android.support.v4.app.Fragment {
+
+    public ListViewFragment(){
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState){
+        View view = inflater.inflate(R.layout.fragment_list_view, container, false);
+
+        String[] items = {"thing 1", "thing 2", "things3"};
+        ListView listView = (ListView) view.findViewById(R.id.testlist);
+
+        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(
+                getActivity(),
+                android.R.layout.simple_list_item_1,
+                items
+        );
+        if(listView != null) {
+            listView.setAdapter(listViewAdapter);
+        }
+        return view;
+    }
+
+    /*
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -43,6 +64,7 @@ public class ListViewFragment extends Fragment {
      * @return A new instance of fragment ListViewFragment.
      */
     // TODO: Rename and change types and number of parameters
+    /*
     public static ListViewFragment newInstance(String param1, String param2) {
         ListViewFragment fragment = new ListViewFragment();
         Bundle args = new Bundle();
@@ -102,8 +124,11 @@ public class ListViewFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
+    /*
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+*/
 }
