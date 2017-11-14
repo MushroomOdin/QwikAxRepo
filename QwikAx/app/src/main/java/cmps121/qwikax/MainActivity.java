@@ -331,31 +331,35 @@ public class MainActivity extends AppCompatActivity {
                     for(Movement.MovementType move : _movements.get_movementsMade())
                         sentence.append(move.toString() + " ");
 
-                    Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
-                    Toast.makeText(getApplicationContext(), "Number of Movements made: " + _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "Number of Movements made: " + _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
                     if(!_runMode && !_movements.get_errorThrown() && !_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                         if (_hasSelection) {
                             // Save the selection
                             _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
-                            Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "Added to tree!", Toast.LENGTH_SHORT).show();
                             _inputNum--;
 
                         } else {
                             Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
                         }
                     }else{
-                        if(_dataBase.get_currentMatches().size() > 0)
-                            matchingAppNames = ((AppStorage)_dataBase.get_currentMatches().get(0)).get_relativeName();
+                        if(_dataBase.get_currentMatches().size() > 0) {
+                            matchingAppNames = ((AppStorage) _dataBase.get_currentMatches().get(0)).get_relativeName();
 
-                        Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "hi", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
-                    if(_inputNum != 0){
-                        Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
-                    }else{
-                        _runMode = true;
-                        Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
-                        Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
+                    if (_runMode != true ) {
+                        if (_inputNum != 0) {
+                            Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
+                        } else {
+                            _runMode = true;
+                            Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     value = true;
