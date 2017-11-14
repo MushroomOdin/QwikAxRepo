@@ -1,6 +1,12 @@
-package cmps121.qwikax.Node_Related;
+package cmps121.qwikax.Data_Base;
+
+import android.view.MotionEvent;
+import android.view.View;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import cmps121.qwikax.Node_Related.IndividualNode;
 
 /**
  * Created by andrew on 10/18/2017.
@@ -27,56 +33,14 @@ public class Movement {
         private final int value;
         MovementType (int value) {this.value = value;}
         public int getValue() {return value;}
-
-        public static MovementType Convert(int position){
-            MovementType type = null;
-            switch (position){
-                case 0:
-                    type = RIGHT;
-                    break;
-
-                case 1:
-                    type = LEFT;
-                    break;
-
-                case 2:
-                    type = UP;
-                    break;
-
-                case 3:
-                    type = DOWN;
-                    break;
-
-                case 4:
-                    type = BOTTOM_RIGHT;
-                    break;
-
-                case 5:
-                    type = BOTTOM_LEFT;
-                    break;
-
-                case 6:
-                    type = TOP_RIGHT;
-                    break;
-
-                case 7:
-                    type = TOP_LEFT;
-                    break;
-
-                case 8:
-                    type = INITIAL_POSITION;
-                    break;
-            }
-
-            return type;
-        }
     }
+
 
     // ENUMERATION
 
     // FIELDS
 
-    private ArrayList<CoordinateSystem> _items;
+    private ArrayList<IndividualNode> _items;
     private int[] _possiblePositions;
     private int _initialPosition;
     private MovementType _lastMovement;
@@ -89,7 +53,7 @@ public class Movement {
 
     // CONSTRUCTORS
 
-    public Movement(ArrayList<CoordinateSystem> items, int rows, int columns){
+    public Movement(ArrayList<IndividualNode> items, int rows, int columns){
         _items = items;
         _possiblePositions = new int[4];
         _rows = rows;
@@ -155,17 +119,13 @@ public class Movement {
 
     }
 
-    // Coppies the current object to presever the original.
-    public Movement Copy(){
-       return new Movement(this._items, this._rows, this._columns);
-    }
-
     // Finds the location of the view depending on the initial x,y location.
     private int FindInitialViewByLocation(float x, float y) {
         int count = 0;
         // Find out how to tell location from
-        for (CoordinateSystem node: _items) {
-            if(node.isWithinBounds(x,y)){
+        for (IndividualNode node: _items) {
+            if((node.get_coordinateSystem().isWithinBounds(x,y)) && (!node.isHighLight())){
+                node.setHighLight(true);
                 break;
             }
 
@@ -210,7 +170,7 @@ public class Movement {
         int count = 0;
         for (int position: _possiblePositions) {
             if(position != -1)
-                if(_items.get(position).isWithinBounds(x,y))
+                if(_items.get(position).get_coordinateSystem().isWithinBounds(x,y))
                     break;
 
             count++;
@@ -249,8 +209,8 @@ public class Movement {
                 currentMove = MovementType.DOWN;
 
             _movementsMade.add(currentMove);
-            if (_lastMovement != null)
-                CheckForDiagonal(currentMove);
+            /*if (_lastMovement != null)
+                CheckForDiagonal(currentMove);*/
 
             _lastMovement = currentMove;
             int currentPosition = _possiblePositions[position];
@@ -278,8 +238,7 @@ public class Movement {
     public int[] get_possiblePositions() { return _possiblePositions; }
     public ArrayList<MovementType> get_movementsMade(){ return _movementsMade; }
     public ArrayList<Integer> get_movementPositions(){ return _movementPositions; }
-    public int get_initialPosition(){return _initialPosition; }
-    public ArrayList<CoordinateSystem> get_items(){return _items; }
+    public int get_initialPosition(){return _initialPosition;}
 
     // GETTERS AND SETTERS
 }
