@@ -71,6 +71,7 @@ public class DataBaseHandler implements Serializable {
                 DataBaseNode currentNode = node.get_pointers()[count];
                 if( currentNode != null) {
                     if(currentNode.get_appStorage().size() != 0) {
+
                         list.addAll(currentNode.get_appStorage());
                         //RemoveDuplicatesFromList(list);
                     }

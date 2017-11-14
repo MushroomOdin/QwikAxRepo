@@ -93,10 +93,11 @@ public class Movement {
 
     // CONSTRUCTORS
 
-    public Movement(CoordinateSystem[][] items, int rows, int columns){
-        _items = items;
+    public Movement( int rows, int columns){
+
         _rows = rows;
         _columns = columns;
+        _items = new CoordinateSystem[_rows][_columns];
         _currentMovements = new ArrayList<>();
         Reset();
     }
@@ -319,6 +320,21 @@ public class Movement {
         _movementsMade = new ArrayList<>();
         _currentMovements = new ArrayList<>();
         _errorThrown = false;
+    }
+
+    public void ResizeCoordinateSystem(int left,int top, int right, int bottom, int screenOrientation){
+        int xDistance = (right - left) / _columns;
+        int yDistance= (bottom - top) / _rows;
+        int xPos = 0;
+        int yPos = 0;
+        for(int row = 0; row < _rows; row++){
+            for(int column = 0; column < _columns; column++){
+                _items[row][column] = new CoordinateSystem(xPos, yPos, xDistance, yDistance,screenOrientation);
+                xPos += xDistance;
+            }
+            xPos = 0;
+            yPos += yDistance;
+        }
     }
 
     // METHODS

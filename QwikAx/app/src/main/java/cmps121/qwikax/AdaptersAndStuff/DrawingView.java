@@ -127,7 +127,6 @@ public class DrawingView extends View {
     }
 
 
-
     // GETTERS AND SETTERS
 
     public Paint get_paint(){return _paint;}

@@ -19,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -95,11 +94,11 @@ public class MainActivity extends AppCompatActivity {
         _runMode = true;
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
-        CoordinateSystem[][] items = SetAdapter();
+
+        SetOnLayoutChange();
 
         //Populates _listView and creates appInfo(list of "com.~~~~~")
         ListOps apps = new ListOps(getPackageManager(), getBaseContext());
-        final List<String> appInfo = apps.getInfo(getPackageManager());
         ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, apps.getName());
         _listView = (ListView) findViewById(R.id.applicationListView);
         _listView.setAdapter(appAdapter);
@@ -110,33 +109,12 @@ public class MainActivity extends AppCompatActivity {
         _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
         Toast.makeText(getApplicationContext(), "Number of applications in tree: " + appList.size(), Toast.LENGTH_SHORT).show();
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
-        _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                if(_runMode == true) {
-                    String chosenApp = appInfo.get(i).toString();
-                    if (chosenApp != null) {
-                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
-                        if (Launch != null) {
-                            startActivity(Launch);
-                        }
-                    }
-                }else{
-                    _selectedAppName = _listView.getItemAtPosition(i).toString();
-                    _selectedAppRunnable = appInfo.get(i).toString();
-                    Toast.makeText(getApplicationContext(), "Please enter your gesture for "
-                            + _selectedAppName, Toast.LENGTH_SHORT).show();
-                    _hasSelection = true;
-                }
-
-
-            }
-        });
+        SetOnListClickListener(apps);
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _drawingView.setOnTouchListener(new CustomGridViewTouchListener());
-        _movements = new Movement(items, _rows, _columns);
+        _movements = new Movement(_rows, _columns);
     }
 
     @Override
@@ -202,65 +180,42 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public String removeChars(String s){
-        String chopped = "Could Not Find";
-        Pattern pattern = Pattern.compile("(\\S+om\\S+)");
-        Matcher matcher = pattern.matcher(s);
-        if (matcher.find()){
-            chopped = matcher.group(1).substring(0,matcher.group(1).length() - 1);
-        }
-        return chopped;
-    }
-
-    // Sets the adapter to the grid view.
-    private CoordinateSystem[][] SetAdapter() {
-        CoordinateSystem[][] items = new CoordinateSystem[_rows][_columns];
-        double xPos = 0, yPos = 0, xDistance, yDistance;
-
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
-        int width = size.x;
-        int height = size.y;
-
-        xDistance = width  / _columns;
-        // TODO: get rid of the constant.
-        yDistance = (height *.8) / _rows;
-
-        for (int i = 0; i < _rows; i++)
-        {
-            for(int j = 0; j < _columns; j++){
-                items[i][j] = new CoordinateSystem(xPos,yPos,xDistance,yDistance,getWindowManager().getDefaultDisplay().getRotation());
-
-                if((xPos += xDistance) >= width) {
-                    xPos = 0;
-                    yPos += yDistance;
-                }
+    // Sets the on layout change to the drawing view.
+    private void SetOnLayoutChange(){
+        _drawingView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View view, int left, int top, int right, int bottom,  int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                _movements.ResizeCoordinateSystem(left, top, right, bottom, getWindowManager().getDefaultDisplay().getRotation());
             }
-        }
-
-        return items;
+        });
     }
 
-    //Lists all the available apps on device
-    //Need to only show the useful apps like phone, text, ... instead of the system apps
-    //Clean up by adding the app pictures and setting to grid view
-    //Need to make items clickable to open the app itself DONE
-    public void setList(ListView apps){
-        PackageManager pm = getPackageManager();
-        List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
-        String[] appArray = new String[allApps.size()];
-        for(int i=0; i<allApps.size(); i++){
-            String app = removeChars(allApps.get(i).toString());
-            appArray[i] = app;
-        }
+    // Sets the on click listener inside the List View.
+    private void SetOnListClickListener(ListOps apps){
+        final List<String> appInfo = apps.getInfo(getPackageManager());
+        _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-        ArrayList<String> appList = new ArrayList<String>();
-        appList.addAll(Arrays.asList(appArray));
-        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, appList);
+                if(_runMode == true) {
+                    String chosenApp = appInfo.get(i).toString();
+                    if (chosenApp != null) {
+                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                        if (Launch != null) {
+                            startActivity(Launch);
+                        }
+                    }
+                }else{
+                    _selectedAppName = _listView.getItemAtPosition(i).toString();
+                    _selectedAppRunnable = appInfo.get(i).toString();
+                    Toast.makeText(getApplicationContext(), "Please enter your gesture for "
+                            + _selectedAppName, Toast.LENGTH_SHORT).show();
+                    _hasSelection = true;
+                }
 
-        apps.setAdapter(appAdapter);
+
+            }
+        });
     }
 
     // Used to save the data base to a file.
