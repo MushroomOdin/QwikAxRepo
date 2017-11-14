@@ -310,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
                         if (_movements.MovementOccurred(x, y)) {
                             if(_runMode ) {
                                 _dataBase.NextMovement(_movements.get_currentMovements());
+
                                 ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
                                 matchingAppNames = "Matched with:";
@@ -349,6 +350,14 @@ public class MainActivity extends AppCompatActivity {
 
                             Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
                             //Toast.makeText(getApplicationContext(), "hi", Toast.LENGTH_SHORT).show();
+
+                            String chosenApp = ((AppStorage) _dataBase.get_currentMatches().get(0)).get_abesoluteName() ;
+                            if (chosenApp != null) {
+                                Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                                if (Launch != null) {
+                                    startActivity(Launch);
+                                }
+                            }
                         }
                     }
 
