@@ -113,64 +113,7 @@ public class Movement {
 
     // METHODS
 
-    private ArrayList<MovementType> CheckForDiagonal(ArrayList<MovementType> movements){
-        try {
-            MovementType currentMovement = movements.get(movements.size() - 1);
-            MovementType change = null;
-            if (movements.size() >= 2) {
-                MovementType lastMovement = movements.get(movements.size() - 2);
-                switch (lastMovement) {
-                    case UP:
-                        if (currentMovement == MovementType.RIGHT)
-                            change = MovementType.TOP_RIGHT;
-                        else if (currentMovement == MovementType.LEFT)
-                            change = MovementType.TOP_LEFT;
-                        break;
-
-                    case DOWN:
-                        if (currentMovement == MovementType.RIGHT)
-                            change = MovementType.BOTTOM_RIGHT;
-                        else if (currentMovement == MovementType.LEFT)
-                            change = MovementType.BOTTOM_LEFT;
-                        break;
-
-                    case LEFT:
-                        if (currentMovement == MovementType.UP)
-                            change = MovementType.TOP_LEFT;
-                        else if (currentMovement == MovementType.DOWN)
-                            change = MovementType.BOTTOM_LEFT;
-                        break;
-
-                    case RIGHT:
-                        if (currentMovement == MovementType.UP)
-                            change = MovementType.TOP_RIGHT;
-                        else if (currentMovement == MovementType.DOWN)
-                            change = MovementType.BOTTOM_RIGHT;
-                        break;
-
-                    case BOTTOM_LEFT:
-                    case BOTTOM_RIGHT:
-                    case TOP_LEFT:
-                    case TOP_RIGHT:
-                        // Does nothing
-                        break;
-                }
-            }
-
-            if (change != null) {
-                movements.remove(movements.size() - 1);
-                movements.remove(movements.size() - 1);
-                movements.add(change);
-            }
-        }catch (Exception ex){
-            Log.e("ERROR", "Check for diagonal inside of Movement had an error.\n" + ex.getMessage());
-            _errorThrown = true;
-        }
-
-        return movements;
-    }
-
-    // Coppies the current object to presever the original.
+    // Copies the current object to presever the original.
     public Movement Copy(){
        return new Movement(this._items, this._rows, this._columns, this._movementsMade);
     }
@@ -280,32 +223,47 @@ public class Movement {
     private ArrayList<MovementType> FindShortestPath(int[] start, int[] end){
         ArrayList<MovementType> movements = new ArrayList<>();
         try {
-            int xDifference = start[0] - end[0];
-            int yDifference = start[1] - end[1];
+            int yDifference = start[0] - end[0];
+            int xDifference = start[1] - end[1];
 
             while ((xDifference != 0) || (yDifference != 0)) {
-                if (xDifference > 0) {
-                    movements.add(MovementType.UP);
-                    xDifference--;
-                } else if (xDifference < 0) {
-                    movements.add(MovementType.DOWN);
-                    xDifference++;
-                }
-
-                if (yDifference > 0) {
-                    movements.add(MovementType.LEFT);
+                if ((xDifference > 0) && (yDifference > 0)) {
+                    movements.add(MovementType.TOP_LEFT);
                     yDifference--;
-                } else if (yDifference < 0) {
+                    xDifference--;
+                } else if((xDifference < 0) && (yDifference > 0)){
+                    movements.add(MovementType.TOP_RIGHT);
+                    yDifference--;
+                    xDifference++;
+                }else if ((xDifference > 0) && (yDifference < 0)) {
+                    movements.add(MovementType.BOTTOM_LEFT);
+                    xDifference++;
+                    yDifference--;
+                }else if ((xDifference < 0) && (yDifference < 0)) {
+                    movements.add(MovementType.BOTTOM_RIGHT);
+                    xDifference--;
+                    yDifference--;
+                }else if((xDifference > 0) && (yDifference == 0)) {
+                    movements.add(MovementType.LEFT);
+                    xDifference--;
+                }else if((xDifference < 0) && (yDifference == 0)) {
                     movements.add(MovementType.RIGHT);
+                    xDifference++;
+                }else if((xDifference == 0) && (yDifference < 0)) {
+                    movements.add(MovementType.DOWN);
                     yDifference++;
+                }else if((xDifference == 0) && (yDifference > 0)) {
+                    movements.add(MovementType.UP);
+                    yDifference--;
                 }
-
-                movements = CheckForDiagonal(movements);
             }
         }catch (Exception ex){
             Log.e("Error", "Find shortest path inside of Movement class had an error.\n" + ex.getMessage());
             _errorThrown = true;
         }
+
+        if(movements.size() > 8)
+            Log.e("INFORMATION", "Spaces moved: " + movements.size());
 
         return movements;
     }
@@ -343,6 +301,7 @@ public class Movement {
                 _currentMovements.addAll(movements);
                 _movementsMade.addAll(movements);
                 moved = true;
+                _previousPosition = endPosition;
             } else {
                 endPosition[0] = _previousPosition[0];
                 endPosition[1] = _previousPosition[1];
@@ -358,6 +317,7 @@ public class Movement {
     // Resets the class so that we start off fresh with a new down click.
     public void Reset(){
         _movementsMade = new ArrayList<>();
+        _currentMovements = new ArrayList<>();
         _errorThrown = false;
     }
 

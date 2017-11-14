@@ -62,16 +62,19 @@ public class MainActivity extends AppCompatActivity {
     // METHODS
 
     // Restores our Data Base object from a file.
-    private void LoadDataBaseFromFile(String fileName) {
+    private void LoadDataBaseFromFile(String fileName, ArrayList<String> appList) {
         try{
             FileInputStream fis = getApplicationContext().openFileInput(fileName);
             ObjectInputStream is = new ObjectInputStream(fis);
             _dataBase = (DataBaseHandler) is.readObject();
             is.close();
             fis.close();
+            // TODO: remove this
+            //_dataBase = new DataBaseHandler(appList);
         }catch(Exception ex){
             Log.e("Error", ex.getMessage().toString());
-            _dataBase = new DataBaseHandler();
+            Toast.makeText(getApplicationContext(), "Data base was not loaded.", Toast.LENGTH_LONG).show();
+            _dataBase = new DataBaseHandler(appList);
         }
     }
 
@@ -84,9 +87,6 @@ public class MainActivity extends AppCompatActivity {
         _columns = 20;
         _runMode = true;
 
-        LoadDataBaseFromFile("QwikAxSaveFile.txt");
-        _dataBase = new DataBaseHandler();
-
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
         CoordinateSystem[][] items = SetAdapter();
 
@@ -97,6 +97,11 @@ public class MainActivity extends AppCompatActivity {
         _listView = (ListView) findViewById(R.id.applicationListView);
         _listView.setAdapter(appAdapter);
 
+        LoadDataBaseFromFile("QwikAxSaveFile.txt", apps.getName());
+        ArrayList<AppStorage> appList = new ArrayList<>();
+        // TODO: remove this, just to make sure that at start things are being loaded in the database.
+        _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
+        Toast.makeText(getApplicationContext(), "Number of applications in tree: " + appList.size(), Toast.LENGTH_SHORT).show();
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -198,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
+
         int width = size.x;
         int height = size.y;
 
@@ -272,25 +278,27 @@ public class MainActivity extends AppCompatActivity {
             {
                 case MotionEvent.ACTION_DOWN:
                     _movements.InitialPosition(x, y);
-                    _dataBase.InitialMovement();
+                    if(_runMode)
+                        _dataBase.InitialMovement();
+
                     _drawingView.touch_start(x, y);
                     _drawingView.ClearCanvas();
                     value = true;
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    if(!_movements.get_errorThrown() && !_movements.get_errorThrown()) {
-                        // TODO: remove this before publication.
-                        int[] position = _movements.FindInitialViewByLocation(x, y);
+                    if(!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                         _drawingView.touch_move(x, y);
                         //Passing in a fake list for testing
-                        if (_runMode && _movements.MovementOccurred(x, y)) {
-                            _dataBase.NextMovement(_movements.get_currentMovements());
-                            ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
+                        if (_movements.MovementOccurred(x, y)) {
+                            if(_runMode ) {
+                                _dataBase.NextMovement(_movements.get_currentMovements());
+                                ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
-                            matchingAppNames = "Matched with:";
-                            for (AppStorage current : matchingApps) {
-                                matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                                matchingAppNames = "Matched with:";
+                                for (AppStorage current : matchingApps) {
+                                    matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                                }
                             }
                         }
 
@@ -303,12 +311,11 @@ public class MainActivity extends AppCompatActivity {
                 case MotionEvent.ACTION_UP:
                     _drawingView.touch_up();
                     StringBuilder sentence = new StringBuilder();
-                    for(Movement.MovementType move : _movements.get_movementsMade()){
+                    for(Movement.MovementType move : _movements.get_movementsMade())
                         sentence.append(move.toString() + " ");
-                    }
 
                     Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
-                    Toast.makeText(getApplicationContext(), _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Number of Movements made: " + _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
                     if(!_runMode && !_movements.get_errorThrown() && !_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                         if (_hasSelection) {
                             // Save the selection
@@ -319,6 +326,9 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
                         }
                     }else{
+                        if(_dataBase.get_currentMatches().size() > 0)
+                            matchingAppNames = ((AppStorage)_dataBase.get_currentMatches().get(0)).get_relativeName();
+
                         Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
                     }
 

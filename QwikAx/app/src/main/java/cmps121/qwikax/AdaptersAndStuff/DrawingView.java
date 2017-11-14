@@ -72,6 +72,27 @@ public class DrawingView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        canvas.drawColor(Color.WHITE);
+        int numColumns = 20;
+        int numRows = 20;
+        if (numColumns == 0 || numRows == 0) {
+            return;
+        }
+
+        // TODO: Remove this, Used for coding purposes.
+        int width = getWidth();
+        int height = getHeight();
+        int cellWidth = width / numColumns;
+        int cellHeight = height / numRows;
+
+        for (int i = 1; i < numColumns; i++) {
+            canvas.drawLine(i * cellWidth, 0, i * cellWidth, height, _paint);
+        }
+
+        for (int i = 1; i < numRows; i++) {
+            canvas.drawLine(0, i * cellHeight, width, i * cellHeight, _paint);
+        }
+
         canvas.drawBitmap(_bitmap, 0, 0, _bitmapPaint);
         canvas.drawPath(_path, _paint);
         canvas.drawPath(_circlePath, _circlePaint);

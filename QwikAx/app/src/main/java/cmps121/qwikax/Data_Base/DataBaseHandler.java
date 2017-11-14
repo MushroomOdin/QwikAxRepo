@@ -15,12 +15,12 @@ public class DataBaseHandler implements Serializable {
 
     // CONSTRUCTORS
 
-    public DataBaseHandler(){
+    public DataBaseHandler(ArrayList<String> everyAppName){
         _masterNode = new DataBaseNode();
         _traversalNode = null;
         _currentMatches = new ArrayList<>();
-        _potentialMatches = null;
         _errorThrown = false;
+        _AppNames = everyAppName;
     }
 
 
@@ -31,21 +31,21 @@ public class DataBaseHandler implements Serializable {
     private DataBaseNode _masterNode;
     private DataBaseNode _traversalNode;
     private ArrayList<AppStorage> _currentMatches;
-    private ArrayList<AppStorage> _potentialMatches;
     private boolean _errorThrown;
+    private ArrayList<String> _AppNames;
 
     private static final long serialVersionUID = 3128594851129501738L;
 
     // FIELDS
 
-    // GETTERS
+    // GETTERS AND SETTERS
 
     public DataBaseNode get_masterNode(){return _masterNode;}
     public ArrayList<AppStorage> get_currentMatches(){return _currentMatches;}
     public DataBaseNode get_traversalNode(){return _traversalNode;}
     public boolean get_errorThrown(){return _errorThrown;}
 
-    // GETTERS
+    // GETTERS AND SETTERS
 
     // METHODS
 
@@ -54,15 +54,9 @@ public class DataBaseHandler implements Serializable {
     public void AddNewItemToTree(AppStorage item, ArrayList<Movement.MovementType> movementsMade){
         try {
             DataBaseNode temp = _masterNode;
-
-            for (Movement.MovementType type : movementsMade) {
-                if (temp.MoveToDesiredDataBaseNode(type) == null) {
-                    DataBaseNode[] currentNodeArray = temp.get_pointers();
-                    currentNodeArray[type.getValue()] = new DataBaseNode(temp);
-                }
-
-                temp = temp.MoveToDesiredDataBaseNode(type);
-            }
+            for (Movement.MovementType type : movementsMade)
+                if(type != Movement.MovementType.INITIAL_POSITION)
+                        temp = temp.MoveToDesiredDataBaseNode(type);
 
             temp.AddAppStorageToList(item);
         }catch (Exception ex) {
@@ -71,17 +65,17 @@ public class DataBaseHandler implements Serializable {
         }
     }
 
-    private void FindAllPossibleApplicationsInTree(DataBaseNode node, ArrayList<AppStorage> list){
+    public void FindAllPossibleApplicationsPastNode(DataBaseNode node, ArrayList<AppStorage> list){
         try{
             for(int count = 0; count < 8; count++){
                 DataBaseNode currentNode = node.get_pointers()[count];
                 if( currentNode != null) {
                     if(currentNode.get_appStorage().size() != 0) {
                         list.addAll(currentNode.get_appStorage());
-                        RemoveDuplicatesFromList(list);
+                        //RemoveDuplicatesFromList(list);
                     }
 
-                    FindAllPossibleApplicationsInTree(currentNode, list);
+                    FindAllPossibleApplicationsPastNode(currentNode, list);
                 }
             }
         }catch(Exception ex){
@@ -95,7 +89,7 @@ public class DataBaseHandler implements Serializable {
         _traversalNode = _masterNode;
         _currentMatches.clear();
         _errorThrown = false;
-         FindAllPossibleApplicationsInTree(_traversalNode,_currentMatches);
+         FindAllPossibleApplicationsPastNode(_traversalNode,_currentMatches);
     }
 
     // Used for comparison of a run mode based item only.
@@ -107,8 +101,8 @@ public class DataBaseHandler implements Serializable {
                 else {
                     _traversalNode = _traversalNode.MoveToDesiredDataBaseNode(current);
                     _currentMatches.clear();
-                    FindAllPossibleApplicationsInTree(_traversalNode, _currentMatches);
-                    _currentMatches = SortPossibleApplicationsList(_currentMatches);
+                    FindAllPossibleApplicationsPastNode(_traversalNode, _currentMatches);
+                    //_currentMatches = SortPossibleApplicationsList(_currentMatches);
                 }
             }
         }catch(Exception ex){
