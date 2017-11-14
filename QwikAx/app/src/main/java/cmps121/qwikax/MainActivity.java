@@ -17,9 +17,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+
+import android.widget.Button;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private int _rows;
     private int _columns;
     private boolean _runMode;
+    private int _inputNum;
 
     private ListView _listView;
     private DrawingView _drawingView;
@@ -56,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     private String _selectedAppName;
     private String _selectedAppRunnable;
     private boolean _hasSelection = false;
+
+    private PopupWindow _settings;
 
     // FIELDS
 
@@ -160,15 +167,6 @@ public class MainActivity extends AppCompatActivity {
                 //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
                 //startActivity(startSettings);
 
-                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popup = inflater.inflate(R.layout.settings_menu, null);
-
-                View main = (View) findViewById(R.id.activity_main);
-                PopupWindow settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
-
-                settings.showAtLocation(main, Gravity.CENTER, 0, 0);
-
                 break;
 
             case R.id.action_profile:
@@ -180,6 +178,25 @@ public class MainActivity extends AppCompatActivity {
 
                 String status = (_runMode)? "run": "save";
                 Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
+
+                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                final View popup = inflater.inflate(R.layout.settings_menu, null);
+
+                View main = (View) findViewById(R.id.activity_main);
+                _settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                final TextView txtInputNum = (TextView) popup.findViewById(R.id.txtInputNum);
+                Button closePopup = (Button) popup.findViewById(R.id.btnDone);
+
+                closePopup.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        _inputNum = Integer.valueOf(txtInputNum.getText().toString());
+                        _settings.dismiss();
+                    }
+                });
+                _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
         }
 
         return super.onOptionsItemSelected(item);
@@ -321,6 +338,7 @@ public class MainActivity extends AppCompatActivity {
                             // Save the selection
                             _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
                             Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                            _inputNum--;
 
                         } else {
                             Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
@@ -330,6 +348,14 @@ public class MainActivity extends AppCompatActivity {
                             matchingAppNames = ((AppStorage)_dataBase.get_currentMatches().get(0)).get_relativeName();
 
                         Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
+                    }
+
+                    if(_inputNum != 0){
+                        Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
+                    }else{
+                        _runMode = true;
+                        Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
                     }
 
                     value = true;
