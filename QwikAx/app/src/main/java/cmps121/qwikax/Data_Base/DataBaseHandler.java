@@ -30,6 +30,7 @@ public class DataBaseHandler implements Serializable {
 
     private DataBaseNode _masterNode;
     private DataBaseNode _traversalNode;
+    private int[] _indexs;
     private ArrayList<AppStorage> _currentMatches;
     private boolean _errorThrown;
     private ArrayList<String> _AppNames;
@@ -90,6 +91,7 @@ public class DataBaseHandler implements Serializable {
         _traversalNode = _masterNode;
         _currentMatches.clear();
         _errorThrown = false;
+        _indexs = new int[8];
          FindAllPossibleApplicationsPastNode(_traversalNode,_currentMatches);
     }
 
@@ -101,6 +103,7 @@ public class DataBaseHandler implements Serializable {
                     _traversalNode = _masterNode.MoveToDesiredDataBaseNode(current);
                 else {
                     _traversalNode = _traversalNode.MoveToDesiredDataBaseNode(current);
+
                     _currentMatches.clear();
                     FindAllPossibleApplicationsPastNode(_traversalNode, _currentMatches);
                     //_currentMatches = SortPossibleApplicationsList(_currentMatches);
