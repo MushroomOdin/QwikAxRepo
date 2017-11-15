@@ -302,8 +302,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    if (_runMode != true ) {
-                        if (_inputNum != 0) {
+                    if (!_runMode) {
+                        if (_inputNum > 0) {
                             Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
                         } else {
                             _runMode = true;
