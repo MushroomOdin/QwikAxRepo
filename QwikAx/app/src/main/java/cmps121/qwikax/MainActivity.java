@@ -282,6 +282,14 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
                             }
+                            if (_inputNum > 0) {
+                                Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
+                            } else {
+                                _runMode = true;
+                                Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
+                            }
+
                         } else {
                             if (_dataBase.get_currentMatches().size() > 0) {
                                 String chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
@@ -291,16 +299,6 @@ public class MainActivity extends AppCompatActivity {
                                         startActivity(Launch);
                                     }
                                 }
-                            }
-                        }
-
-                        if (!_runMode) {
-                            if (_inputNum > 0) {
-                                Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
-                            } else {
-                                _runMode = true;
-                                Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
-                                Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
