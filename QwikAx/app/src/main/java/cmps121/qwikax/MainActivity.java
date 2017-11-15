@@ -251,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
                         if (_movements.MovementOccurred(x, y)) {
                             if(_runMode ) {
                                 _dataBase.NextMovement(_movements.get_currentMovements());
+
                                 ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
                                 matchingAppNames = "Matched with:";
@@ -278,25 +279,37 @@ public class MainActivity extends AppCompatActivity {
                         if (_hasSelection) {
                             // Save the selection
                             _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
-                            Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "Added to tree!", Toast.LENGTH_SHORT).show();
                             _inputNum--;
 
                         } else {
                             Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
                         }
                     }else{
-                        if(_dataBase.get_currentMatches().size() > 0)
-                            matchingAppNames = _dataBase.get_currentMatches().get(0).get_relativeName();
+                        if(_dataBase.get_currentMatches().size() > 0) {
+                            matchingAppNames = ((AppStorage) _dataBase.get_currentMatches().get(0)).get_relativeName();
 
-                        //Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "hi", Toast.LENGTH_SHORT).show();
+
+                            String chosenApp = ((AppStorage) _dataBase.get_currentMatches().get(0)).get_abesoluteName() ;
+                            if (chosenApp != null) {
+                                Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                                if (Launch != null) {
+                                    startActivity(Launch);
+                                }
+                            }
+                        }
                     }
 
-                    if(_inputNum != 0){
-                        Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
-                    }else{
-                        _runMode = true;
-                        Toast.makeText(getApplicationContext(), "Gesture(s) saved!", Toast.LENGTH_SHORT).show();
-                        Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
+                    if (_runMode != true ) {
+                        if (_inputNum != 0) {
+                            Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
+                        } else {
+                            _runMode = true;
+                            Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     value = true;
