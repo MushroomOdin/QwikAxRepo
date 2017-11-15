@@ -281,7 +281,6 @@ public class Movement {
         return positions;
     }
 
-
     // Tells us that a movement has occured, and that we need to figure out where we will go.
     public boolean MovementOccurred(float x, float y) {
         int count = 1;

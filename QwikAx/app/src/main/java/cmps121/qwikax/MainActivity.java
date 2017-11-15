@@ -2,13 +2,9 @@ package cmps121.qwikax;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,18 +26,14 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 
 import cmps121.qwikax.AdaptersAndStuff.DrawingView;
 import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.AppStorage;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
 import cmps121.qwikax.Node_Related.Movement;
-import cmps121.qwikax.Node_Related.CoordinateSystem;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -99,9 +91,33 @@ public class MainActivity extends AppCompatActivity {
 
         //Populates _listView and creates appInfo(list of "com.~~~~~")
         ListOps apps = new ListOps(getPackageManager(), getBaseContext());
-        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, apps.getName());
+        final List<String> appInfo = apps.getInfo(getPackageManager());
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, apps.getName());
         _listView = (ListView) findViewById(R.id.applicationListView);
         _listView.setAdapter(appAdapter);
+        _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                if(_runMode == true) {
+                    String chosenApp = appInfo.get(i).toString();
+                    if (chosenApp != null) {
+                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                        if (Launch != null) {
+                            startActivity(Launch);
+                        }
+                    }
+                }else{
+                    _selectedAppName = _listView.getItemAtPosition(i).toString();
+                    _selectedAppRunnable = appInfo.get(i).toString();
+                    Toast.makeText(getApplicationContext(), "Please enter your gesture for "
+                            + _selectedAppName, Toast.LENGTH_SHORT).show();
+                    _hasSelection = true;
+                }
+
+
+            }
+        });
 
         LoadDataBaseFromFile("QwikAxSaveFile.txt", apps.getName());
         ArrayList<AppStorage> appList = new ArrayList<>();
@@ -109,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
         _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
         Toast.makeText(getApplicationContext(), "Number of applications in tree: " + appList.size(), Toast.LENGTH_SHORT).show();
         // Attempts launch procedure.... only need the "com.~~~~" to launch any app
-
-        SetOnListClickListener(apps);
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _drawingView.setOnTouchListener(new CustomGridViewTouchListener());
@@ -190,34 +204,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // Sets the on click listener inside the List View.
-    private void SetOnListClickListener(ListOps apps){
-        final List<String> appInfo = apps.getInfo(getPackageManager());
-        _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                if(_runMode == true) {
-                    String chosenApp = appInfo.get(i).toString();
-                    if (chosenApp != null) {
-                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
-                        if (Launch != null) {
-                            startActivity(Launch);
-                        }
-                    }
-                }else{
-                    _selectedAppName = _listView.getItemAtPosition(i).toString();
-                    _selectedAppRunnable = appInfo.get(i).toString();
-                    Toast.makeText(getApplicationContext(), "Please enter your gesture for "
-                            + _selectedAppName, Toast.LENGTH_SHORT).show();
-                    _hasSelection = true;
-                }
-
-
-            }
-        });
-    }
-
     // Used to save the data base to a file.
     private void SaveDataBaseToFile(String fileName){
         try{
@@ -288,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
                     Toast.makeText(getApplicationContext(), "Number of Movements made: " + _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
-                    if(!_runMode && !_movements.get_errorThrown() && !_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
+                    if(!_runMode && !_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                         if (_hasSelection) {
                             // Save the selection
                             _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
@@ -300,16 +286,16 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }else{
                         if(_dataBase.get_currentMatches().size() > 0)
-                            matchingAppNames = ((AppStorage)_dataBase.get_currentMatches().get(0)).get_relativeName();
+                            matchingAppNames = _dataBase.get_currentMatches().get(0).get_relativeName();
 
-                        Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), matchingAppNames, Toast.LENGTH_SHORT).show();
                     }
 
                     if(_inputNum != 0){
                         Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
                     }else{
                         _runMode = true;
-                        Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Gesture(s) saved!", Toast.LENGTH_SHORT).show();
                         Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
                     }
 
