@@ -24,6 +24,7 @@ public class DrawingView extends View {
     private Paint _circlePaint;
     private Path _circlePath;
     private Paint _paint;
+    private boolean _showGrid;
 
     private static final String CHECK = "MyActivity";
     private static final float TOUCH_TOLERANCE = 4;
@@ -53,6 +54,8 @@ public class DrawingView extends View {
         _paint.setStrokeJoin(Paint.Join.ROUND);
         _paint.setStrokeCap(Paint.Cap.ROUND);
         _paint.setStrokeWidth(10);
+
+        _showGrid = true;
     }
 
     public void ClearCanvas(){
@@ -73,29 +76,35 @@ public class DrawingView extends View {
         super.onDraw(canvas);
 
         canvas.drawColor(Color.WHITE);
-        int numColumns = 20;
-        int numRows = 20;
-        if (numColumns == 0 || numRows == 0) {
-            return;
-        }
+        if(_showGrid) {
+            int numColumns = 20;
+            int numRows = 20;
+            if (numColumns == 0 || numRows == 0) {
+                return;
+            }
 
-        // TODO: Remove this, Used for coding purposes.
-        int width = getWidth();
-        int height = getHeight();
-        int cellWidth = width / numColumns;
-        int cellHeight = height / numRows;
+            // TODO: Remove this, Used for coding purposes.
+            int width = getWidth();
+            int height = getHeight();
+            int cellWidth = width / numColumns;
+            int cellHeight = height / numRows;
 
-        for (int i = 1; i < numColumns; i++) {
-            canvas.drawLine(i * cellWidth, 0, i * cellWidth, height, _paint);
-        }
+            for (int i = 1; i < numColumns; i++) {
+                canvas.drawLine(i * cellWidth, 0, i * cellWidth, height, _paint);
+            }
 
-        for (int i = 1; i < numRows; i++) {
-            canvas.drawLine(0, i * cellHeight, width, i * cellHeight, _paint);
+            for (int i = 1; i < numRows; i++) {
+                canvas.drawLine(0, i * cellHeight, width, i * cellHeight, _paint);
+            }
         }
 
         canvas.drawBitmap(_bitmap, 0, 0, _bitmapPaint);
         canvas.drawPath(_path, _paint);
         canvas.drawPath(_circlePath, _circlePaint);
+    }
+
+    public void ToggleGrid(){
+        _showGrid = !_showGrid;
     }
 
     public void touch_start(float x, float y) {

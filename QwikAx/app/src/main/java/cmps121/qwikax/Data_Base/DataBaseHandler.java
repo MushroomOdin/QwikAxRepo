@@ -4,6 +4,8 @@ import android.util.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import cmps121.qwikax.Node_Related.Movement;
 
@@ -21,6 +23,8 @@ public class DataBaseHandler implements Serializable {
         _currentMatches = new ArrayList<>();
         _errorThrown = false;
         _AppNames = everyAppName;
+        _comparePercentHigh = 100;
+        _comparePercentLow = 90;
     }
 
 
@@ -34,6 +38,8 @@ public class DataBaseHandler implements Serializable {
     private ArrayList<AppStorage> _currentMatches;
     private boolean _errorThrown;
     private ArrayList<String> _AppNames;
+    private double _comparePercentLow;
+    private double _comparePercentHigh;
 
     private static final long serialVersionUID = 3128594851129501738L;
 
@@ -66,6 +72,37 @@ public class DataBaseHandler implements Serializable {
         }
     }
 
+    // Removes all repetition inside of the list.
+    private ArrayList<Movement.MovementType> CompressList(ArrayList<Movement.MovementType>list){
+        ArrayList<Movement.MovementType> compressedList = new ArrayList<>();
+        int[] counters = new int[9];
+        for (int count = 0; count < list.size(); count++) {
+            int movementCount = list.get(count).getValue();
+            if(counters[movementCount]++ == 0){
+                compressedList.add(list.get(count));
+                for(int index = 0; index < 9; index++){
+                    if((index != movementCount) && (counters[index] != 0))
+                        counters[index] = 0;
+                }
+            }
+        }
+
+        return compressedList;
+    }
+
+    // compares the two lists and returns a percent.
+    private double CompareLists(ArrayList<Movement.MovementType> list1,ArrayList<Movement.MovementType> list2){
+        int min = (list1.size() <= list2.size()) ? list1.size() : list2.size();
+        int max = (list1.size() >= list2.size()) ? list1.size() : list2.size();
+        int similar = 0;
+        for(int count = 0; count < min; count++)
+            if(list1.get(count) == list2.get(count))
+                similar++;
+
+        return (similar / max) * 100;
+    }
+
+
     public void FindAllPossibleApplicationsPastNode(DataBaseNode node, ArrayList<AppStorage> list){
         try{
             for(int count = 0; count < 8; count++){
@@ -90,9 +127,23 @@ public class DataBaseHandler implements Serializable {
     public void FindAppByAbstraction(ArrayList<Movement.MovementType> movementsMade){
         try{
             ArrayList<AppStorage> list = new ArrayList<>();
+            ArrayList<Double> percentList = new ArrayList<>();
             FindAllPossibleApplicationsPastNode(_masterNode, list);
+            movementsMade = CompressList(movementsMade);
+
             for (AppStorage app: list) {
                 ArrayList<Movement.MovementType> appMovements = app.get_appMovements();
+                appMovements = CompressList(appMovements);
+                percentList.add(CompareLists(movementsMade, appMovements));
+            }
+
+            Collections.sort(percentList);
+            Collections.reverse(percentList);
+
+            for (int count = 0; count < percentList.size(); count++){
+                double percent = percentList.get(count);
+                if((percent >= _comparePercentLow) && (percent <= _comparePercentHigh))
+                    _currentMatches.add(0, list.get(count));
             }
 
         }catch (Exception ex){
@@ -129,16 +180,17 @@ public class DataBaseHandler implements Serializable {
         }
     }
 
-    private void RemoveDuplicatesFromList(ArrayList<AppStorage> list){
+    private ArrayList<AppStorage> RemoveDuplicatesFromList(ArrayList<AppStorage> list){
+        ArrayList<AppStorage> values = new ArrayList<>();
+        ArrayList<String> itemNames = new ArrayList<>();
         try {
-            ArrayList<String> itemNames = new ArrayList<>();
             int count = 0;
             while (count < list.size()) {
                 String name = list.get(count).get_abesoluteName();
-                if (itemNames.contains(name))
-                    list.remove(count);
-                else
+                if (!itemNames.contains(name)){
                     itemNames.add(name);
+                    values.add(list.get(count));
+                }
 
                 count++;
             }
@@ -146,6 +198,8 @@ public class DataBaseHandler implements Serializable {
             Log.e("ERROR", "Remove Duplicates from list inside of Data Base Handler had and error.\n" + ex.getMessage());
             _errorThrown = true;
         }
+
+        return values;
     }
 
     private ArrayList<AppStorage> SortPossibleApplicationsList(ArrayList<AppStorage> list) {

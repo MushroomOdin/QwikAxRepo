@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         LoadDataBaseFromFile("QwikAxSaveFile.txt", apps.getName());
+
         ArrayList<AppStorage> appList = new ArrayList<>();
         // TODO: remove this, just to make sure that at start things are being loaded in the database.
         _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
@@ -189,7 +190,14 @@ public class MainActivity extends AppCompatActivity {
                         _settings.dismiss();
                     }
                 });
+
                 _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
+                break;
+
+            case R.id.toggle_Grid:
+                _drawingView.ToggleGrid();
+                _drawingView.postInvalidate();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -246,7 +254,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    try {
                         if (!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                             _drawingView.touch_move(x, y);
                             //Passing in a fake list for testing
@@ -266,10 +273,6 @@ public class MainActivity extends AppCompatActivity {
                             value = true;
                         } else
                             value = false;
-                    }catch (Exception ex){
-                        Log.e("Error", "Error found in move in the on touch listener.\n" + ex.getMessage());
-                        value = false;
-                    }
 
                     break;
 
@@ -292,18 +295,24 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
                             }
                         } else {
+                            String chosenApp;
                             if (_dataBase.get_currentMatches().size() > 0) {
-                                String chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
-                                if (!TextUtils.isEmpty(chosenApp)) {
-                                    Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
-                                    if (Launch != null) {
-                                        startActivity(Launch);
-                                    }
+                                chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
+                            } else {
+                              // _dataBase.FindAppByAbstraction(_movements.get_movementsMade());
+                               // if(_dataBase.get_currentMatches().size() > 0)
+                              //      chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
+                              //  else
+                              //      chosenApp = null;
+                                chosenApp = null;
+                            }
+
+                            if (!TextUtils.isEmpty(chosenApp)) {
+                                Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                                if (Launch != null) {
+                                    startActivity(Launch);
                                 }
                             }
-                            //else {
-                              // _dataBase.FindAppByAbstraction(_movements.get_movementsMade());
-                            //}
                         }
 
                         if (!_runMode) {

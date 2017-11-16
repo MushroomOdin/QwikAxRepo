@@ -26,4 +26,9 @@
         android:orderInCategory="4"
         android:title="Save"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/toggle_Grid"
+        android:orderInCategory="4"
+        android:title="Toggle Grid"
+        app:showAsAction="never" />
 </menu>
