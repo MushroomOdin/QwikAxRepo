@@ -28,10 +28,10 @@ public class CoordinateSystem {
     }
 
     // Checks if the given x,y coordinates are within the bounds of this view.
-    public boolean isWithinBounds(double xPos, double yPos){
+    public boolean isWithinBounds(double xPos, double yPos) {
 
         boolean value = false;
-        if((xPos >= _xCoord) && (xPos < _xCoord + _xDistance) && (yPos >= _yCoord) && (yPos < _yCoord + _yDistance))
+        if ((xPos >= _xCoord) && (xPos < _xCoord + _xDistance) && (yPos >= _yCoord) && (yPos < _yCoord + _yDistance))
             value = true;
 
         return value;

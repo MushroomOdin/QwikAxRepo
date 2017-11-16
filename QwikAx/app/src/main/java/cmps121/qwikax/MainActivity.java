@@ -246,37 +246,46 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                    if(!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
-                        _drawingView.touch_move(x, y);
-                        //Passing in a fake list for testing
-                        if (_movements.MovementOccurred(x, y)) {
-                            if(_runMode ) {
-                                _dataBase.NextMovement(_movements.get_currentMovements());
+                    try {
+                        if (!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
+                            _drawingView.touch_move(x, y);
+                            //Passing in a fake list for testing
+                            if (_movements.MovementOccurred(x, y)) {
+                                if (_runMode) {
+                                    _dataBase.NextMovement(_movements.get_currentMovements());
 
-                                ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
+                                    ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
-                                matchingAppNames = "Matched with:";
-                                for (AppStorage current : matchingApps) {
-                                    matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                                    matchingAppNames = "Matched with:";
+                                    for (AppStorage current : matchingApps) {
+                                        matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                                    }
                                 }
                             }
-                        }
 
-                        value = true;
-                    }else
+                            value = true;
+                        } else
+                            value = false;
+                    }catch (Exception ex){
+                        Log.e("Error", "Error found in move in the on touch listener.\n" + ex.getMessage());
                         value = false;
+                    }
 
                     break;
 
                 case MotionEvent.ACTION_UP:
                     _drawingView.touch_up();
+                    //StringBuilder sentence = new StringBuilder();
+                    //for(Movement.MovementType move : _movements.get_movementsMade())
+                    //    sentence.append(move.toString() + " ");
 
+                    //Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "Number of Movements made: " + _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
                     if(!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                         if (!_runMode) {
                             if (_hasSelection) {
                                 // Save the selection
                                 _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
-                                //Toast.makeText(getApplicationContext(), "Added to tree!", Toast.LENGTH_SHORT).show();
                                 _inputNum--;
 
                             } else {
@@ -291,6 +300,8 @@ public class MainActivity extends AppCompatActivity {
                                         startActivity(Launch);
                                     }
                                 }
+                            }else {
+                               _database.FindAppByAbstraction(_movements.get_movementsMade());
                             }
                         }
 
@@ -299,11 +310,11 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Enter gesture " + Integer.toString(_inputNum) + " more times", Toast.LENGTH_SHORT).show();
                             } else {
                                 _runMode = true;
-                                Toast.makeText(getApplicationContext(), "Gesture saved!", Toast.LENGTH_SHORT).show();
-                                Toast.makeText(getApplicationContext(), "Now in run mode", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Gesture saved! Now in run mode", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
+
                     value = true;
                     break;
             }

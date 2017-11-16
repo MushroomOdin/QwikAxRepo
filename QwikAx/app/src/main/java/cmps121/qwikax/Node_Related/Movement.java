@@ -143,7 +143,7 @@ public class Movement {
     }
 
     private void FindPossibleMovements(int[] positions, int distance) {
-        int tiles = 8 * distance, tileCount = 0;
+        int tiles = 8 * distance;
         int verticalGap = 1 + (2 * (distance - 1)), count = 0;
         int xPos = positions[0], yPos =  positions[1];
         int horizontalGap = (2 * (distance)) + 1;
@@ -234,16 +234,16 @@ public class Movement {
                     xDifference--;
                 } else if((xDifference < 0) && (yDifference > 0)){
                     movements.add(MovementType.TOP_RIGHT);
-                    yDifference--;
                     xDifference++;
+                    yDifference--;
                 }else if ((xDifference > 0) && (yDifference < 0)) {
                     movements.add(MovementType.BOTTOM_LEFT);
-                    xDifference++;
-                    yDifference--;
+                    xDifference--;
+                    yDifference++;
                 }else if ((xDifference < 0) && (yDifference < 0)) {
                     movements.add(MovementType.BOTTOM_RIGHT);
-                    xDifference--;
-                    yDifference--;
+                    xDifference++;
+                    yDifference++;
                 }else if((xDifference > 0) && (yDifference == 0)) {
                     movements.add(MovementType.LEFT);
                     xDifference--;
@@ -271,11 +271,18 @@ public class Movement {
 
     // Called by touch listener down press, will capture the initial position, and then find where the possible movements are.
     public int[] InitialPosition(float x, float y){
+
         Reset();
-        int[] positions = FindInitialViewByLocation(x,y);
-        if(positions[0] != -1){
-            _movementsMade.add(MovementType.INITIAL_POSITION);
-            _previousPosition = positions;
+        int[] positions = {-1,-1};
+        try {
+            positions = FindInitialViewByLocation(x, y);
+            if (positions[0] != -1) {
+                _movementsMade.add(MovementType.INITIAL_POSITION);
+                _previousPosition = positions;
+            }
+        }catch (Exception ex){
+            Log.e("Error", "Find view by location inside of Movement class had an error.\n" + ex.getMessage());
+            _errorThrown = true;
         }
 
         return positions;
