@@ -14,7 +14,7 @@
         android:layout_centerHorizontal="true"
         android:paddingLeft="10dp"
         android:paddingTop="20dp"
-        android:text="Number Of Inputs:"
+        android:text="Number Of Saves:"
         android:textColor="@color/textColor" />
 
     <EditText
