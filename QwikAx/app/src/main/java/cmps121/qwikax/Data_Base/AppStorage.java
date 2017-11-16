@@ -1,6 +1,9 @@
 package cmps121.qwikax.Data_Base;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+
+import cmps121.qwikax.Node_Related.Movement;
 
 /**
  * Created by andrew on 10/23/2017.
@@ -10,11 +13,12 @@ public class AppStorage implements Serializable {
 
     // CONSTRUCTORS
 
-    public AppStorage(AccessibilityLevels accessLevel, String absoluteName, String relativeName){
+    public AppStorage(AccessibilityLevels accessLevel, String absoluteName, String relativeName, ArrayList<Movement.MovementType> appMovements){
         _accessabilityLevel = accessLevel;
         _absoluteName = absoluteName;
         _relativeName = relativeName;
         _timesAccessed = 0;
+        _appMovements = appMovements;
     }
 
     // CONSTRUCTORS
@@ -36,10 +40,12 @@ public class AppStorage implements Serializable {
 
     // FIELDS
 
+    private AccessibilityLevels _accessabilityLevel;
     private String _absoluteName;
     private String _relativeName;
     private int _timesAccessed;
-    private AccessibilityLevels _accessabilityLevel;
+    private ArrayList<Movement.MovementType> _appMovements;
+
 
     private static final long serialVersionUID = 3128594851129501740L;
 
@@ -51,6 +57,7 @@ public class AppStorage implements Serializable {
     public AccessibilityLevels get_accessabilityLevel(){return _accessabilityLevel;}
     public String get_relativeName(){return _relativeName;}
     public int get_timesAccessed(){return _timesAccessed;}
+    public ArrayList<Movement.MovementType> get_appMovements(){return _appMovements; }
 
     // GETTERS
 

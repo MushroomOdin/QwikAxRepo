@@ -52,10 +52,10 @@ public class DataBaseHandler implements Serializable {
 
     // Used in the creation of the tree / adding a new item to it. This should only be used when adding.
     // AppStorage contains the Movement class thusly we do not need to worry about adding it in anywhere else.
-    public void AddNewItemToTree(AppStorage item, ArrayList<Movement.MovementType> movementsMade){
+    public void AddNewItemToTree(AppStorage item){
         try {
             DataBaseNode temp = _masterNode;
-            for (Movement.MovementType type : movementsMade)
+            for (Movement.MovementType type : item.get_appMovements())
                 if(type != Movement.MovementType.INITIAL_POSITION)
                         temp = temp.MoveToDesiredDataBaseNode(type);
 
@@ -85,6 +85,20 @@ public class DataBaseHandler implements Serializable {
             _errorThrown = true;
         }
 
+    }
+
+    public void FindAppByAbstraction(ArrayList<Movement.MovementType> movementsMade){
+        try{
+            ArrayList<AppStorage> list = new ArrayList<>();
+            FindAllPossibleApplicationsPastNode(_masterNode, list);
+            for (AppStorage app: list) {
+                ArrayList<Movement.MovementType> appMovements = app.get_appMovements();
+            }
+
+        }catch (Exception ex){
+            Log.e("ERROR", "Find Apps by abstraction in data base handler had an error.\n" + ex.getMessage());
+            _errorThrown = true;
+        }
     }
 
     public void InitialMovement(){

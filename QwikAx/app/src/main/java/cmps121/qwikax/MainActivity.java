@@ -285,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
                         if (!_runMode) {
                             if (_hasSelection) {
                                 // Save the selection
-                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName), _movements.get_movementsMade());
+                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade()));
                                 _inputNum--;
 
                             } else {
@@ -300,9 +300,10 @@ public class MainActivity extends AppCompatActivity {
                                         startActivity(Launch);
                                     }
                                 }
-                            }else {
-                               _database.FindAppByAbstraction(_movements.get_movementsMade());
                             }
+                            //else {
+                              // _dataBase.FindAppByAbstraction(_movements.get_movementsMade());
+                            //}
                         }
 
                         if (!_runMode) {
