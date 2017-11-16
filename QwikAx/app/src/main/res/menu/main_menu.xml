@@ -28,7 +28,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_Grid"
-        android:orderInCategory="4"
+        android:orderInCategory="5"
         android:title="Toggle Grid"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
 </menu>

@@ -10,6 +10,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import cmps121.qwikax.R;
+
 /**
  * Created by andrew on 11/2/2017.
  */
@@ -22,9 +24,11 @@ public class DrawingView extends View {
 
     private Paint _bitmapPaint;
     private Paint _circlePaint;
+    private Paint _gridpaint;
     private Path _circlePath;
     private Paint _paint;
     private boolean _showGrid;
+
 
     private static final String CHECK = "MyActivity";
     private static final float TOUCH_TOLERANCE = 4;
@@ -55,6 +59,15 @@ public class DrawingView extends View {
         _paint.setStrokeCap(Paint.Cap.ROUND);
         _paint.setStrokeWidth(10);
 
+        _gridpaint = new Paint();
+        _gridpaint.setAntiAlias(true);
+        _gridpaint.setDither(true);
+        _gridpaint.setColor(Color.BLACK);
+        _gridpaint.setStyle(Paint.Style.STROKE);
+        _gridpaint.setStrokeJoin(Paint.Join.ROUND);
+        _gridpaint.setStrokeCap(Paint.Cap.ROUND);
+        _gridpaint.setStrokeWidth(4);
+
         _showGrid = true;
     }
 
@@ -75,7 +88,8 @@ public class DrawingView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.drawColor(Color.WHITE);
+        canvas.drawColor(getResources().getColor(R.color.canvasColor, null));
+
         if(_showGrid) {
             int numColumns = 20;
             int numRows = 20;
@@ -90,11 +104,11 @@ public class DrawingView extends View {
             int cellHeight = height / numRows;
 
             for (int i = 1; i < numColumns; i++) {
-                canvas.drawLine(i * cellWidth, 0, i * cellWidth, height, _paint);
+                canvas.drawLine(i * cellWidth, 0, i * cellWidth, height, _gridpaint);
             }
 
             for (int i = 1; i < numRows; i++) {
-                canvas.drawLine(0, i * cellHeight, width, i * cellHeight, _paint);
+                canvas.drawLine(0, i * cellHeight, width, i * cellHeight, _gridpaint);
             }
         }
 

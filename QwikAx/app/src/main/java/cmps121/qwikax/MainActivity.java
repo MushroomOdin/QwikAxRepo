@@ -1,9 +1,13 @@
 package cmps121.qwikax;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -93,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         //Populates _listView and creates appInfo(list of "com.~~~~~")
         ListOps apps = new ListOps(getPackageManager(), getBaseContext());
         final List<String> appInfo = apps.getInfo(getPackageManager());
-        ArrayAdapter<String> appAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, apps.getName());
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<>(this, R.layout.list_view_row, apps.getName());
         _listView = (ListView) findViewById(R.id.applicationListView);
         _listView.setAdapter(appAdapter);
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -130,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _drawingView.setOnTouchListener(new CustomGridViewTouchListener());
+        _drawingView.setElevation(6);
         _movements = new Movement(_rows, _columns);
     }
 
@@ -298,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
                             String chosenApp;
                             if (_dataBase.get_currentMatches().size() > 0) {
                                 chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
+                                _dataBase.get_currentMatches().get(0).IncrementTimesAccessed();
                             } else {
                               // _dataBase.FindAppByAbstraction(_movements.get_movementsMade());
                                // if(_dataBase.get_currentMatches().size() > 0)

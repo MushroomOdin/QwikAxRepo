@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/background_dark"
     tools:context="cmps121.qwikax.MainActivity">
 
 
@@ -14,25 +14,39 @@
         android:layout_width="0dp"
         android:layout_height="56dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"></android.support.v7.widget.Toolbar>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+    </android.support.v7.widget.Toolbar>
+
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <cmps121.qwikax.AdaptersAndStuff.DrawingView
             android:id="@+id/drawingView"
             android:layout_width="fill_parent"
             android:layout_height="0px"
             android:layout_weight="4"
-            android:background="#ccf2ff"/>
+            android:background="#99e5ff"
+            android:padding="4dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp" />
 
         <ListView
             android:id="@+id/applicationListView"
             android:layout_width="fill_parent"
             android:layout_height="0px"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:background="#3f3f3f"
+            android:divider="@android:color/black"
+            android:dividerHeight="2dp"
+            android:fadingEdge="horizontal|vertical"
+            android:footerDividersEnabled="true"
+            android:headerDividersEnabled="true" />
 
     </LinearLayout>
 
