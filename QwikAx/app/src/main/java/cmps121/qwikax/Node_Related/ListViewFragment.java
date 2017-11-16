@@ -1,6 +1,7 @@
 package cmps121.qwikax.Node_Related;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -9,8 +10,10 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import java.util.ArrayList;
@@ -24,6 +27,9 @@ import cmps121.qwikax.R;
 
 public class ListViewFragment extends android.support.v4.app.Fragment {
 
+    private ListView _listView;
+ //   private boolean _runMode;
+
     public ListViewFragment(){
 
     }
@@ -31,20 +37,58 @@ public class ListViewFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState){
+
         View view = inflater.inflate(R.layout.fragment_list_view, container, false);
+        PackageManager pm = getActivity().getPackageManager();
+        List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
+        String[] appArray = new String[allApps.size()];
+        for(int i=0; i<allApps.size(); i++){
+            String app = removeChars(allApps.get(i).toString());
+            appArray[i] = app;
+        }
 
-        String[] items = {"thing 1", "thing 2", "things3"};
+
+       // String[] items = {"thing 1", "thing 2", "things3"};
         ListView listView = (ListView) view.findViewById(R.id.testlist);
-
+        for(int i=0; i<allApps.size(); i++){
+            String app = removeChars(allApps.get(i).toString());
+            appArray[i] = app;
+        }
         ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(
                 getActivity(),
                 android.R.layout.simple_list_item_1,
-                items
+                appArray
         );
         if(listView != null) {
             listView.setAdapter(listViewAdapter);
         }
         return view;
+
+/*
+        _listView = (ListView) getActivity().findViewById(R.id.testlist);
+        if(_listView != null) {
+            setList(_listView);
+        }
+        return _listView;
+*/
+/*
+        PackageManager pm = getActivity().getPackageManager();
+        List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
+        String[] appArray = new String[allApps.size()];
+        for(int i=0; i<allApps.size(); i++){
+            String app = removeChars(allApps.get(i).toString());
+            appArray[i] = app;
+        }
+
+        ArrayList<String> appList = new ArrayList<String>();
+        appList.addAll(Arrays.asList(appArray));
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, appList);
+
+
+        if(_listView != null){
+            _listView.setAdapter(appAdapter);
+        }
+        return _listView;*/
     }
 
     public void setList(ListView apps){

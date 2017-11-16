@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //displays listview fragment in container of mainactivity xml
         ListViewFragment mList = new ListViewFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.container, mList).commit();
 
