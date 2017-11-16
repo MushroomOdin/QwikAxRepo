@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
+    android:background="@color/colorPrimary"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -12,8 +12,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:paddingLeft="10dp"
         android:paddingTop="20dp"
-        android:text="Number Of Inputs:" />
+        android:text="Number Of Inputs:"
+        android:textColor="@color/textColor" />
 
     <EditText
         android:id="@+id/txtInputNum"
@@ -22,15 +24,16 @@
         android:layout_alignParentTop="true"
         android:ems="10"
         android:inputType="number"
+        android:textColor="@color/textColor"
         app:layout_constraintLeft_toRightOf="@id/lblInputNum" />
 
     <Button
         android:id="@+id/btnDone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Done"
-        app:layout_constraintTop_toBottomOf="@id/txtInputNum"
-        app:layout_constraintHorizontal_weight="1"/>
+        android:text="OK"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintTop_toBottomOf="@id/txtInputNum" />
 
 
 </android.support.constraint.ConstraintLayout>

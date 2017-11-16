@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                 final View popup = inflater.inflate(R.layout.settings_menu, null);
+                popup.setElevation(5);
 
                 View main = (View) findViewById(R.id.activity_main);
                 _settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -187,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
                 final TextView txtInputNum = (TextView) popup.findViewById(R.id.txtInputNum);
                 Button closePopup = (Button) popup.findViewById(R.id.btnDone);
+
 
                 closePopup.setOnClickListener(new View.OnClickListener() {
                     @Override
