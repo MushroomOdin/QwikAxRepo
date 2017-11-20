@@ -5,7 +5,6 @@ import android.util.Log;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 import cmps121.qwikax.Node_Related.Movement;
 
@@ -62,7 +61,7 @@ public class DataBaseHandler implements Serializable {
         try {
             DataBaseNode temp = _masterNode;
             for (Movement.MovementType type : item.get_appMovements())
-                if(type != Movement.MovementType.INITIAL_POSITION)
+                if((type != Movement.MovementType.INITIAL_POSITION) && (temp != null))
                         temp = temp.MoveToDesiredDataBaseNode(type);
 
             temp.AddAppStorageToList(item);
@@ -90,28 +89,14 @@ public class DataBaseHandler implements Serializable {
         return compressedList;
     }
 
-    // compares the two lists and returns a percent.
-    private double CompareLists(ArrayList<Movement.MovementType> list1,ArrayList<Movement.MovementType> list2){
-        int min = (list1.size() <= list2.size()) ? list1.size() : list2.size();
-        int max = (list1.size() >= list2.size()) ? list1.size() : list2.size();
-        int similar = 0;
-        for(int count = 0; count < min; count++)
-            if(list1.get(count) == list2.get(count))
-                similar++;
-
-        return (similar / max) * 100;
-    }
-
-
     public void FindAllPossibleApplicationsPastNode(DataBaseNode node, ArrayList<AppStorage> list){
         try{
             for(int count = 0; count < 8; count++){
                 DataBaseNode currentNode = node.get_pointers()[count];
                 if( currentNode != null) {
                     if(currentNode.get_appStorage().size() != 0) {
-
                         list.addAll(currentNode.get_appStorage());
-                        //RemoveDuplicatesFromList(list);
+                        RemoveDuplicatesFromList(list);
                     }
 
                     FindAllPossibleApplicationsPastNode(currentNode, list);
@@ -124,17 +109,17 @@ public class DataBaseHandler implements Serializable {
 
     }
 
-    public void FindAppByAbstraction(ArrayList<Movement.MovementType> movementsMade){
+    public void FindAppByAbstraction(int[][] movementsMade){
         try{
             ArrayList<AppStorage> list = new ArrayList<>();
             ArrayList<Double> percentList = new ArrayList<>();
             FindAllPossibleApplicationsPastNode(_masterNode, list);
-            movementsMade = CompressList(movementsMade);
+            //movementsMade = CompressList(movementsMade);
 
             for (AppStorage app: list) {
                 ArrayList<Movement.MovementType> appMovements = app.get_appMovements();
-                appMovements = CompressList(appMovements);
-                percentList.add(CompareLists(movementsMade, appMovements));
+                //appMovements = CompressList(appMovements);
+                //percentList.add(CompareForPercent(movementsMade, appMovements));
             }
 
             Collections.sort(percentList);
@@ -146,6 +131,7 @@ public class DataBaseHandler implements Serializable {
                     _currentMatches.add(0, list.get(count));
             }
 
+            RemoveDuplicatesFromList(_currentMatches);
         }catch (Exception ex){
             Log.e("ERROR", "Find Apps by abstraction in data base handler had an error.\n" + ex.getMessage());
             _errorThrown = true;
@@ -164,15 +150,16 @@ public class DataBaseHandler implements Serializable {
     public void NextMovement(ArrayList<Movement.MovementType> type) {
         try {
             for (Movement.MovementType current : type) {
-                if (_traversalNode == null)
-                    _traversalNode = _masterNode.MoveToDesiredDataBaseNode(current);
-                else {
+                if (_traversalNode != null) {
                     _traversalNode = _traversalNode.MoveToDesiredDataBaseNode(current);
-
                     _currentMatches.clear();
-                    FindAllPossibleApplicationsPastNode(_traversalNode, _currentMatches);
-                    //_currentMatches = SortPossibleApplicationsList(_currentMatches);
+
+                    if (_traversalNode != null) {
+                        FindAllPossibleApplicationsPastNode(_traversalNode, _currentMatches);
+                        //_currentMatches = SortPossibleApplicationsList(_currentMatches);
+                    }
                 }
+
             }
         }catch(Exception ex){
             Log.e("ERROR", "Next Movement inside of Data Base Handler had and error.\n" + ex.getMessage());
@@ -212,11 +199,11 @@ public class DataBaseHandler implements Serializable {
                     AppStorage temp = list.get(count);
                     Boolean added = false;
                     for (int i = 0; i < comparison.size(); i++) {
-                        AppStorage.AccessibilityLevels level = comparison.get(i).get_accessabilityLevel();
-                        if (level.getValue() < temp.get_accessabilityLevel().getValue()) {
+                        AppStorage.AccessibilityLevels level = comparison.get(i).get_accessibilityLevel();
+                        if (level.getValue() < temp.get_accessibilityLevel().getValue()) {
                             comparison.add(i, temp);
                             added = true;
-                        } else if ((level.getValue() == temp.get_accessabilityLevel().getValue()) && (comparison.get(i).get_timesAccessed() < temp.get_timesAccessed())) {
+                        } else if ((level.getValue() == temp.get_accessibilityLevel().getValue()) && (comparison.get(i).get_timesAccessed() < temp.get_timesAccessed())) {
                             comparison.add(i, temp);
                             added = true;
                         }

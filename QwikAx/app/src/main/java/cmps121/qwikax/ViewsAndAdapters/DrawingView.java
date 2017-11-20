@@ -1,4 +1,4 @@
-package cmps121.qwikax.AdaptersAndStuff;
+package cmps121.qwikax.ViewsAndAdapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -154,6 +154,6 @@ public class DrawingView extends View {
 
     public Paint get_paint(){return _paint;}
     public void set_paint(Paint paint){_paint = paint;}
-
+    public Bitmap get_bitmap() {return _bitmap; }
     // GETTERS AND SETTERS
 }
