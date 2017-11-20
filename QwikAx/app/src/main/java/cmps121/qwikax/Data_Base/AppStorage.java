@@ -1,6 +1,7 @@
 package cmps121.qwikax.Data_Base;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import cmps121.qwikax.Node_Related.Movement;
 
@@ -8,30 +9,30 @@ import cmps121.qwikax.Node_Related.Movement;
  * Created by andrew on 10/23/2017.
  */
 
-public class AppStorage implements Serializable{
+public class AppStorage implements Serializable {
 
     // CONSTRUCTORS
 
-    public AppStorage(Movement movement, AccessabilityLevels accessLevel, String absoluteName, String relativeName){
-        _movement = movement;
+    public AppStorage(AccessibilityLevels accessLevel, String absoluteName, String relativeName, ArrayList<Movement.MovementType> appMovements){
         _accessabilityLevel = accessLevel;
-        _abesoluteName = absoluteName;
+        _absoluteName = absoluteName;
         _relativeName = relativeName;
         _timesAccessed = 0;
+        _appMovements = appMovements;
     }
 
     // CONSTRUCTORS
 
     // ENUMERATIONS
 
-    public enum AccessabilityLevels{
+    public enum AccessibilityLevels implements Serializable{
         LOW (1),
         MEDIUM (2),
         HIGH(3),
         NONE(0);
 
         private final int value;
-        AccessabilityLevels (int value) {this.value = value;}
+        AccessibilityLevels(int value) {this.value = value;}
         public int getValue() {return value;}
     }
 
@@ -39,21 +40,24 @@ public class AppStorage implements Serializable{
 
     // FIELDS
 
-    private Movement _movement;
-    private String _abesoluteName;
+    private AccessibilityLevels _accessabilityLevel;
+    private String _absoluteName;
     private String _relativeName;
     private int _timesAccessed;
-    private AccessabilityLevels _accessabilityLevel;
+    private ArrayList<Movement.MovementType> _appMovements;
+
+
+    private static final long serialVersionUID = 3128594851129501740L;
 
     // FIELDS
 
     // GETTERS
 
-    public String get_abesoluteName(){return _abesoluteName;}
-    public AccessabilityLevels get_accessabilityLevel(){return _accessabilityLevel;}
-    public Movement get_movement(){return _movement;}
+    public String get_abesoluteName(){return _absoluteName;}
+    public AccessibilityLevels get_accessabilityLevel(){return _accessabilityLevel;}
     public String get_relativeName(){return _relativeName;}
     public int get_timesAccessed(){return _timesAccessed;}
+    public ArrayList<Movement.MovementType> get_appMovements(){return _appMovements; }
 
     // GETTERS
 
@@ -64,5 +68,4 @@ public class AppStorage implements Serializable{
     }
 
     // METHODS
-
 }

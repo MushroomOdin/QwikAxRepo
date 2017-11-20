@@ -24,6 +24,11 @@
     <item
         android:id="@+id/action_run_save"
         android:orderInCategory="4"
-        android:title="Run/Save"
+        android:title="Save"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/toggle_Grid"
+        android:orderInCategory="5"
+        android:title="Toggle Grid"
         app:showAsAction="always" />
 </menu>

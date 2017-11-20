@@ -28,10 +28,10 @@ public class CoordinateSystem {
     }
 
     // Checks if the given x,y coordinates are within the bounds of this view.
-    public boolean isWithinBounds(double xPos, double yPos){
+    public boolean isWithinBounds(double xPos, double yPos) {
 
         boolean value = false;
-        if((xPos >= _xCoord) && (xPos < _xCoord + _xDistance) && (yPos >= _yCoord) && (yPos < _yCoord + _yDistance))
+        if ((xPos >= _xCoord) && (xPos < _xCoord + _xDistance) && (yPos >= _yCoord) && (yPos < _yCoord + _yDistance))
             value = true;
 
         return value;
@@ -75,7 +75,8 @@ public class CoordinateSystem {
     // Determines the route we should take to correct the coordinates.
     // Surfase enum is integer value 0: Rotation_0, 1: Rotation_90, 2: Rotation_180, and 3: Rotation_270.
     // From that we can determine the value we need to change from our current to the new orientation
-    private void correctCoordinateOrientation(int newOrientation) {
+    private void correctCoordinateOrientation(int newOrientation)
+    {
         switch (_screenOrientation - newOrientation) {
             case 1:
             case -3:

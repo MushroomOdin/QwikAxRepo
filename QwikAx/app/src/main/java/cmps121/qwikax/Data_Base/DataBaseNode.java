@@ -1,5 +1,7 @@
 package cmps121.qwikax.Data_Base;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 
 import java.io.Serializable;
@@ -35,12 +37,15 @@ public class DataBaseNode implements Serializable {
         _appStorage.add(appStorage);
     }
 
+
     // CONSTRUCTORS
 
     // FIELDS
 
     private DataBaseNode[] _pointers;
     private ArrayList<AppStorage> _appStorage;
+
+    private static final long serialVersionUID = 3128594851129501739L;
 
     // FIELDS
 
@@ -54,6 +59,9 @@ public class DataBaseNode implements Serializable {
     // METHODS
 
     public DataBaseNode MoveToDesiredDataBaseNode(Movement.MovementType type){
+        if(_pointers[type.getValue()] == null)
+            _pointers[type.getValue()] = new DataBaseNode(this);
+
         return _pointers[type.getValue()];
     }
 
