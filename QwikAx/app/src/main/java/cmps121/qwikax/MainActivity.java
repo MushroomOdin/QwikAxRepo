@@ -1,13 +1,10 @@
 package cmps121.qwikax;
 
-import android.app.ActionBar;
+
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -33,7 +30,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import cmps121.qwikax.AdaptersAndStuff.DrawingView;
+import cmps121.qwikax.ViewsAndAdapters.DrawingView;
 import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.AppStorage;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
@@ -53,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawingView _drawingView;
     private Movement _movements;
     private DataBaseHandler _dataBase;
+    private ListOps _apps;
 
     private String _selectedAppName;
     private String _selectedAppRunnable;
@@ -72,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
             _dataBase = (DataBaseHandler) is.readObject();
             is.close();
             fis.close();
-            // TODO: remove this
-            //_dataBase = new DataBaseHandler(appList);
         }catch(Exception ex){
             Log.e("Error", ex.getMessage().toString());
             Toast.makeText(getApplicationContext(), "Data base was not loaded.", Toast.LENGTH_LONG).show();
@@ -95,9 +91,9 @@ public class MainActivity extends AppCompatActivity {
         SetOnLayoutChange();
 
         //Populates _listView and creates appInfo(list of "com.~~~~~")
-        ListOps apps = new ListOps(getPackageManager(), getBaseContext());
-        final List<String> appInfo = apps.getInfo(getPackageManager());
-        ArrayAdapter<String> appAdapter = new ArrayAdapter<>(this, R.layout.list_view_row, apps.getName());
+         _apps = new ListOps(getPackageManager(), getBaseContext());
+        final List<String> appInfo = _apps.getInfo(getPackageManager());
+        ArrayAdapter<String> appAdapter = new ArrayAdapter<>(this, R.layout.list_view_row, _apps.getName());
         _listView = (ListView) findViewById(R.id.applicationListView);
         _listView.setAdapter(appAdapter);
         _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -124,14 +120,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        LoadDataBaseFromFile("QwikAxSaveFile.txt", apps.getName());
-
-        ArrayList<AppStorage> appList = new ArrayList<>();
-        // TODO: remove this, just to make sure that at start things are being loaded in the database.
-        _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
-        Toast.makeText(getApplicationContext(), "Number of applications in tree: " + appList.size(), Toast.LENGTH_SHORT).show();
-        // Attempts launch procedure.... only need the "com.~~~~" to launch any app
-
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _drawingView.setOnTouchListener(new CustomGridViewTouchListener());
         _drawingView.setElevation(6);
@@ -146,9 +134,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStart(){
+        LoadDataBaseFromFile("QwikAxSaveFile.txt", _apps.getName());
+        ArrayList<AppStorage> appList = new ArrayList<>();
+        // TODO: remove this, just to make sure that at start things are being loaded in the database.
+        _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
+        Toast.makeText(getApplicationContext(), "Number of applications in tree: " + appList.size(), Toast.LENGTH_SHORT).show();
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
         SaveDataBaseToFile("QwikAxSaveFile.txt");
-        super.onDestroy();
+        super.onStop();
     }
 
     @Override
@@ -295,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
                         if (!_runMode) {
                             if (_hasSelection) {
                                 // Save the selection
-                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade()));
+                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade(), _drawingView.get_bitmap()));
                                 _inputNum--;
 
                             } else {

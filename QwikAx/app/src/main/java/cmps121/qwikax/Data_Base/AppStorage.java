@@ -1,5 +1,7 @@
 package cmps121.qwikax.Data_Base;
 
+import android.graphics.Bitmap;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -13,12 +15,13 @@ public class AppStorage implements Serializable {
 
     // CONSTRUCTORS
 
-    public AppStorage(AccessibilityLevels accessLevel, String absoluteName, String relativeName, ArrayList<Movement.MovementType> appMovements){
-        _accessabilityLevel = accessLevel;
+    public AppStorage(AccessibilityLevels accessLevel, String absoluteName, String relativeName, ArrayList<Movement.MovementType> appMovements, Bitmap image){
+        _accessibilityLevel = accessLevel;
         _absoluteName = absoluteName;
         _relativeName = relativeName;
         _timesAccessed = 0;
         _appMovements = appMovements;
+        _image = image;
     }
 
     // CONSTRUCTORS
@@ -40,12 +43,12 @@ public class AppStorage implements Serializable {
 
     // FIELDS
 
-    private AccessibilityLevels _accessabilityLevel;
+    private AccessibilityLevels _accessibilityLevel;
     private String _absoluteName;
     private String _relativeName;
     private int _timesAccessed;
     private ArrayList<Movement.MovementType> _appMovements;
-
+    private Bitmap _image;
 
     private static final long serialVersionUID = 3128594851129501740L;
 
@@ -54,10 +57,11 @@ public class AppStorage implements Serializable {
     // GETTERS
 
     public String get_abesoluteName(){return _absoluteName;}
-    public AccessibilityLevels get_accessabilityLevel(){return _accessabilityLevel;}
+    public AccessibilityLevels get_accessibilityLevel(){return _accessibilityLevel;}
     public String get_relativeName(){return _relativeName;}
     public int get_timesAccessed(){return _timesAccessed;}
     public ArrayList<Movement.MovementType> get_appMovements(){return _appMovements; }
+    public Bitmap get_image(){return _image; }
 
     // GETTERS
 
@@ -66,6 +70,7 @@ public class AppStorage implements Serializable {
     public void IncrementTimesAccessed(){
         _timesAccessed++;
     }
+
 
     // METHODS
 }

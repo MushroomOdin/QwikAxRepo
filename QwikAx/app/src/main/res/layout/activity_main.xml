@@ -25,7 +25,7 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
-        <cmps121.qwikax.AdaptersAndStuff.DrawingView
+        <cmps121.qwikax.ViewsAndAdapters.DrawingView
             android:id="@+id/drawingView"
             android:layout_width="fill_parent"
             android:layout_height="0px"
