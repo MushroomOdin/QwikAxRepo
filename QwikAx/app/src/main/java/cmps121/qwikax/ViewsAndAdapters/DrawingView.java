@@ -91,8 +91,8 @@ public class DrawingView extends View {
         canvas.drawColor(getResources().getColor(R.color.canvasColor, null));
 
         if(_showGrid) {
-            int numColumns = 20;
-            int numRows = 20;
+            int numColumns = 50;
+            int numRows = 50;
             if (numColumns == 0 || numRows == 0) {
                 return;
             }

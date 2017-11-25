@@ -53,6 +53,7 @@ public class DataBaseNode implements Serializable {
 
     public DataBaseNode[] get_pointers(){return _pointers;}
     public ArrayList<AppStorage> get_appStorage(){return _appStorage;}
+    public void set_appStorage(ArrayList<AppStorage> appStorage){_appStorage = appStorage; }
 
     // GETTERS
 
@@ -67,6 +68,7 @@ public class DataBaseNode implements Serializable {
             _pointers[type.getValue()] = node;
 
     }
+
 
     public void AddAppStorageToList(AppStorage app){
         _appStorage.add(app);
