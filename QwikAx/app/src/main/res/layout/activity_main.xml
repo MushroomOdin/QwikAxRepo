@@ -36,7 +36,7 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp" />
 
-        <ListView
+        <ExpandableListView
             android:id="@+id/applicationListView"
             android:layout_width="fill_parent"
             android:layout_height="0px"
