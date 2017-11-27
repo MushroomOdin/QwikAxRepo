@@ -89,37 +89,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
 
-     //   listDataHeader.add("testlist");
-        listDataHeader.add("Apps");
-        //test
-
-   //     List<String> testlist = new ArrayList<String>();
-     /*
-        testlist.add("thing 1");
-        testlist.add("thing 2");
-        testlist.add("thing 3");
-        testlist.add("thing 4");
-        testlist.add("thing 5");
-*/
-        //actual
-        _apps = new ListOps(getPackageManager(), getBaseContext());
-        final List<String> appInfo = _apps.getInfo(getPackageManager());
-        List<String> appList = new ArrayList<String>();
-        for(int i = 0; i < _apps.getName().size(); i++){
-           appList.add(_apps.getName().get(i).toString());
-        }
-       // appList.add(_apps.getName().toString());
-
-
-
-        listDataChild.put(listDataHeader.get(0), appList);
-        //      listDataChild.put(listDataHeader.get(1), testlist);
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,16 +110,19 @@ public class MainActivity extends AppCompatActivity {
 
         ///////////////
         expListView = (ExpandableListView) findViewById(R.id.applicationListView);
-       // prepareListData();
+        // initialize group/children
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
         listDataHeader.add("Apps");
+        //get list of apps
         _apps = new ListOps(getPackageManager(), getBaseContext());
         final List<String> appInfo = _apps.getInfo(getPackageManager());
         List<String> appList = new ArrayList<String>();
+        //add each app to group
         for(int i = 0; i < _apps.getName().size(); i++){
             appList.add(_apps.getName().get(i).toString());
         }
+
         listDataChild.put(listDataHeader.get(0), appList);
 
         //
