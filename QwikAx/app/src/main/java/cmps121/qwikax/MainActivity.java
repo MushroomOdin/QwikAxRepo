@@ -93,19 +93,18 @@ public class MainActivity extends AppCompatActivity {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
 
-        listDataHeader.add("testlist");
+     //   listDataHeader.add("testlist");
         listDataHeader.add("Apps");
         //test
 
-        List<String> testlist = new ArrayList<String>();
-        //testlist.getName();
-      // testlist.add();
+   //     List<String> testlist = new ArrayList<String>();
+     /*
         testlist.add("thing 1");
         testlist.add("thing 2");
         testlist.add("thing 3");
         testlist.add("thing 4");
         testlist.add("thing 5");
-
+*/
         //actual
         _apps = new ListOps(getPackageManager(), getBaseContext());
         final List<String> appInfo = _apps.getInfo(getPackageManager());
@@ -116,8 +115,9 @@ public class MainActivity extends AppCompatActivity {
        // appList.add(_apps.getName().toString());
 
 
-        listDataChild.put(listDataHeader.get(0), testlist);
-        listDataChild.put(listDataHeader.get(1), appList);
+
+        listDataChild.put(listDataHeader.get(0), appList);
+        //      listDataChild.put(listDataHeader.get(1), testlist);
 
     }
 
@@ -136,44 +136,52 @@ public class MainActivity extends AppCompatActivity {
 
         //Populates _listView and creates appInfo(list of "com.~~~~~")
       //  _apps = new ListOps(getPackageManager(), getBaseContext());
-      //  final List<String> appInfo = _apps.getInfo(getPackageManager());
+       // final List<String> appInfo = _apps.getInfo(getPackageManager());
 
         ///////////////
         expListView = (ExpandableListView) findViewById(R.id.applicationListView);
-        prepareListData();
+       // prepareListData();
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<String>>();
+        listDataHeader.add("Apps");
+        _apps = new ListOps(getPackageManager(), getBaseContext());
+        final List<String> appInfo = _apps.getInfo(getPackageManager());
+        List<String> appList = new ArrayList<String>();
+        for(int i = 0; i < _apps.getName().size(); i++){
+            appList.add(_apps.getName().get(i).toString());
+        }
+        listDataChild.put(listDataHeader.get(0), appList);
+
+        //
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
         expListView.setAdapter(listAdapter);
+        expListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+            if (_runMode == true) {
+                String chosenApp = appInfo.get(i).toString();
+                if (chosenApp != null) {
+                    Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                    if (Launch != null) {
+                        startActivity(Launch);
+                    }
+                }
+            } else {
+                _selectedAppName = _listView.getItemAtPosition(i).toString();
+                _selectedAppRunnable = appInfo.get(i).toString();
+                Toast.makeText(getApplicationContext(), "Please enter your gesture for "
+                        + _selectedAppName, Toast.LENGTH_SHORT).show();
+                _hasSelection = true;
+            }
+
+
+        }
+    });
         ///////////////
 
-/*
-        ArrayAdapter<String> appAdapter = new ArrayAdapter<>(this, R.layout.list_view_row, _apps.getName());
-        _listView = (ListView) findViewById(R.id.applicationListView);
-        _listView.setAdapter(appAdapter);
-        _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                if (_runMode == true) {
-                    String chosenApp = appInfo.get(i).toString();
-                    if (chosenApp != null) {
-                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
-                        if (Launch != null) {
-                            startActivity(Launch);
-                        }
-                    }
-                } else {
-                    _selectedAppName = _listView.getItemAtPosition(i).toString();
-                    _selectedAppRunnable = appInfo.get(i).toString();
-                    Toast.makeText(getApplicationContext(), "Please enter your gesture for "
-                            + _selectedAppName, Toast.LENGTH_SHORT).show();
-                    _hasSelection = true;
-                }
-
-
-            }
-        });
-*/
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _drawingView.setOnTouchListener(new CustomGridViewTouchListener());
         _drawingView.setElevation(6);
