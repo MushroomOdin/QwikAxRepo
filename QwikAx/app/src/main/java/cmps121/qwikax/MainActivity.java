@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cmps121.qwikax.Settings.SettingsActivity;
 import cmps121.qwikax.ViewsAndAdapters.DrawingView;
 import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.AppStorage;
@@ -198,8 +199,8 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
 
                 // Create new intent and launch the layout with the intent
-                //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
-                //startActivity(startSettings);
+                Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(startSettings);
 
                 break;
 
