@@ -98,7 +98,7 @@ public class DataBaseHandler implements Serializable {
             _errorThrown = true;
         }
     }
-    
+
     public void FindAllPossibleApplicationsPastNode(DataBaseNode node, ArrayList<AppStorage> list){
         try{
             for(int count = 0; count < 8; count++){
@@ -138,8 +138,8 @@ public class DataBaseHandler implements Serializable {
 
                     if (_traversalNode == null) {
                         // Restore position
-                        _traversalNode = temp;
-                        PredictMovement(current);
+                        //_traversalNode = temp;
+                        //PredictMovement(current);
                     }
 
                     FindAllPossibleApplicationsPastNode(_traversalNode, _currentMatches);

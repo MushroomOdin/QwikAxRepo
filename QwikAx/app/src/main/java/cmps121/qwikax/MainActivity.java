@@ -82,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 50;
-        _columns = 50;
+        _rows = 8;
+        _columns = 8;
         _runMode = true;
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
