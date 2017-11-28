@@ -131,11 +131,12 @@ public class MainActivity extends AppCompatActivity {
         //
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
         expListView.setAdapter(listAdapter);
-        expListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        expListView.setChoiceMode(ExpandableListView.CHOICE_MODE_SINGLE);
+
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
         @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            Toast.makeText(getApplicationContext(), "hi", Toast.LENGTH_SHORT).show();
+        public boolean onChildClick(ExpandableListView adapterView, View view, int i, int j, long l) {
             if (_runMode == true) {
                 String chosenApp = _appInfo.get(i).toString();
                 if (chosenApp != null) {
@@ -151,8 +152,7 @@ public class MainActivity extends AppCompatActivity {
                         + _selectedAppName, Toast.LENGTH_SHORT).show();
                 _hasSelection = true;
             }
-
-
+            return true;
         }
     });
         ///////////////
