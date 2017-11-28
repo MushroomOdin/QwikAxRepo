@@ -376,7 +376,6 @@ public class MainActivity extends AppCompatActivity {
 
     // CUSTOM LISTENER
 
-//}
 
     public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
