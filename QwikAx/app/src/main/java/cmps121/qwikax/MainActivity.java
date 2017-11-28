@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
+            Toast.makeText(getApplicationContext(), "hi", Toast.LENGTH_SHORT).show();
             if (_runMode == true) {
                 String chosenApp = _appInfo.get(i).toString();
                 if (chosenApp != null) {
@@ -387,7 +387,6 @@ public class MainActivity extends AppCompatActivity {
 
     // CUSTOM LISTENER
 
-//}
 
     public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
