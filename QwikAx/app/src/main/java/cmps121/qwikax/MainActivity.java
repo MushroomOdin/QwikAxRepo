@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onChildClick(ExpandableListView adapterView, View view, int i, int j, long l) {
             if (_runMode == true) {
-                String chosenApp = _appInfo.get(i).toString();
+                String chosenApp = _appInfo.get(j).toString();
                 if (chosenApp != null) {
                     Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
                     if (Launch != null) {
@@ -147,6 +147,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 _selectedAppName = _listView.getItemAtPosition(i).toString();
+                //_selectedAppName = expListView.getItemAtPosition(i).toString();
+
                 _selectedAppRunnable = _appInfo.get(i).toString();
                 Toast.makeText(getApplicationContext(), "Please enter your gesture for "
                         + _selectedAppName, Toast.LENGTH_SHORT).show();
