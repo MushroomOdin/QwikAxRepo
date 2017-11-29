@@ -16,9 +16,9 @@
         app:showAsAction="never"
         />
     <item
-        android:id="@+id/action_search"
+        android:id="@+id/clear_data_base"
         android:orderInCategory="3"
-        android:title="search"
+        android:title="Clear DataBase"
         app:showAsAction="never"
         />
     <item
@@ -31,4 +31,5 @@
         android:orderInCategory="5"
         android:title="Toggle Grid"
         app:showAsAction="always" />
+
 </menu>

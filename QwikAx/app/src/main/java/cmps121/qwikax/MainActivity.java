@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String _selectedAppName;
     private String _selectedAppRunnable;
+    private String _FILE_NAME = "QwikAxSaveFile.txt";
     private boolean _hasSelection = false;
 
     private PopupWindow _settings;
@@ -63,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
     // METHODS
 
     // Restores our Data Base object from a file.
-    private void LoadDataBaseFromFile(String fileName, ArrayList<String> appList) {
+    private void LoadDataBaseFromFile() {
         try{
-            FileInputStream fis = getApplicationContext().openFileInput(fileName);
+            FileInputStream fis = getApplicationContext().openFileInput(_FILE_NAME);
             ObjectInputStream is = new ObjectInputStream(fis);
             _dataBase = (DataBaseHandler) is.readObject();
             is.close();
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         }catch(Exception ex){
             Log.e("Error", ex.getMessage().toString());
             Toast.makeText(getApplicationContext(), "Data base was not loaded.", Toast.LENGTH_LONG).show();
-            _dataBase = new DataBaseHandler(appList);
+            _dataBase = new DataBaseHandler();
         }
     }
 
@@ -82,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _rows = 8;
-        _columns = 8;
+        _rows = 20;
+        _columns = 20;
         _runMode = true;
 
         _drawingView = (DrawingView) findViewById(R.id.drawingView);
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart(){
-        LoadDataBaseFromFile("QwikAxSaveFile.txt", _apps.getName());
+        LoadDataBaseFromFile();
         ArrayList<AppStorage> appList = new ArrayList<>();
         // TODO: remove this, just to make sure that at start things are being loaded in the database.
         _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        SaveDataBaseToFile("QwikAxSaveFile.txt");
+        SaveDataBaseToFile();
         super.onStop();
     }
 
@@ -166,8 +167,10 @@ public class MainActivity extends AppCompatActivity {
 
                 break;
 
-            case R.id.action_profile:
-                Toast.makeText(getApplicationContext(), "you clicked profile", Toast.LENGTH_LONG).show();
+            case R.id.clear_data_base:
+                Toast.makeText(getApplicationContext(), "Clearing Data Base", Toast.LENGTH_LONG).show();
+                _dataBase = new DataBaseHandler();
+                SaveDataBaseToFile();
                 break;
 
             case R.id.action_run_save:
@@ -219,9 +222,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Used to save the data base to a file.
-    private void SaveDataBaseToFile(String fileName){
+    private void SaveDataBaseToFile(){
         try{
-            FileOutputStream out = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
+            FileOutputStream out = getApplicationContext().openFileOutput(_FILE_NAME, Context.MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(out);
             os.writeObject(_dataBase);
             os.close();
@@ -259,25 +262,25 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case MotionEvent.ACTION_MOVE:
-                        if (!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
-                            _drawingView.touch_move(x, y);
-                            //Passing in a fake list for testing
-                            if (_movements.MovementOccurred(x, y)) {
-                                if (_runMode) {
-                                    _dataBase.NextMovement(_movements.get_currentMovements());
+                    _drawingView.touch_move(x, y);
+                    if (!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
+                        //Passing in a fake list for testing
+                        if (_movements.MovementOccurred(x, y)) {
+                            if (_runMode) {
+                                _dataBase.NextMovement(_movements.get_currentMovements());
 
-                                    ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
+                                ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
-                                    matchingAppNames = "Matched with:";
-                                    for (AppStorage current : matchingApps) {
-                                        matchingAppNames = matchingAppNames + " " + current.get_relativeName();
-                                    }
+                                matchingAppNames = "Matched with:";
+                                for (AppStorage current : matchingApps) {
+                                    matchingAppNames = matchingAppNames + " " + current.get_relativeName();
                                 }
                             }
+                        }
 
-                            value = true;
-                        } else
-                            value = false;
+                        value = true;
+                    } else
+                        value = false;
 
                     break;
 

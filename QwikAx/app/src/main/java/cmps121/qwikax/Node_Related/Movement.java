@@ -16,13 +16,13 @@ public class Movement {
     // ENUMERATION
 
     public enum MovementType{
-        RIGHT (0),
-        LEFT (1),
-        UP (2),
-        DOWN (3),
-        BOTTOM_RIGHT (4),
+        RIGHT (2),
+        LEFT (6),
+        UP (0),
+        DOWN (4),
+        BOTTOM_RIGHT (3),
         BOTTOM_LEFT (5),
-        TOP_RIGHT (6),
+        TOP_RIGHT (1),
         TOP_LEFT (7),
         INITIAL_POSITION (8);
 

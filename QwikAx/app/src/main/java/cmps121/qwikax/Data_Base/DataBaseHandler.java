@@ -17,12 +17,11 @@ public class DataBaseHandler implements Serializable {
 
     // CONSTRUCTORS
 
-    public DataBaseHandler(ArrayList<String> everyAppName){
+    public DataBaseHandler(){
         _masterNode = new DataBaseNode();
         _traversalNode = null;
         _currentMatches = new ArrayList<>();
         _errorThrown = false;
-        _AppNames = everyAppName;
         _comparePercentHigh = 100;
         _comparePercentLow = 90;
     }
@@ -35,7 +34,6 @@ public class DataBaseHandler implements Serializable {
     private ArrayList<DataBaseNode> _traversalNode;
 
     private ArrayList<AppStorage> _currentMatches;
-    private ArrayList<String> _AppNames;
     private Movement.MovementType _movementTrend;
 
     private int _index;
@@ -148,6 +146,7 @@ public class DataBaseHandler implements Serializable {
         _errorThrown = false;
         _index = 0;
         _predicitveStepsCount = new ArrayList<>();
+        _predicitveStepsCount.add(0,0);
 
         FindAllPossibleApplicationsPastNode(_traversalNode,_currentMatches);
     }
@@ -158,9 +157,9 @@ public class DataBaseHandler implements Serializable {
             for (Movement.MovementType current : types) {
                 ArrayList<DataBaseNode> tempList = _traversalNode;
                 for (DataBaseNode node:tempList) {
-                    if (node != null) {
-                        _isFirst = true;
-                        _index = _traversalNode.indexOf(node);
+                    _isFirst = true;
+                    _index = _traversalNode.indexOf(node);
+                    if ((node != null) && (_predicitveStepsCount.get(_index) <= 3)) {
                         DataBaseNode restore = node;
                         _traversalNode.set(_index, node.MoveToDesiredDataBaseNode(current));
                         _currentMatches.clear();
@@ -168,8 +167,10 @@ public class DataBaseHandler implements Serializable {
                             // Restore position
                             _traversalNode.set(_index, restore);
                             PredictiveStep(node);
-                        }else
+                        }else {
                             _movementTrend = current;
+                            _predicitveStepsCount.set(_index, 0);
+                        }
                     }
                 }
 
@@ -185,12 +186,18 @@ public class DataBaseHandler implements Serializable {
 
     private void PredictiveStep(DataBaseNode node){
         DataBaseNode temp = node;
+        if(_index > _predicitveStepsCount.size())
+            _predicitveStepsCount.set(_index, 1);
+        else
+            _predicitveStepsCount.set(_index, _predicitveStepsCount.get(_index) + 1);
 
-        if((node = node.MoveToDesiredDataBaseNode(_movementTrend)) == null){
-            node = temp;
-            SearchMostProbableRoutes(node);
-        }else
-            _traversalNode.set(_index, node);
+        if(_movementTrend != null) {
+            if ((node = node.MoveToDesiredDataBaseNode(_movementTrend)) == null) {
+                node = temp;
+                SearchMostProbableRoutes(node);
+            } else
+                _traversalNode.set(_index, node);
+        }
 
     }
 
@@ -227,35 +234,72 @@ public class DataBaseHandler implements Serializable {
 
     // Uses  node and _current trend to find a route that is most probable for the search.
     private void SearchMostProbableRoutes(DataBaseNode node){
+        int size = _traversalNode.size();
+        DataBaseNode temp = _traversalNode.get(_index);
         switch(_movementTrend){
             case BOTTOM_LEFT:
                 Search(node, Movement.MovementType.LEFT);
                 Search(node, Movement.MovementType.DOWN);
+                Search(node, Movement.MovementType.TOP_LEFT);
+                Search(node, Movement.MovementType.BOTTOM_RIGHT);
                 break;
 
             case BOTTOM_RIGHT:
+                Search(node, Movement.MovementType.RIGHT);
+                Search(node, Movement.MovementType.DOWN);
+                Search(node, Movement.MovementType.TOP_RIGHT);
+                Search(node, Movement.MovementType.BOTTOM_LEFT);
                 break;
 
             case DOWN:
+                Search(node, Movement.MovementType.RIGHT);
+                Search(node, Movement.MovementType.LEFT);
+                Search(node, Movement.MovementType.BOTTOM_RIGHT);
+                Search(node, Movement.MovementType.BOTTOM_LEFT);
                 break;
 
             case LEFT:
+                Search(node, Movement.MovementType.UP);
+                Search(node, Movement.MovementType.DOWN);
+                Search(node, Movement.MovementType.TOP_LEFT);
+                Search(node, Movement.MovementType.BOTTOM_LEFT);
                 break;
 
             case RIGHT:
+                Search(node, Movement.MovementType.UP);
+                Search(node, Movement.MovementType.DOWN);
+                Search(node, Movement.MovementType.BOTTOM_RIGHT);
+                Search(node, Movement.MovementType.TOP_RIGHT);
                 break;
 
             case TOP_LEFT:
+                Search(node, Movement.MovementType.UP);
+                Search(node, Movement.MovementType.LEFT);
+                Search(node, Movement.MovementType.BOTTOM_RIGHT);
+                Search(node, Movement.MovementType.BOTTOM_LEFT);
                 break;
 
             case TOP_RIGHT:
+                Search(node, Movement.MovementType.RIGHT);
+                Search(node, Movement.MovementType.UP);
+                Search(node, Movement.MovementType.TOP_LEFT);
+                Search(node, Movement.MovementType.BOTTOM_RIGHT);
                 break;
 
             case UP:
+                Search(node, Movement.MovementType.RIGHT);
+                Search(node, Movement.MovementType.LEFT);
+                Search(node, Movement.MovementType.TOP_LEFT);
+                Search(node, Movement.MovementType.TOP_RIGHT);
                 break;
 
         }
 
+        // If we did not find anything at that node we want to remove the node from possibilities
+        if((_traversalNode.size() == size) && (_traversalNode.get(_index) == temp)) {
+            _traversalNode.remove(_index);
+            _predicitveStepsCount.remove(_index);
+        }
     }
 
 
