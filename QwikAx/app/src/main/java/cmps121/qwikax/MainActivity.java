@@ -3,6 +3,7 @@ package cmps121.qwikax;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,10 +14,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -28,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cmps121.qwikax.ViewsAndAdapters.DrawingView;
@@ -47,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
     private int _inputNum;
 
     private ListView _listView;
+    /////////////////
+    private ExpandableListView expListView;
+    private ExpandableListAdapter listAdapter;
+    private List<String> listDataHeader;
+    private HashMap<String, List<String>> listDataChild;
+    /////////////////
     private DrawingView _drawingView;
     private Movement _movements;
     private DataBaseHandler _dataBase;
@@ -71,12 +83,14 @@ public class MainActivity extends AppCompatActivity {
             _dataBase = (DataBaseHandler) is.readObject();
             is.close();
             fis.close();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             Log.e("Error", ex.getMessage().toString());
             Toast.makeText(getApplicationContext(), "Data base was not loaded.", Toast.LENGTH_LONG).show();
             _dataBase = new DataBaseHandler();
         }
     }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,34 +106,55 @@ public class MainActivity extends AppCompatActivity {
         SetOnLayoutChange();
 
         //Populates _listView and creates appInfo(list of "com.~~~~~")
-         _apps = new ListOps(getPackageManager(), getBaseContext());
+      //  _apps = new ListOps(getPackageManager(), getBaseContext());
+       // final List<String> appInfo = _apps.getInfo(getPackageManager());
+
+        ///////////////
+        expListView = (ExpandableListView) findViewById(R.id.applicationListView);
+        // initialize group/children
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<String>>();
+        listDataHeader.add("Apps");
+        //get list of apps
+        _apps = new ListOps(getPackageManager(), getBaseContext());
         final List<String> appInfo = _apps.getInfo(getPackageManager());
-        ArrayAdapter<String> appAdapter = new ArrayAdapter<>(this, R.layout.list_view_row, _apps.getName());
-        _listView = (ListView) findViewById(R.id.applicationListView);
-        _listView.setAdapter(appAdapter);
-        _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        List<String> appList = new ArrayList<String>();
+        //add each app to group
+        for(int i = 0; i < _apps.getName().size(); i++){
+            appList.add(_apps.getName().get(i).toString());
+        }
 
-                if(_runMode == true) {
-                    String chosenApp = appInfo.get(i).toString();
-                    if (chosenApp != null) {
-                        Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
-                        if (Launch != null) {
-                            startActivity(Launch);
-                        }
+        listDataChild.put(listDataHeader.get(0), appList);
+
+        //
+        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+        expListView.setAdapter(listAdapter);
+        expListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+            if (_runMode == true) {
+                String chosenApp = appInfo.get(i).toString();
+                if (chosenApp != null) {
+                    Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
+                    if (Launch != null) {
+                        startActivity(Launch);
                     }
-                }else{
-                    _selectedAppName = _listView.getItemAtPosition(i).toString();
-                    _selectedAppRunnable = appInfo.get(i).toString();
-                    Toast.makeText(getApplicationContext(), "Please enter your gesture for "
-                            + _selectedAppName, Toast.LENGTH_SHORT).show();
-                    _hasSelection = true;
                 }
-
-
+            } else {
+                _selectedAppName = _listView.getItemAtPosition(i).toString();
+                _selectedAppRunnable = appInfo.get(i).toString();
+                Toast.makeText(getApplicationContext(), "Please enter your gesture for "
+                        + _selectedAppName, Toast.LENGTH_SHORT).show();
+                _hasSelection = true;
             }
-        });
+
+
+        }
+    });
+        ///////////////
+
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
         _drawingView.setOnTouchListener(new CustomGridViewTouchListener());
@@ -157,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch(id) {
+        switch (id) {
             case R.id.action_settings:
                 //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
 
@@ -176,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_run_save:
                 _runMode = !_runMode;
 
-                String status = (_runMode)? "run": "save";
+                String status = (_runMode) ? "run" : "save";
                 Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
 
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -212,10 +247,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Sets the on layout change to the drawing view.
-    private void SetOnLayoutChange(){
+    private void SetOnLayoutChange() {
         _drawingView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
-            public void onLayoutChange(View view, int left, int top, int right, int bottom,  int oldLeft, int oldTop, int oldRight, int oldBottom) {
+            public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 _movements.ResizeCoordinateSystem(left, top, right, bottom, getWindowManager().getDefaultDisplay().getRotation());
             }
         });
@@ -228,32 +263,31 @@ public class MainActivity extends AppCompatActivity {
             ObjectOutputStream os = new ObjectOutputStream(out);
             os.writeObject(_dataBase);
             os.close();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Log.e("Error", ex.getMessage());
-            Toast.makeText(this,"Data Base was not saved", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Data Base was not saved", Toast.LENGTH_LONG).show();
         }
     }
 
     // METHODS
 
     // CUSTOM LISTENER
-    
-    private final class CustomGridViewTouchListener implements View.OnTouchListener{
+
+    private final class CustomGridViewTouchListener implements View.OnTouchListener {
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
             boolean value = false;
-            float x,y;
+            float x, y;
             String matchingAppNames;
 
             x = motionEvent.getX();
             y = motionEvent.getY();
 
-            switch(motionEvent.getAction())
-            {
+            switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     _movements.InitialPosition(x, y);
-                    if(_runMode)
+                    if (_runMode)
                         _dataBase.InitialMovement();
 
                     _drawingView.touch_start(x, y);
@@ -286,13 +320,7 @@ public class MainActivity extends AppCompatActivity {
 
                 case MotionEvent.ACTION_UP:
                     _drawingView.touch_up();
-                    //StringBuilder sentence = new StringBuilder();
-                    //for(Movement.MovementType move : _movements.get_movementsMade())
-                    //    sentence.append(move.toString() + " ");
-
-                    //Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
-                    //Toast.makeText(getApplicationContext(), "Number of Movements made: " + _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
-                    if(!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
+                    if (!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                         if (!_runMode) {
                             if (_hasSelection) {
                                 // Save the selection
@@ -307,14 +335,8 @@ public class MainActivity extends AppCompatActivity {
                             if (_dataBase.get_currentMatches().size() > 0) {
                                 chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
                                 _dataBase.get_currentMatches().get(0).IncrementTimesAccessed();
-                            } else {
-                              // _dataBase.FindAppByAbstraction(_movements.get_movementsMade());
-                               // if(_dataBase.get_currentMatches().size() > 0)
-                              //      chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
-                              //  else
-                              //      chosenApp = null;
+                            } else
                                 chosenApp = null;
-                            }
 
                             if (!TextUtils.isEmpty(chosenApp)) {
                                 Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
@@ -332,6 +354,11 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Gesture saved! Now in run mode", Toast.LENGTH_SHORT).show();
                             }
                         }
+                    }else{
+                        if(_runMode)
+                            Toast.makeText(getApplicationContext(), "Error occurred during run.", Toast.LENGTH_LONG).show();
+                        else
+                            Toast.makeText(getApplicationContext(), "Error occurred during save. Did not save gesture", Toast.LENGTH_LONG).show();
                     }
 
                     value = true;
@@ -344,5 +371,100 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // CUSTOM LISTENER
+
+
+    public class ExpandableListAdapter extends BaseExpandableListAdapter {
+
+        private Context _context;
+        private List<String> _listDataHeader; // header titles
+        // child data in format of header title, child title
+        private HashMap<String, List<String>> _listDataChild;
+
+        public ExpandableListAdapter(Context context, List<String> listDataHeader,
+                                     HashMap<String, List<String>> listChildData) {
+            this._context = context;
+            this._listDataHeader = listDataHeader;
+            this._listDataChild = listChildData;
+        }
+
+        @Override
+        public Object getChild(int groupPosition, int childPosititon) {
+            return this._listDataChild.get(this._listDataHeader.get(groupPosition))
+                    .get(childPosititon);
+        }
+
+        @Override
+        public long getChildId(int groupPosition, int childPosition) {
+            return childPosition;
+        }
+
+        @Override
+        public View getChildView(int groupPosition, final int childPosition,
+                                 boolean isLastChild, View convertView, ViewGroup parent) {
+
+            final String childText = (String) getChild(groupPosition, childPosition);
+
+            if (convertView == null) {
+                LayoutInflater infalInflater = (LayoutInflater) this._context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = infalInflater.inflate(R.layout.list_item, null);
+            }
+
+            TextView txtListChild = (TextView) convertView
+                    .findViewById(R.id.lblListItem);
+
+            txtListChild.setText(childText);
+            return convertView;
+        }
+
+        @Override
+        public int getChildrenCount(int groupPosition) {
+            return this._listDataChild.get(this._listDataHeader.get(groupPosition))
+                    .size();
+        }
+
+        @Override
+        public Object getGroup(int groupPosition) {
+            return this._listDataHeader.get(groupPosition);
+        }
+
+        @Override
+        public int getGroupCount() {
+            return this._listDataHeader.size();
+        }
+
+        @Override
+        public long getGroupId(int groupPosition) {
+            return groupPosition;
+        }
+
+        @Override
+        public View getGroupView(int groupPosition, boolean isExpanded,
+                                 View convertView, ViewGroup parent) {
+            String headerTitle = (String) getGroup(groupPosition);
+            if (convertView == null) {
+                LayoutInflater infalInflater = (LayoutInflater) this._context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = infalInflater.inflate(R.layout.list_group, null);
+            }
+
+            TextView lblListHeader = (TextView) convertView
+                    .findViewById(R.id.lblListHeader);
+            lblListHeader.setTypeface(null, Typeface.BOLD);
+            lblListHeader.setText(headerTitle);
+
+            return convertView;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return false;
+        }
+
+        @Override
+        public boolean isChildSelectable(int groupPosition, int childPosition) {
+            return true;
+        }
+    }
 
 }
