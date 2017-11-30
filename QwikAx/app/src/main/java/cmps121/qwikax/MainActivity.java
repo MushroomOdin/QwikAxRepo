@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cmps121.qwikax.Settings.SettingsActivity;
 import cmps121.qwikax.ViewsAndAdapters.DrawingView;
 import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.AppStorage;
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private DataBaseHandler _dataBase;
     private ListOps _apps;
 
+    private List<String> _appList;
+    private List<String> _appInfo;
     private String _selectedAppName;
     private String _selectedAppRunnable;
     private String _FILE_NAME = "QwikAxSaveFile.txt";
@@ -112,25 +115,26 @@ public class MainActivity extends AppCompatActivity {
         listDataHeader.add("Apps");
         //get list of apps
         _apps = new ListOps(getPackageManager(), getBaseContext());
-        final List<String> appInfo = _apps.getInfo(getPackageManager());
-        List<String> appList = new ArrayList<>();
+        _appInfo = _apps.getInfo(getPackageManager());
+        _appList = new ArrayList<String>();
         //add each app to group
         for(int i = 0; i < _apps.getName().size(); i++){
-            appList.add(_apps.getName().get(i).toString());
+            _appList.add(_apps.getName().get(i));
         }
 
-        listDataChild.put(listDataHeader.get(0), appList);
+        listDataChild.put(listDataHeader.get(0), _appList);
 
         //
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
         expListView.setAdapter(listAdapter);
-        expListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        expListView.setChoiceMode(ExpandableListView.CHOICE_MODE_SINGLE);
+
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
         @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
+        public boolean onChildClick(ExpandableListView adapterView, View view, int i, int j, long l) {
             if (_runMode == true) {
-                String chosenApp = appInfo.get(i).toString();
+                String chosenApp = _appInfo.get(j).toString();
                 if (chosenApp != null) {
                     Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
                     if (Launch != null) {
@@ -139,13 +143,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 _selectedAppName = _listView.getItemAtPosition(i).toString();
-                _selectedAppRunnable = appInfo.get(i).toString();
+                //_selectedAppName = expListView.getItemAtPosition(i).toString();
+
+                _selectedAppRunnable = _appInfo.get(i).toString();
                 Toast.makeText(getApplicationContext(), "Please enter your gesture for "
                         + _selectedAppName, Toast.LENGTH_SHORT).show();
                 _hasSelection = true;
             }
-
-
+            return true;
         }
     });
         ///////////////
@@ -192,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
 
                 // Create new intent and launch the layout with the intent
-                //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
-                //startActivity(startSettings);
+                Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(startSettings);
 
                 break;
 
@@ -204,10 +209,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.action_run_save:
-                _runMode = !_runMode;
 
-                String status = (_runMode) ? "run" : "save";
-                Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
 
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                 final View popup = inflater.inflate(R.layout.settings_menu, null);
@@ -225,6 +227,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         _inputNum = Integer.valueOf(txtInputNum.getText().toString());
+                        _runMode = !_runMode;
+                        String status = (_runMode) ? "run" : "save";
+                        Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
                         _settings.dismiss();
                     }
                 });
@@ -309,8 +314,16 @@ public class MainActivity extends AppCompatActivity {
 
                                 matchingAppNames = "Matched with:";
                                 for (AppStorage current : matchingApps) {
+                                    String currentAppName = current.get_relativeName();
                                     matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                                    for(int i=0; i<_appList.size(); i++) {
+                                        if(_appList.get(i) == currentAppName){
+                                            _appList.remove(i);
+                                        }
+                                    }
+                                    _appList.add(0, currentAppName);
                                 }
+                                listAdapter.notifyDataSetChanged();
                             }
                         }
 
