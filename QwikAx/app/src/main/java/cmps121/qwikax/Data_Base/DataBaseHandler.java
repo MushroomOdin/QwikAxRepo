@@ -59,6 +59,7 @@ public class DataBaseHandler implements Serializable {
         String appName  = null;
         if(_currentMatches.size() >= 0){
             AppStorage app = _currentMatches.get(0);
+            app.IncrementTimesAccessed();
             appName = app.get_abesoluteName();
         }
 
@@ -151,6 +152,28 @@ public class DataBaseHandler implements Serializable {
         FindAllPossibleApplicationsPastNode(_traversalNode,_currentMatches);
     }
 
+    public boolean LookAtPreviousMovements(int size){
+        boolean foundItems = false;
+        for(DataBaseNode node: _traversalNode){
+            for(int count = 0; count < size / 5; count++){
+                DataBaseNode temp = node.MoveToDesiredDataBaseNode(Movement.MovementType.INITIAL_POSITION);
+                ArrayList<AppStorage> list =  temp.get_appStorage();
+                if(list.size() > 0){
+                    _currentMatches.addAll(list);
+                    if(!foundItems)
+                        foundItems = false;
+                }
+            }
+        }
+
+        if(foundItems) {
+            RemoveDuplicatesFromList(_currentMatches);
+            //_currentMatches = SortPossibleApplicationsList(_currentMatches)
+        }
+
+        return foundItems;
+    }
+
     // Used for comparison of a run mode based item only.
     public void NextMovement(ArrayList<Movement.MovementType> types) {
         try {
@@ -183,30 +206,22 @@ public class DataBaseHandler implements Serializable {
         }
     }
 
+    private void PredictiveStep(DataBaseNode node) {
+        try {
+            DataBaseNode temp = node;
+            if (_index > _predicitveStepsCount.size())
+                _predicitveStepsCount.set(_index, 1);
+            else
+                _predicitveStepsCount.set(_index, _predicitveStepsCount.get(_index) + 1);
 
-    private void PredictiveStep(DataBaseNode node){
-        DataBaseNode temp = node;
-        if(_index > _predicitveStepsCount.size())
-            _predicitveStepsCount.set(_index, 1);
-        else
-            _predicitveStepsCount.set(_index, _predicitveStepsCount.get(_index) + 1);
-
-        if(_movementTrend != null) {
             if ((node = node.MoveToDesiredDataBaseNode(_movementTrend)) == null) {
                 node = temp;
                 SearchMostProbableRoutes(node);
             } else
                 _traversalNode.set(_index, node);
-        }
-
-    }
-
-    private void Search(DataBaseNode node, Movement.MovementType check){
-        if((node = node.MoveToDesiredDataBaseNode(check)) != null) {
-            if (_isFirst)
-                _traversalNode.set(_index, node);
-             else
-                _traversalNode.add(++_index, node);
+        }catch (Exception ex){
+            Log.e("ERROR", "Predictive step inside of Data Base Handler had and error.\n" + ex.getMessage());
+            _errorThrown = true;
         }
     }
 
@@ -232,76 +247,48 @@ public class DataBaseHandler implements Serializable {
         return values;
     }
 
-    // Uses  node and _current trend to find a route that is most probable for the search.
-    private void SearchMostProbableRoutes(DataBaseNode node){
-        int size = _traversalNode.size();
-        DataBaseNode temp = _traversalNode.get(_index);
-        switch(_movementTrend){
-            case BOTTOM_LEFT:
-                Search(node, Movement.MovementType.LEFT);
-                Search(node, Movement.MovementType.DOWN);
-                Search(node, Movement.MovementType.TOP_LEFT);
-                Search(node, Movement.MovementType.BOTTOM_RIGHT);
-                break;
-
-            case BOTTOM_RIGHT:
-                Search(node, Movement.MovementType.RIGHT);
-                Search(node, Movement.MovementType.DOWN);
-                Search(node, Movement.MovementType.TOP_RIGHT);
-                Search(node, Movement.MovementType.BOTTOM_LEFT);
-                break;
-
-            case DOWN:
-                Search(node, Movement.MovementType.RIGHT);
-                Search(node, Movement.MovementType.LEFT);
-                Search(node, Movement.MovementType.BOTTOM_RIGHT);
-                Search(node, Movement.MovementType.BOTTOM_LEFT);
-                break;
-
-            case LEFT:
-                Search(node, Movement.MovementType.UP);
-                Search(node, Movement.MovementType.DOWN);
-                Search(node, Movement.MovementType.TOP_LEFT);
-                Search(node, Movement.MovementType.BOTTOM_LEFT);
-                break;
-
-            case RIGHT:
-                Search(node, Movement.MovementType.UP);
-                Search(node, Movement.MovementType.DOWN);
-                Search(node, Movement.MovementType.BOTTOM_RIGHT);
-                Search(node, Movement.MovementType.TOP_RIGHT);
-                break;
-
-            case TOP_LEFT:
-                Search(node, Movement.MovementType.UP);
-                Search(node, Movement.MovementType.LEFT);
-                Search(node, Movement.MovementType.BOTTOM_RIGHT);
-                Search(node, Movement.MovementType.BOTTOM_LEFT);
-                break;
-
-            case TOP_RIGHT:
-                Search(node, Movement.MovementType.RIGHT);
-                Search(node, Movement.MovementType.UP);
-                Search(node, Movement.MovementType.TOP_LEFT);
-                Search(node, Movement.MovementType.BOTTOM_RIGHT);
-                break;
-
-            case UP:
-                Search(node, Movement.MovementType.RIGHT);
-                Search(node, Movement.MovementType.LEFT);
-                Search(node, Movement.MovementType.TOP_LEFT);
-                Search(node, Movement.MovementType.TOP_RIGHT);
-                break;
-
-        }
-
-        // If we did not find anything at that node we want to remove the node from possibilities
-        if((_traversalNode.size() == size) && (_traversalNode.get(_index) == temp)) {
-            _traversalNode.remove(_index);
-            _predicitveStepsCount.remove(_index);
+    private void Search(DataBaseNode node, Movement.MovementType check){
+        try{
+            if((node = node.MoveToDesiredDataBaseNode(check)) != null) {
+                if (_isFirst) {
+                    _traversalNode.set(_index, node);
+                    _isFirst = !_isFirst;
+                } else
+                    _traversalNode.add(++_index, node);
+            }
+        }catch (Exception ex){
+            Log.e("ERROR", "Search inside of Data Base Handler had and error.\n" + ex.getMessage());
+            _errorThrown = true;
         }
     }
 
+    // Uses  node and _current trend to find a route that is most probable for the search.
+    private void SearchMostProbableRoutes(DataBaseNode node){
+        try {
+            int size = _traversalNode.size();
+            DataBaseNode temp = _traversalNode.get(_index);
+            if (_movementTrend != null) {
+                int value = _movementTrend.getValue();
+                // Right adjacent movement
+                Search(node, Movement.MovementType.Convert(value + 1 % 8));
+                // Left adjacent movement
+                Search(node, Movement.MovementType.Convert(value + 7 % 8));
+                // 2 positions right
+                Search(node, Movement.MovementType.Convert(value + 2 % 8));
+                // 2 Positions left
+                Search(node, Movement.MovementType.Convert(value + 6 % 8));
+
+                // If we did not find anything at that node we want to remove the node from possibilities
+                if ((_traversalNode.size() == size) && (_traversalNode.get(_index) == temp)) {
+                    _traversalNode.remove(_index);
+                    _predicitveStepsCount.remove(_index);
+                }
+            }
+        }catch (Exception ex){
+            Log.e("ERROR", "Search most probable routes inside of Data Base Handler had and error.\n" + ex.getMessage());
+            _errorThrown = true;
+        }
+    }
 
     private ArrayList<AppStorage> SortPossibleApplicationsList(ArrayList<AppStorage> list) {
         ArrayList<AppStorage> comparison = new ArrayList<>();

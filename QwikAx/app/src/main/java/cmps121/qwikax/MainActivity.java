@@ -105,20 +105,15 @@ public class MainActivity extends AppCompatActivity {
 
         SetOnLayoutChange();
 
-        //Populates _listView and creates appInfo(list of "com.~~~~~")
-      //  _apps = new ListOps(getPackageManager(), getBaseContext());
-       // final List<String> appInfo = _apps.getInfo(getPackageManager());
-
-        ///////////////
         expListView = (ExpandableListView) findViewById(R.id.applicationListView);
         // initialize group/children
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
+        listDataHeader = new ArrayList<>();
+        listDataChild = new HashMap<>();
         listDataHeader.add("Apps");
         //get list of apps
         _apps = new ListOps(getPackageManager(), getBaseContext());
         final List<String> appInfo = _apps.getInfo(getPackageManager());
-        List<String> appList = new ArrayList<String>();
+        List<String> appList = new ArrayList<>();
         //add each app to group
         for(int i = 0; i < _apps.getName().size(); i++){
             appList.add(_apps.getName().get(i).toString());
@@ -237,6 +232,13 @@ public class MainActivity extends AppCompatActivity {
                 _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
                 break;
 
+            case R.id.delete_item:
+                // TODO: add in the popup / listview
+
+                // This uses the relative name rather than the exact.
+                _dataBase.DeleteItemFromTree(null);
+                break;
+
             case R.id.toggle_Grid:
                 _drawingView.ToggleGrid();
                 _drawingView.postInvalidate();
@@ -328,15 +330,17 @@ public class MainActivity extends AppCompatActivity {
                                 _inputNum--;
 
                             } else {
-                                Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Please select an app before inputting the gesture", Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             String chosenApp;
-                            if (_dataBase.get_currentMatches().size() > 0) {
-                                chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
-                                _dataBase.get_currentMatches().get(0).IncrementTimesAccessed();
-                            } else
-                                chosenApp = null;
+                            if (_dataBase.get_currentMatches().size() == 0) {
+                                if (!_dataBase.LookAtPreviousMovements(_movements.get_currentMovements().size()))
+                                    chosenApp = _dataBase.get_MostlikelyMatchName();
+                                else
+                                    chosenApp = null;
+                            }else
+                                chosenApp = _dataBase.get_MostlikelyMatchName();
 
                             if (!TextUtils.isEmpty(chosenApp)) {
                                 Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);

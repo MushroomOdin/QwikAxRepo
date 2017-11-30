@@ -59,8 +59,12 @@ public class DataBaseNode implements Serializable {
 
     // METHODS
 
-    public DataBaseNode MoveToDesiredDataBaseNode(Movement.MovementType type){
-        return _pointers[type.getValue()];
+    public DataBaseNode MoveToDesiredDataBaseNode(Movement.MovementType type) {
+        DataBaseNode node = null;
+        if(type != null)
+            node =  _pointers[type.getValue()];
+
+        return node;
     }
 
     public void SetDesiredDataBaseNode(Movement.MovementType type, DataBaseNode node){
