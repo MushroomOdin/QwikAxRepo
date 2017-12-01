@@ -39,11 +39,11 @@
         <ExpandableListView
             android:id="@+id/applicationListView"
             android:layout_width="fill_parent"
-            android:layout_height="0px"
-            android:layout_weight="1"
+            android:layout_height="1px"
+            android:layout_weight=".3"
             android:background="#3f3f3f"
             android:divider="@android:color/black"
-            android:dividerHeight="2dp"
+            android:dividerHeight="4dp"
             android:fadingEdge="horizontal|vertical"
             android:footerDividersEnabled="true"
             android:headerDividersEnabled="true" />

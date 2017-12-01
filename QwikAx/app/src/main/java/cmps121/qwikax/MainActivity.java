@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private Movement _movements;
     private DataBaseHandler _dataBase;
     private ListOps _apps;
+    private boolean expanded = false;
 
     private String _selectedAppName;
     private String _selectedAppRunnable;
@@ -150,6 +151,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
+
+
+
+
+
         }
     });
         ///////////////
@@ -160,6 +166,8 @@ public class MainActivity extends AppCompatActivity {
         _drawingView.setElevation(6);
         _movements = new Movement(_rows, _columns);
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -446,6 +454,32 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded,
                                  View convertView, ViewGroup parent) {
+
+
+            if(!isExpanded){
+                //set layout_weight to 1
+                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                        expListView.getLayoutParams().width,
+                        expListView.getLayoutParams().height,
+                        1.5f
+                );
+                expListView.setLayoutParams(param);
+            }
+
+            if(isExpanded){
+                //set layout_weight to .3
+
+                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                        expListView.getLayoutParams().width,
+                        expListView.getLayoutParams().height,
+                        0.3f
+                );
+                expListView.setLayoutParams(param);
+
+            }
+
+
+
             String headerTitle = (String) getGroup(groupPosition);
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) this._context
@@ -457,6 +491,8 @@ public class MainActivity extends AppCompatActivity {
                     .findViewById(R.id.lblListHeader);
             lblListHeader.setTypeface(null, Typeface.BOLD);
             lblListHeader.setText(headerTitle);
+
+
 
             return convertView;
         }
