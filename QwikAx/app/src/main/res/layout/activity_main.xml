@@ -48,6 +48,18 @@
             android:footerDividersEnabled="true"
             android:headerDividersEnabled="true" />
 
+        <ExpandableListView
+            android:id="@+id/savedListView"
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="0"
+            android:background="#3f3f3f"
+            android:divider="@android:color/black"
+            android:dividerHeight="2dp"
+            android:fadingEdge="horizontal|vertical"
+            android:footerDividersEnabled="true"
+            android:headerDividersEnabled="true" />
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

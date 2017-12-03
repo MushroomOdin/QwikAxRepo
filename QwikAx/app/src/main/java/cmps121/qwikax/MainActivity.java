@@ -1,6 +1,8 @@
 package cmps121.qwikax;
 
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -15,6 +17,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
@@ -73,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean _hasSelection = false;
 
     private PopupWindow _settings;
+    private String deleteSelected;
+
 
     // FIELDS
 
@@ -142,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                _selectedAppName = _listView.getItemAtPosition(i).toString();
-                //_selectedAppName = expListView.getItemAtPosition(i).toString();
+                //_selectedAppName = _listView.getItemAtPosition(i).toString();
+                _selectedAppName = expListView.getItemAtPosition(i).toString();
 
                 _selectedAppRunnable = _appInfo.get(i).toString();
                 Toast.makeText(getApplicationContext(), "Please enter your gesture for "
@@ -238,10 +243,43 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.delete_item:
-                // TODO: add in the popup / listview
 
-                // This uses the relative name rather than the exact.
-                _dataBase.DeleteItemFromTree(null);
+                //Popup savedListView for deleting saved gestures
+                final Dialog dialog = new Dialog(MainActivity.this);
+                dialog.setContentView(R.layout.delete_view);
+
+                final ListView savedListView = (ListView) dialog.findViewById(R.id.deleteListView);
+                ArrayList<AppStorage> savedApps = new ArrayList<>();
+                _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), savedApps);
+
+                ArrayList<String> savedAppsNames = new ArrayList<>();
+                for(int i=0; i<savedApps.size(); i++){
+                    savedAppsNames.add(savedApps.get(i).get_relativeName());
+                }
+
+                //Only displays list if there is something to delete
+                if(savedAppsNames.size() > 0) {
+                    ArrayAdapter savedListAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, savedAppsNames);
+                    savedListView.setAdapter(savedListAdapter);
+                    dialog.show();
+
+                    savedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapter, View v, int position, long x) {
+                            deleteSelected = savedListView.getItemAtPosition(position).toString();
+                        }
+                    });
+
+                    // This uses the relative name rather than the exact.
+                    try {
+                        _dataBase.DeleteItemFromTree(deleteSelected);
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(), "There is nothing to delete", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
             case R.id.toggle_Grid:
