@@ -267,16 +267,18 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onItemClick(AdapterView<?> adapter, View v, int position, long x) {
                             deleteSelected = savedListView.getItemAtPosition(position).toString();
+                            try {
+                                _dataBase.DeleteItemFromTree(deleteSelected);
+                                Toast.makeText(getApplicationContext(), deleteSelected + " deleted.", Toast.LENGTH_SHORT).show();
+                            }
+                            catch(Exception e){
+                                e.printStackTrace();
+                            }
+                            dialog.cancel();
                         }
                     });
 
                     // This uses the relative name rather than the exact.
-                    try {
-                        _dataBase.DeleteItemFromTree(deleteSelected);
-                    }
-                    catch(Exception e){
-                        e.printStackTrace();
-                    }
                 }else{
                     Toast.makeText(getApplicationContext(), "There is nothing to delete", Toast.LENGTH_SHORT).show();
                 }
