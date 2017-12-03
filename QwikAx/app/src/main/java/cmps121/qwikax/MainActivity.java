@@ -28,6 +28,7 @@ import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private int _columns;
     private boolean _runMode;
     private int _inputNum;
+    private int _priority;
+
 
     private ListView _listView;
     /////////////////
@@ -138,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onChildClick(ExpandableListView adapterView, View view, int i, int j, long l) {
-            if (_runMode == true) {
+            if (_runMode) {
                 String chosenApp = _appInfo.get(j).toString();
                 if (chosenApp != null) {
                     Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
@@ -148,9 +151,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 //_selectedAppName = _listView.getItemAtPosition(i).toString();
-                _selectedAppName = expListView.getItemAtPosition(i).toString();
+                _selectedAppName = (String)listAdapter.getChild(i, j);
 
-                _selectedAppRunnable = _appInfo.get(i).toString();
+                _selectedAppRunnable = _appInfo.get(j).toString();
                 Toast.makeText(getApplicationContext(), "Please enter your gesture for "
                         + _selectedAppName, Toast.LENGTH_SHORT).show();
                 _hasSelection = true;
@@ -202,8 +205,8 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
 
                 // Create new intent and launch the layout with the intent
-                Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(startSettings);
+                //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                //startActivity(startSettings);
 
                 break;
 
@@ -215,10 +218,17 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_run_save:
 
-
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                 final View popup = inflater.inflate(R.layout.settings_menu, null);
                 popup.setElevation(5);
+
+                ArrayList<Integer> spinner = new ArrayList<Integer>();
+                spinner.add(0);
+                spinner.add(1);
+                spinner.add(2);
+                spinner.add(3);
+                ArrayAdapter<Integer> priAdapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_list_item_1, spinner);
+
 
                 View main = (View) findViewById(R.id.activity_main);
                 _settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -227,11 +237,14 @@ public class MainActivity extends AppCompatActivity {
                 final TextView txtInputNum = (TextView) popup.findViewById(R.id.txtInputNum);
                 Button closePopup = (Button) popup.findViewById(R.id.btnDone);
 
+                final Spinner priority = (Spinner) popup.findViewById(R.id.spnPriority);
+                priority.setAdapter(priAdapter);
 
                 closePopup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         _inputNum = Integer.valueOf(txtInputNum.getText().toString());
+                        _priority = (Integer) priority.getSelectedItem();
                         _runMode = !_runMode;
                         String status = (_runMode) ? "run" : "save";
                         Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
