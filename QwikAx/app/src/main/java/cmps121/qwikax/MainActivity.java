@@ -203,6 +203,14 @@ public class MainActivity extends AppCompatActivity {
                 _drawingView.ToggleGrid();
                 _drawingView.postInvalidate();
                 break;
+
+            case R.id.action_delete:
+                Toast.makeText(getApplicationContext(), "you clicked Delete", Toast.LENGTH_LONG).show();
+                //use similar method as setting page to make delete list
+                //use getAppStorageList from DataBaseNode
+
+                break;
+
         }
 
         return super.onOptionsItemSelected(item);

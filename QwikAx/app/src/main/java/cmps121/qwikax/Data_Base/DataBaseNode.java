@@ -72,5 +72,13 @@ public class DataBaseNode implements Serializable {
         _appStorage.add(app);
     }
 
+    public void DeleteAppStorageToList(AppStorage app){
+        for(int count=0; count<_appStorage.size(); count++){
+            if(_appStorage.contains(app)){
+                _appStorage.remove(app);
+            }
+        }
+    }
+
     // METHODS
 }
