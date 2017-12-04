@@ -80,35 +80,43 @@ public class CoordinateSystem {
         switch (_screenOrientation - newOrientation) {
             case 1:
             case -3:
-                rotate90DegreesCW();
+                rotate90DegreesCW(_xCoord,_yCoord,_xDistance,_yDistance);
                 break;
             case 2:
             case -2:
-                rotate180Degrees();
+                rotate180Degrees(_xCoord,_yCoord,_xDistance,_yDistance);
                 break;
 
             case -1:
             case 3:
-                rotate90DegreesCCW();
+                rotate90DegreesCCW(_xCoord,_yCoord,_xDistance,_yDistance);
                 break;
         }
     }
 
     // Rotates our axis by 90 degrees counter clockwise
     // TODO: get this working
-    private void rotate90DegreesCCW() {
-
+    private void rotate90DegreesCCW(double xCoord, double yCoord, double xDist, double yDist) {
+        _yDistance = xDist;
+        _xDistance = yDist;
+        _xCoord = xCoord - _xDistance;
+        return;
     }
 
     // Rotates our axis by 90 degrees clockwise
     // TODO: get this working
-    private void rotate90DegreesCW() {
-
+    private void rotate90DegreesCW(double xCoord, double yCoord, double xDist, double yDist) {
+        _yDistance = xDist;
+        _xDistance = yDist;
+        _yCoord = yCoord - _yDistance;
+        return;
     }
 
     // Rotates our axis by 180 degrees
     // TODO: get this working
-    private void rotate180Degrees() {
-
+    private void rotate180Degrees(double xCoord, double yCoord, double xDist, double yDist) {
+        _xCoord = xCoord - _xDistance;
+        _yCoord = yCoord - _yDistance;
+        return;
     }
 }
