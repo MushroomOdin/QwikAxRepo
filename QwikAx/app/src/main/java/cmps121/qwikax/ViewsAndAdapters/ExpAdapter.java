@@ -81,10 +81,13 @@ public class ExpAdapter extends BaseExpandableListAdapter {
             convertView = inflater.inflate(R.layout.list_item, null);
         }
         TextView appName = (TextView) convertView.findViewById(R.id.lblListItem);
-        ImageView appFlag = (ImageView) convertView.findViewById(R.id.priorityFlag);
+        ImageView appIcon = (ImageView) convertView.findViewById(R.id.appIcon);
+        ImageView flag = (ImageView) convertView.findViewById(R.id.priorityFlag);
 
         appName.setText(child.getName().toString());
-        appFlag.setImageDrawable(child.getImage());
+        appIcon.setImageDrawable(child.getImage());
+        flag.setImageResource(child.getImage2());
+
 
         return convertView;
     }

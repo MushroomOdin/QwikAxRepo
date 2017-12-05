@@ -161,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
             Child c = new Child();
             c.setName(_appList.get(i));
             c.setImage(appIcons.get(i));
+            c.setImage2(R.mipmap.none_accessability_level);
             childList.add(c);
         }
 
@@ -430,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
                         if (!_runMode) {
                             if (_hasSelection) {
                                 // Save the selection
-                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade(), _drawingView.get_bitmap()));
+                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.values()[_priority], _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade(), _drawingView.get_bitmap()));
                                 _inputNum--;
 
                             } else {
