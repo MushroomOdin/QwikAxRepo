@@ -15,13 +15,12 @@ public class AppStorage implements Serializable {
 
     // CONSTRUCTORS
 
-    public AppStorage(AccessibilityLevels accessLevel, String absoluteName, String relativeName, ArrayList<Movement.MovementType> appMovements, Bitmap image){
+    public AppStorage(AccessibilityLevels accessLevel, String absoluteName, String relativeName, ArrayList<Movement.MovementType> appMovements){
         _accessibilityLevel = accessLevel;
         _absoluteName = absoluteName;
         _relativeName = relativeName;
         _timesAccessed = 0;
         _appMovements = appMovements;
-        _image = image;
     }
 
     // CONSTRUCTORS
@@ -48,7 +47,6 @@ public class AppStorage implements Serializable {
     private String _relativeName;
     private int _timesAccessed;
     private ArrayList<Movement.MovementType> _appMovements;
-    private Bitmap _image;
 
     private static final long serialVersionUID = 3128594851129501740L;
 
@@ -61,7 +59,6 @@ public class AppStorage implements Serializable {
     public String get_relativeName(){return _relativeName;}
     public int get_timesAccessed(){return _timesAccessed;}
     public ArrayList<Movement.MovementType> get_appMovements(){return _appMovements; }
-    public Bitmap get_image(){return _image; }
 
     // GETTERS
 
