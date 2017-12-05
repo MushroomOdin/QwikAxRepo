@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
             Child c = new Child();
             c.setName(_appList.get(i));
             c.setImage(appIcons.get(i));
-            c.setImage2(R.mipmap.none_accessability_level);
+            //c.setImage2(R.mipmap.none_accessability_level);
             //c.setImage2(accessability[_appList.get(i).]);
             childList.add(c);
         }
