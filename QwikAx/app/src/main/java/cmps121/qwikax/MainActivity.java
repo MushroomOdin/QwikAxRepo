@@ -333,13 +333,6 @@ public class MainActivity extends AppCompatActivity {
                 final View popup = inflater.inflate(R.layout.settings_menu, null);
                 popup.setElevation(5);
 
-                ArrayList<Integer> spinner = new ArrayList<Integer>();
-                spinner.add(0);
-                spinner.add(1);
-                spinner.add(2);
-                spinner.add(3);
-                ArrayAdapter<Integer> priAdapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_list_item_1, spinner);
-
 
                 View main = (View) findViewById(R.id.activity_main);
                 _settings = new PopupWindow(popup, LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -348,8 +341,8 @@ public class MainActivity extends AppCompatActivity {
                 final TextView txtInputNum = (TextView) popup.findViewById(R.id.txtInputNum);
                 Button closePopup = (Button) popup.findViewById(R.id.btnDone);
 
-                final Spinner priority = (Spinner) popup.findViewById(R.id.spnPriority);
-                priority.setAdapter(priAdapter);
+                final TextView txtPriority = (TextView) popup.findViewById(R.id.txtPriority);
+
 
                 _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
 
@@ -357,7 +350,17 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         _inputNum = Integer.valueOf(txtInputNum.getText().toString());
-                        _priority = (Integer) priority.getSelectedItem();
+
+                        if(txtPriority.getText().toString().trim().length() == 0){
+                            _priority = 0;
+                        }else if(Integer.valueOf(txtPriority.getText().toString()) < 0){
+                            _priority = 0;
+                        }else if(Integer.valueOf(txtPriority.getText().toString()) > 3){
+                            _priority = 3;
+                        }else{
+                            _priority = Integer.valueOf(txtPriority.getText().toString());
+                        }
+
 
                         _runMode = false;
                         String status = (_runMode) ? "run" : "save";
