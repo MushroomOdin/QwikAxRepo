@@ -351,6 +351,8 @@ public class MainActivity extends AppCompatActivity {
                 final Spinner priority = (Spinner) popup.findViewById(R.id.spnPriority);
                 priority.setAdapter(priAdapter);
 
+                _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
+
                 closePopup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -364,7 +366,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
                 break;
 
             case R.id.delete_item:
