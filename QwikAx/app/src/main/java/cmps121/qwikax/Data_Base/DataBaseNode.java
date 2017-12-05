@@ -21,6 +21,7 @@ public class DataBaseNode implements Serializable {
     public DataBaseNode(){
         _pointers = new DataBaseNode[9];
         _appStorage = null;
+        _reoccuranceCount = 0;
     }
 
     // This should be used for most constructors.
@@ -28,6 +29,7 @@ public class DataBaseNode implements Serializable {
         _pointers = new DataBaseNode[9];
         _pointers[8] = previousNode;
         _appStorage = null;
+        _reoccuranceCount = 0;
     }
 
 
@@ -37,7 +39,8 @@ public class DataBaseNode implements Serializable {
 
     private DataBaseNode[] _pointers;
     private AppStorage _appStorage;
-
+    private Movement.MovementType _previousMovements;
+    private int _reoccuranceCount;
     private static final long serialVersionUID = 3128594851129501739L;
 
     // FIELDS
@@ -52,23 +55,11 @@ public class DataBaseNode implements Serializable {
 
     // METHODS
 
+    // TODO: change this code ot reflect the idea that move to node will resolve this issue for me.
     public boolean CheckPreviousNodeForSeries(Movement.MovementType move) {
-        int count = 0;
         boolean value = false;
-        boolean done = false;
-        DataBaseNode node = this;
-        DataBaseNode previousNode;
-        while (((previousNode = node.MoveToDesiredDataBaseNode(Movement.MovementType.INITIAL_POSITION)) != null) && (count < 2) && !done) {
-            if (previousNode.MoveToDesiredDataBaseNode(move) == node) {
-                node = previousNode;
-                count++;
-            }else
-                done = true;
-        }
-
-        if (count >= 2)
+        if(_reoccuranceCount >= 2)
             value = true;
-
 
         return value;
     }
@@ -77,6 +68,13 @@ public class DataBaseNode implements Serializable {
         DataBaseNode node = null;
         if(type != null)
             node =  _pointers[type.getValue()];
+
+        if(node != null){
+            if(_previousMovements == type){
+                _reoccuranceCount++;
+            }else
+                _reoccuranceCount = 0;
+        }
 
         return node;
     }

@@ -233,7 +233,7 @@ public class DataBaseHandler implements Serializable {
                     _index = _traversalNode.indexOf(node);
                     if ((node != null) && (_predicitveStepsCount.get(_index) <= 5)) {
                         if (node.MoveToDesiredDataBaseNode(current) == null)
-                            if(node.CheckPreviousNodeForSeries(current))
+                            //if(node.CheckPreviousNodeForSeries(current))
                                 PredictiveStep(node);
                         else {
                             _movementTrend = current;
