@@ -1,11 +1,12 @@
 package cmps121.qwikax.Data_Base;
 
+import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EmptyStackException;
 
 import cmps121.qwikax.Node_Related.Movement;
 
@@ -22,8 +23,6 @@ public class DataBaseHandler implements Serializable {
         _traversalNode = null;
         _currentMatches = new ArrayList<>();
         _errorThrown = false;
-        _comparePercentHigh = 100;
-        _comparePercentLow = 90;
     }
 
     // CONSTRUCTORS
@@ -38,11 +37,8 @@ public class DataBaseHandler implements Serializable {
 
     private int _index;
     private ArrayList<Integer> _predicitveStepsCount;
-
     private boolean _isFirst;
     private boolean _errorThrown;
-    private double _comparePercentLow;
-    private double _comparePercentHigh;
 
     private static final long serialVersionUID = 3128594851129501738L;
 
@@ -54,14 +50,28 @@ public class DataBaseHandler implements Serializable {
     public ArrayList<AppStorage> get_currentMatches(){return _currentMatches;}
     public ArrayList<DataBaseNode> get_traversalNode(){return _traversalNode;}
     public boolean get_errorThrown(){return _errorThrown;}
+    public String get_MostlikelyMatchName() {
+        String appName = null;
+        AppStorage app;
 
-    public String get_MostlikelyMatchName(){
-        String appName  = null;
-        if(_currentMatches.size() >= 0){
-            AppStorage app = _currentMatches.get(0);
+        if (_currentMatches.size() > 0) {
+            app = _currentMatches.get(0);
             app.IncrementTimesAccessed();
             appName = app.get_abesoluteName();
         }
+        /*else if(_currentMatches.size() > 1){
+            double maxPercent = Double.MIN_VALUE;
+            ArrayList<Double> percents = new ArrayList<>();
+            for (AppStorage apps:_currentMatches)
+                percents.add(CompareLists(runMoves, apps.get_appMovements()));
+
+            for (double percent:percents)
+                if(maxPercent < percent)
+                    maxPercent = percent;
+
+            app = _currentMatches.get(percents.indexOf(maxPercent));
+            appName = app.get_abesoluteName();
+        }*/
 
         return appName;
     }
@@ -70,41 +80,100 @@ public class DataBaseHandler implements Serializable {
 
     // METHODS
 
+    private void AddingRoutesToTraversableNode(DataBaseNode node, Movement.MovementType currentMove){
+        try {
+            int value = currentMove.getValue();
+            for (int count = 0; count < 8; count++) {
+                if (count != (value + 4) % 8)
+                    Search(node, Movement.MovementType.Convert(count));
+            }
+        }catch (Exception ex){
+            Log.e("ERROR", "Adding Routes to traversable node inside of Data Base Handler had and error.\n" + ex.getMessage());
+            _errorThrown = true;
+        }
+    }
+
     // Used in the creation of the tree / adding a new item to it. This should only be used when adding.
     // AppStorage contains the Movement class thusly we do not need to worry about adding it in anywhere else.
-    public void AddNewItemToTree(AppStorage item){
+    public boolean AddNewItemToTree(AppStorage item){
+        boolean added = false;
         try {
             DataBaseNode temp = _masterNode;
             for (Movement.MovementType type : item.get_appMovements()) {
-                if ((type != Movement.MovementType.INITIAL_POSITION) && (temp != null))
-                    temp = temp.MoveToDesiredDataBaseNode(type);
-                else
-                    temp.get_pointers()[type.getValue()] = new DataBaseNode(temp);
+                if (type != Movement.MovementType.INITIAL_POSITION) {
+                    DataBaseNode temp2 = temp;
+                    if ((temp = temp.MoveToDesiredDataBaseNode(type)) == null) {
+                        temp = temp2;
+                        temp.get_pointers()[type.getValue()] = new DataBaseNode(temp);
+                        temp = temp.MoveToDesiredDataBaseNode(type);
+                    }
+                }
             }
 
-            temp.AddAppStorageToList(item);
+            //TODO: add in search for addition in the future.
+            /*if(AbstractSearch(item.get_appMovements())) {
+                _message = "The gesture was too similar to: " + _currentMatches.get(0).get_relativeName();
+                added = false;
+            }else {
+                if (!temp.AddAppStorageToList(item)) {
+                    _message = "The gesture was too similar to: " + temp.get_appStorage().get_relativeName();
+                    added = false;
+                }else
+                    added = true;
+            }*/
+            if (!temp.AddAppStorageToList(item))
+                added = false;
+            else
+                added = true;
+
         }catch (Exception ex) {
             Log.e("ERROR", "Add new item to tree inside data base handler had an error\n" + ex.getMessage());
             _errorThrown = true;
         }
+
+        return added;
+    }
+
+    private double CompareLists(ArrayList<Movement.MovementType> runMoves, ArrayList<Movement.MovementType> appList){
+        if(runMoves.contains(Movement.MovementType.INITIAL_POSITION))
+            runMoves.remove(Movement.MovementType.INITIAL_POSITION);
+
+        int size = (runMoves.size() > appList.size()) ? appList.size() : runMoves.size();
+        int count = 0;
+        for(int listCount = 0; listCount < size; listCount++){
+            if(runMoves.get(listCount) == appList.get(listCount))
+                count++;
+        }
+
+        return (count / size) * 100;
+    }
+
+    private ArrayList<Movement.MovementType> CompressMovements(ArrayList<Movement.MovementType> list){
+        ArrayList<Movement.MovementType> values = new ArrayList<>();
+        Movement.MovementType current = null;
+        for (Movement.MovementType test:list) {
+            if(test != current) {
+                values.add(test);
+                current = test;
+            }
+        }
+
+        return values;
     }
 
     public void DeleteItemFromTree(String relativeAppName){
         DeleteItemFromTree(_masterNode, relativeAppName);
     }
 
-    private void DeleteItemFromTree(DataBaseNode node, String relativeAppName) {
+    public void DeleteItemFromTree(DataBaseNode node, String relativeAppName) {
         try {
             for (int count = 0; count < 8; count++) {
                 DataBaseNode currentNode = node.get_pointers()[count];
                 if (currentNode != null) {
-                    ArrayList<AppStorage> currentAppList = currentNode.get_appStorage();
-                    ArrayList<AppStorage> newAppList = new ArrayList<>();
-                    for (AppStorage currentApp : currentAppList)
-                        if (currentApp.get_relativeName().compareTo(relativeAppName) != 0)
-                            newAppList.add(currentApp);
+                    AppStorage currentApp = currentNode.get_appStorage();
+                    if (currentApp.get_relativeName().compareTo(relativeAppName) == 0)
+                        currentNode.set_appStorage(null);
 
-                    currentNode.set_appStorage(newAppList);
                     DeleteItemFromTree(currentNode, relativeAppName);
                 }
             }
@@ -112,6 +181,12 @@ public class DataBaseHandler implements Serializable {
             Log.e("ERROR", "Delete Item From tree in data base handler had an error.\n" + ex.getMessage());
             _errorThrown = true;
         }
+    }
+
+    public boolean FinalSearch(ArrayList<Movement.MovementType> list, ArrayList<DataBaseNode> nodes ){
+        boolean found = false;
+
+        return found;
     }
 
     public void FindAllPossibleApplicationsPastNode(ArrayList<DataBaseNode> nodes, ArrayList<AppStorage> list){
@@ -125,8 +200,8 @@ public class DataBaseHandler implements Serializable {
             for(int count = 0; count < 8; count++){
                 DataBaseNode currentNode = node.get_pointers()[count];
                 if( currentNode != null) {
-                    if(currentNode.get_appStorage().size() != 0) {
-                        list.addAll(currentNode.get_appStorage());
+                    if(currentNode.get_appStorage() != null) {
+                        list.add(currentNode.get_appStorage());
                         RemoveDuplicatesFromList(list);
                     }
 
@@ -141,65 +216,40 @@ public class DataBaseHandler implements Serializable {
     }
 
     public void InitialMovement(){
-        _traversalNode = new ArrayList<>();
+        ReinstateDataBase();
         _traversalNode.add(_masterNode);
-        _currentMatches.clear();
-        _errorThrown = false;
-        _index = 0;
-        _predicitveStepsCount = new ArrayList<>();
         _predicitveStepsCount.add(0,0);
-
         FindAllPossibleApplicationsPastNode(_traversalNode,_currentMatches);
-    }
-
-    public boolean LookAtPreviousMovements(int size){
-        boolean foundItems = false;
-        for(DataBaseNode node: _traversalNode){
-            for(int count = 0; count < size / 5; count++){
-                DataBaseNode temp = node.MoveToDesiredDataBaseNode(Movement.MovementType.INITIAL_POSITION);
-                ArrayList<AppStorage> list =  temp.get_appStorage();
-                if(list.size() > 0){
-                    _currentMatches.addAll(list);
-                    if(!foundItems)
-                        foundItems = false;
-                }
-            }
-        }
-
-        if(foundItems) {
-            RemoveDuplicatesFromList(_currentMatches);
-            //_currentMatches = SortPossibleApplicationsList(_currentMatches)
-        }
-
-        return foundItems;
     }
 
     // Used for comparison of a run mode based item only.
     public void NextMovement(ArrayList<Movement.MovementType> types) {
         try {
+            Movement.MovementType[] test = {Movement.MovementType.DOWN,Movement.MovementType.DOWN,Movement.MovementType.DOWN,Movement.MovementType.DOWN,Movement.MovementType.DOWN,Movement.MovementType.DOWN,Movement.MovementType.RIGHT,Movement.MovementType.RIGHT,Movement.MovementType.RIGHT,Movement.MovementType.RIGHT,Movement.MovementType.RIGHT};
             for (Movement.MovementType current : types) {
-                ArrayList<DataBaseNode> tempList = _traversalNode;
-                for (DataBaseNode node:tempList) {
+                ArrayList<DataBaseNode> tempList = (ArrayList<DataBaseNode>) _traversalNode.clone();
+                for (DataBaseNode node : tempList) {
                     _isFirst = true;
                     _index = _traversalNode.indexOf(node);
-                    if ((node != null) && (_predicitveStepsCount.get(_index) <= 3)) {
-                        DataBaseNode restore = node;
-                        _traversalNode.set(_index, node.MoveToDesiredDataBaseNode(current));
-                        _currentMatches.clear();
-                        if (_traversalNode.get(_index) == null) {
-                            // Restore position
-                            _traversalNode.set(_index, restore);
-                            PredictiveStep(node);
-                        }else {
+                    if ((node != null) && (_predicitveStepsCount.get(_index) <= 5)) {
+                        if (node.MoveToDesiredDataBaseNode(current) == null)
+                            if(node.CheckPreviousNodeForSeries(current))
+                                PredictiveStep(node);
+                        else {
                             _movementTrend = current;
+                            AddingRoutesToTraversableNode(node, current);
                             _predicitveStepsCount.set(_index, 0);
                         }
+                    }else{
+                        _traversalNode.remove(_index);
+                        _predicitveStepsCount.remove(_index);
                     }
                 }
-
-                FindAllPossibleApplicationsPastNode(_traversalNode, _currentMatches);
-                //_currentMatches = SortPossibleApplicationsList(_currentMatches);
             }
+
+            _currentMatches.clear();
+            FindAllPossibleApplicationsPastNode(_traversalNode, _currentMatches);
+            //_currentMatches = SortPossibleApplicationsList(_currentMatches);
         }catch(Exception ex){
             Log.e("ERROR", "Next Movement inside of Data Base Handler had and error.\n" + ex.getMessage());
             _errorThrown = true;
@@ -208,18 +258,14 @@ public class DataBaseHandler implements Serializable {
 
     private void PredictiveStep(DataBaseNode node) {
         try {
-            DataBaseNode temp = node;
             if (_index > _predicitveStepsCount.size())
                 _predicitveStepsCount.set(_index, 1);
             else
                 _predicitveStepsCount.set(_index, _predicitveStepsCount.get(_index) + 1);
 
-            if ((node = node.MoveToDesiredDataBaseNode(_movementTrend)) == null) {
-                node = temp;
-                SearchMostProbableRoutes(node);
-            } else
-                _traversalNode.set(_index, node);
-        }catch (Exception ex){
+            SearchMostProbableRoutes(node);
+
+        } catch (Exception ex) {
             Log.e("ERROR", "Predictive step inside of Data Base Handler had and error.\n" + ex.getMessage());
             _errorThrown = true;
         }
@@ -247,14 +293,24 @@ public class DataBaseHandler implements Serializable {
         return values;
     }
 
+    public void ReinstateDataBase(){
+        _traversalNode = new ArrayList<>();
+        _currentMatches = new ArrayList<>();
+        _errorThrown = false;
+        _index = 0;
+        _predicitveStepsCount = new ArrayList<>();
+    }
+
     private void Search(DataBaseNode node, Movement.MovementType check){
         try{
             if((node = node.MoveToDesiredDataBaseNode(check)) != null) {
                 if (_isFirst) {
                     _traversalNode.set(_index, node);
                     _isFirst = !_isFirst;
-                } else
+                } else {
                     _traversalNode.add(++_index, node);
+                    _predicitveStepsCount.add(_index, 0);
+                }
             }
         }catch (Exception ex){
             Log.e("ERROR", "Search inside of Data Base Handler had and error.\n" + ex.getMessage());
@@ -268,18 +324,10 @@ public class DataBaseHandler implements Serializable {
             int size = _traversalNode.size();
             DataBaseNode temp = _traversalNode.get(_index);
             if (_movementTrend != null) {
-                int value = _movementTrend.getValue();
-                // Right adjacent movement
-                Search(node, Movement.MovementType.Convert(value + 1 % 8));
-                // Left adjacent movement
-                Search(node, Movement.MovementType.Convert(value + 7 % 8));
-                // 2 positions right
-                Search(node, Movement.MovementType.Convert(value + 2 % 8));
-                // 2 Positions left
-                Search(node, Movement.MovementType.Convert(value + 6 % 8));
+                AddingRoutesToTraversableNode(node, _movementTrend);
 
                 // If we did not find anything at that node we want to remove the node from possibilities
-                if ((_traversalNode.size() == size) && (_traversalNode.get(_index) == temp)) {
+                if ((_traversalNode.size() == size) && (_traversalNode.get(_index) == temp) && (_predicitveStepsCount.get(_index) > 5)) {
                     _traversalNode.remove(_index);
                     _predicitveStepsCount.remove(_index);
                 }
@@ -288,6 +336,18 @@ public class DataBaseHandler implements Serializable {
             Log.e("ERROR", "Search most probable routes inside of Data Base Handler had and error.\n" + ex.getMessage());
             _errorThrown = true;
         }
+    }
+
+    // TODO: if you have the time smooth out the movements.
+    private ArrayList<Movement.MovementType> SmoothMovements(ArrayList<Movement.MovementType> list, int rows, int columns){
+        ArrayList<Movement.MovementType> value = new ArrayList<>();
+        ArrayList<Movement.MovementType> compressedList = CompressMovements(list);
+        int[] movementsCount = new int[8];
+        for (Movement.MovementType move:list) {
+
+        }
+
+        return value;
     }
 
     private ArrayList<AppStorage> SortPossibleApplicationsList(ArrayList<AppStorage> list) {

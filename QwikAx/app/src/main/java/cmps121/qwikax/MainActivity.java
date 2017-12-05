@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cmps121.qwikax.Data_Base.DataBaseNode;
 import cmps121.qwikax.Settings.SettingsActivity;
 import cmps121.qwikax.ViewsAndAdapters.Child;
 import cmps121.qwikax.ViewsAndAdapters.DrawingView;
@@ -81,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
     private int _priority;
 
 
-    private ListView _listView;
     /////////////////
     private ExpandableListView expListView;
     //private ExpandableListAdapter listAdapter;
@@ -118,15 +118,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     // Restores our Data Base object from a file.
-    private void LoadDataBaseFromFile() {
+    private void LoadDataBaseFromFile(String fileName) {
         try{
-            FileInputStream fis = getApplicationContext().openFileInput(_FILE_NAME);
+            FileInputStream fis = getApplicationContext().openFileInput(fileName);
             ObjectInputStream is = new ObjectInputStream(fis);
             _dataBase = (DataBaseHandler) is.readObject();
             is.close();
             fis.close();
         } catch (Exception ex) {
-            Log.e("Error", ex.getMessage().toString());
+            //Log.e("Error", ex.getMessage());
             Toast.makeText(getApplicationContext(), "Data base was not loaded.", Toast.LENGTH_LONG).show();
             _dataBase = new DataBaseHandler();
         }
@@ -182,7 +182,9 @@ public class MainActivity extends AppCompatActivity {
         // initialize group/children
         listDataHeader = new ArrayList<>();
         listDataChild = new HashMap<>();
-        listDataHeader.add("Apps");
+        if(!listDataChild.containsKey("Apps"))
+            listDataHeader.add("Apps");
+
         //get list of apps
         _apps = new ListOps(getPackageManager(), getBaseContext());
         _appInfo = _apps.getInfo(getPackageManager());
@@ -190,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
 
         int[] flag = {R.mipmap.none_accessability_level};
 
+        //_appList = new ArrayList<>();
         //add each app to group
 
 
@@ -258,8 +261,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                //_selectedAppName = _listView.getItemAtPosition(i).toString();
-
                 _selectedAppName = listAdapter.getChild(i, j).getName();
 
                 _selectedAppRunnable = _appInfo.get(j).toString();
@@ -289,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart(){
-        LoadDataBaseFromFile();
+        LoadDataBaseFromFile(_FILE_NAME);
         ArrayList<AppStorage> appList = new ArrayList<>();
         // TODO: remove this, just to make sure that at start things are being loaded in the database.
         _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
@@ -299,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        SaveDataBaseToFile();
+        SaveDataBaseToFile(_FILE_NAME);
         super.onStop();
     }
 
@@ -323,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.clear_data_base:
                 Toast.makeText(getApplicationContext(), "Clearing Data Base", Toast.LENGTH_LONG).show();
                 _dataBase = new DataBaseHandler();
-                SaveDataBaseToFile();
+                SaveDataBaseToFile(_FILE_NAME);
                 break;
 
             case R.id.action_run_save:
@@ -355,6 +356,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         _inputNum = Integer.valueOf(txtInputNum.getText().toString());
                         _priority = (Integer) priority.getSelectedItem();
+
                         _runMode = false;
                         String status = (_runMode) ? "run" : "save";
                         Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
@@ -427,10 +429,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Used to save the data base to a file.
-    private void SaveDataBaseToFile(){
+    private void SaveDataBaseToFile(String fileName){
         try{
-            FileOutputStream out = getApplicationContext().openFileOutput(_FILE_NAME, Context.MODE_PRIVATE);
+            FileOutputStream out = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(out);
+            _dataBase.ReinstateDataBase();
             os.writeObject(_dataBase);
             os.close();
         } catch (Exception ex) {
@@ -457,9 +460,7 @@ public class MainActivity extends AppCompatActivity {
             switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     _movements.InitialPosition(x, y);
-                    if (_runMode)
-                        _dataBase.InitialMovement();
-
+                    _dataBase.InitialMovement();
                     _drawingView.touch_start(x, y);
                     _drawingView.ClearCanvas();
                     value = true;
@@ -502,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
                         if (!_runMode) {
                             if (_hasSelection) {
                                 // Save the selection
-                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.values()[_priority], _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade(), _drawingView.get_bitmap()));
+                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.values()[_priority], _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade()));
                                 _inputNum--;
 
                             } else {
@@ -511,7 +512,9 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             String chosenApp;
                             if (_dataBase.get_currentMatches().size() == 0) {
-                                if (!_dataBase.LookAtPreviousMovements(_movements.get_currentMovements().size()))
+                                ArrayList<DataBaseNode> nodes = new ArrayList<>();
+                                nodes.add(_dataBase.get_masterNode());
+                                if (_dataBase.FinalSearch(_movements.get_movementsMade(),nodes))
                                     chosenApp = _dataBase.get_MostlikelyMatchName();
                                 else
                                     chosenApp = null;
