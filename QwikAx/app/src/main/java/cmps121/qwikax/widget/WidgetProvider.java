@@ -11,8 +11,11 @@ import android.content.Intent;
 
 public class WidgetProvider extends AppWidgetProvider{
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
-        int appWidgetId = appWidgetIds[0];
+        int N = appWidgetIds.length;
+        for(int i=0; i<N; i++){
+            int appWidgetId = appWidgetIds[i];
 
-        Intent intent = new Intent(context,)
+            Intent intent = new Intent(context,)
+        }
     }
 }
