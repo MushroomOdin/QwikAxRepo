@@ -1,6 +1,7 @@
 package cmps121.qwikax;
 
 
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -8,6 +9,16 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,6 +34,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListAdapter;
@@ -31,7 +43,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+
 import android.widget.Spinner;
+
+import android.widget.RemoteViews;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,9 +109,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
     // FIELDS
 
     // METHODS
+
+
 
     // Restores our Data Base object from a file.
     private void LoadDataBaseFromFile() {
@@ -114,10 +134,41 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+    public void notifyThis(String title, String message) {
+
+        NotificationCompat.Builder b = new NotificationCompat.Builder(this.getApplicationContext());
+        b.setAutoCancel(true)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setTicker("{your tiny message}")
+                .setContentTitle(title)
+                .setContentText(message)
+                .setContentInfo("INFO");
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        b.setContentIntent(contentIntent);
+
+
+        NotificationManager nm = (NotificationManager) this.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+        nm.notify(1, b.build());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //send the notifcation
+        if (Build.VERSION.SDK_INT < 26) {
+            notifyThis("QwikAx", "Click here!");
+        }
+
+
 
         _rows = 20;
         _columns = 20;
@@ -220,6 +271,7 @@ public class MainActivity extends AppCompatActivity {
         }
     });
         ///////////////
+
 
 
         // Using a click on an item inside the grid view as a means to start the highlighting.
@@ -570,6 +622,29 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded,
                                  View convertView, ViewGroup parent) {
+
+            if(!isExpanded){
+                //set layout_weight to 1
+                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                        expListView.getLayoutParams().width,
+                        expListView.getLayoutParams().height,
+                        1.5f
+                );
+                expListView.setLayoutParams(param);
+            }
+
+            if(isExpanded){
+                //set layout_weight to .3
+
+                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                        expListView.getLayoutParams().width,
+                        expListView.getLayoutParams().height,
+                        0.3f
+                );
+                expListView.setLayoutParams(param);
+
+            }
+
             String headerTitle = (String) getGroup(groupPosition);
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) this._context
@@ -595,5 +670,10 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     }
+
+
+
+
+
 
 }
