@@ -116,7 +116,7 @@ public class Movement {
 
     // Copies the current object to presever the original.
     public Movement Copy(){
-       return new Movement(this._items, this._rows, this._columns, this._movementsMade);
+        return new Movement(this._items, this._rows, this._columns, this._movementsMade);
     }
 
     // Finds the location of the view depending on the initial x,y location.

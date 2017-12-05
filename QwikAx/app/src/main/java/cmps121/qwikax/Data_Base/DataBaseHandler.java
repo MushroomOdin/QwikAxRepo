@@ -26,6 +26,16 @@ public class DataBaseHandler implements Serializable {
         _comparePercentLow = 90;
     }
 
+    public DataBaseHandler(DataBaseNode node, ArrayList<DataBaseNode> travel, ArrayList<AppStorage> current,
+                           boolean error, double percentHigh, double percentLow){
+        _masterNode = node;
+        _traversalNode = travel;
+        _currentMatches = current;
+        _errorThrown = error;
+        _comparePercentHigh = percentHigh;
+        _comparePercentLow = percentLow;
+    }
+
     // CONSTRUCTORS
 
     // FIELDS
@@ -49,6 +59,10 @@ public class DataBaseHandler implements Serializable {
     // FIELDS
 
     // GETTERS AND SETTERS
+    public DataBaseHandler Copy(){
+        return new DataBaseHandler(this._masterNode, this._traversalNode, this._currentMatches,
+                this._errorThrown, this._comparePercentHigh,this._comparePercentLow);
+    }
 
     public DataBaseNode get_masterNode(){return _masterNode;}
     public ArrayList<AppStorage> get_currentMatches(){return _currentMatches;}

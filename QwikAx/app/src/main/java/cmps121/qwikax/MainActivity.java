@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawingView _drawingView;
     private Movement _movements;
     private DataBaseHandler _dataBase;
+    public DataBaseHandler _widgetBase;
     private ListOps _apps;
 
     private List<String> _appList;
@@ -94,10 +95,12 @@ public class MainActivity extends AppCompatActivity {
             _dataBase = (DataBaseHandler) is.readObject();
             is.close();
             fis.close();
+            _widgetBase = _dataBase.Copy();
         } catch (Exception ex) {
             Log.e("Error", ex.getMessage().toString());
             Toast.makeText(getApplicationContext(), "Data base was not loaded.", Toast.LENGTH_LONG).show();
             _dataBase = new DataBaseHandler();
+            _widgetBase = _dataBase.Copy();
         }
     }
 
@@ -323,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
             ObjectOutputStream os = new ObjectOutputStream(out);
             os.writeObject(_dataBase);
             os.close();
+            _widgetBase = _dataBase.Copy();
         } catch (Exception ex) {
             Log.e("Error", ex.getMessage());
             Toast.makeText(this, "Data Base was not saved", Toast.LENGTH_LONG).show();
