@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         childList = new ArrayList<Child>();
 
         ArrayList<AppStorage> SavedApps = new ArrayList<AppStorage>();
-        _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), SavedApps);
+        //_dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), SavedApps);
 
         int[] accessability = {R.mipmap.none_accessability_level,
                 R.mipmap.none_accessability_level,
@@ -179,7 +179,8 @@ public class MainActivity extends AppCompatActivity {
             Child c = new Child();
             c.setName(_appList.get(i));
             c.setImage(appIcons.get(i));
-            c.setImage2(accessability[_appList.get(i).]);
+            c.setImage2(R.mipmap.none_accessability_level);
+            //c.setImage2(accessability[_appList.get(i).]);
             childList.add(c);
         }
 
