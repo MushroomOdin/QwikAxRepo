@@ -10,15 +10,15 @@
         android:title="settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_profile"
+        android:id="@+id/delete_item"
         android:orderInCategory="2"
-        android:title="profile"
+        android:title="Delete Item from DataBase"
         app:showAsAction="never"
         />
     <item
-        android:id="@+id/action_search"
+        android:id="@+id/clear_data_base"
         android:orderInCategory="3"
-        android:title="search"
+        android:title="Clear DataBase"
         app:showAsAction="never"
         />
     <item
@@ -31,4 +31,5 @@
         android:orderInCategory="5"
         android:title="Toggle Grid"
         app:showAsAction="always" />
+
 </menu>

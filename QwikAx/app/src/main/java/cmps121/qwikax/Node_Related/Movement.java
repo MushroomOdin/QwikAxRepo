@@ -2,6 +2,7 @@ package cmps121.qwikax.Node_Related;
 
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -11,18 +12,18 @@ import java.util.ArrayList;
  */
 
 
-public class Movement {
+public class Movement implements Serializable{
 
     // ENUMERATION
 
     public enum MovementType{
-        RIGHT (0),
-        LEFT (1),
-        UP (2),
-        DOWN (3),
-        BOTTOM_RIGHT (4),
+        UP (0),
+        TOP_RIGHT (1),
+        RIGHT (2),
+        BOTTOM_RIGHT (3),
+        DOWN (4),
         BOTTOM_LEFT (5),
-        TOP_RIGHT (6),
+        LEFT (6),
         TOP_LEFT (7),
         INITIAL_POSITION (8);
 
@@ -34,23 +35,23 @@ public class Movement {
             MovementType type = null;
             switch (position){
                 case 0:
-                    type = RIGHT;
-                    break;
-
-                case 1:
-                    type = LEFT;
-                    break;
-
-                case 2:
                     type = UP;
                     break;
 
+                case 1:
+                    type = TOP_RIGHT;
+                    break;
+
+                case 2:
+                    type = RIGHT;
+                    break;
+
                 case 3:
-                    type = DOWN;
+                    type = BOTTOM_RIGHT;
                     break;
 
                 case 4:
-                    type = BOTTOM_RIGHT;
+                    type = DOWN;
                     break;
 
                 case 5:
@@ -58,7 +59,7 @@ public class Movement {
                     break;
 
                 case 6:
-                    type = TOP_RIGHT;
+                    type = LEFT;
                     break;
 
                 case 7:
@@ -88,6 +89,8 @@ public class Movement {
     private ArrayList<MovementType> _movementsMade;
     private ArrayList<MovementType> _currentMovements;
     private boolean _errorThrown;
+
+    private static final long serialVersionUID = 3128594851129701738L;
 
     // FIELDS
 

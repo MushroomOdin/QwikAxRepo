@@ -20,21 +20,16 @@ public class DataBaseNode implements Serializable {
     //DO not use this but for a mast node.
     public DataBaseNode(){
         _pointers = new DataBaseNode[9];
-        _appStorage = new ArrayList<>();
+        _appStorage = null;
+        _reoccuranceCount = 0;
     }
 
     // This should be used for most constructors.
     public DataBaseNode(DataBaseNode previousNode){
         _pointers = new DataBaseNode[9];
         _pointers[8] = previousNode;
-        _appStorage = new ArrayList<>();
-    }
-
-    public DataBaseNode(AppStorage appStorage, DataBaseNode previousNode){
-        _pointers = new DataBaseNode[9];
-        _pointers[8] = previousNode;
-        _appStorage = new ArrayList<>();
-        _appStorage.add(appStorage);
+        _appStorage = null;
+        _reoccuranceCount = 0;
     }
 
 
@@ -43,8 +38,9 @@ public class DataBaseNode implements Serializable {
     // FIELDS
 
     private DataBaseNode[] _pointers;
-    private ArrayList<AppStorage> _appStorage;
-
+    private AppStorage _appStorage;
+    private Movement.MovementType _previousMovements;
+    private int _reoccuranceCount;
     private static final long serialVersionUID = 3128594851129501739L;
 
     // FIELDS
@@ -52,14 +48,35 @@ public class DataBaseNode implements Serializable {
     // GETTERS
 
     public DataBaseNode[] get_pointers(){return _pointers;}
-    public ArrayList<AppStorage> get_appStorage(){return _appStorage;}
+    public AppStorage get_appStorage(){return _appStorage;}
+    public void set_appStorage(AppStorage appStorage){_appStorage = appStorage; }
 
     // GETTERS
 
     // METHODS
 
-    public DataBaseNode MoveToDesiredDataBaseNode(Movement.MovementType type){
-        return _pointers[type.getValue()];
+    // TODO: change this code ot reflect the idea that move to node will resolve this issue for me.
+    public boolean CheckPreviousNodeForSeries(Movement.MovementType move) {
+        boolean value = false;
+        if(_reoccuranceCount >= 2)
+            value = true;
+
+        return value;
+    }
+
+    public DataBaseNode MoveToDesiredDataBaseNode(Movement.MovementType type) {
+        DataBaseNode node = null;
+        if(type != null)
+            node =  _pointers[type.getValue()];
+
+        if(node != null){
+            if(_previousMovements == type){
+                _reoccuranceCount++;
+            }else
+                _reoccuranceCount = 0;
+        }
+
+        return node;
     }
 
     public void SetDesiredDataBaseNode(Movement.MovementType type, DataBaseNode node){
@@ -68,8 +85,15 @@ public class DataBaseNode implements Serializable {
 
     }
 
-    public void AddAppStorageToList(AppStorage app){
-        _appStorage.add(app);
+
+    public boolean AddAppStorageToList(AppStorage app){
+        boolean inserted = false;
+        if(_appStorage == null) {
+            _appStorage = app;
+            inserted = true;
+        }
+
+        return inserted;
     }
 
     // METHODS

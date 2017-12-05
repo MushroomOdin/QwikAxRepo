@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cmps121.qwikax.Data_Base.DataBaseNode;
+import cmps121.qwikax.Settings.SettingsActivity;
 import cmps121.qwikax.ViewsAndAdapters.DrawingView;
 import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.AppStorage;
@@ -59,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean _runMode;
     private int _inputNum;
 
-    private ListView _listView;
     /////////////////
     private ExpandableListView expListView;
     private ExpandableListAdapter listAdapter;
@@ -71,8 +72,11 @@ public class MainActivity extends AppCompatActivity {
     private DataBaseHandler _dataBase;
     private ListOps _apps;
 
+    private List<String> _appList;
+    private List<String> _appInfo;
     private String _selectedAppName;
     private String _selectedAppRunnable;
+    private String _FILE_NAME = "QwikAxSaveFile.txt";
     private boolean _hasSelection = false;
 
     private PopupWindow _settings;
@@ -86,17 +90,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     // Restores our Data Base object from a file.
-    private void LoadDataBaseFromFile(String fileName, ArrayList<String> appList) {
-        try {
+    private void LoadDataBaseFromFile(String fileName) {
+        try{
             FileInputStream fis = getApplicationContext().openFileInput(fileName);
             ObjectInputStream is = new ObjectInputStream(fis);
             _dataBase = (DataBaseHandler) is.readObject();
             is.close();
             fis.close();
         } catch (Exception ex) {
-            Log.e("Error", ex.getMessage().toString());
+            //Log.e("Error", ex.getMessage());
             Toast.makeText(getApplicationContext(), "Data base was not loaded.", Toast.LENGTH_LONG).show();
-            _dataBase = new DataBaseHandler(appList);
+            _dataBase = new DataBaseHandler();
         }
     }
 
@@ -146,37 +150,35 @@ public class MainActivity extends AppCompatActivity {
 
         SetOnLayoutChange();
 
-        //Populates _listView and creates appInfo(list of "com.~~~~~")
-      //  _apps = new ListOps(getPackageManager(), getBaseContext());
-       // final List<String> appInfo = _apps.getInfo(getPackageManager());
-
-        ///////////////
         expListView = (ExpandableListView) findViewById(R.id.applicationListView);
         // initialize group/children
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
-        listDataHeader.add("Apps");
+        listDataHeader = new ArrayList<>();
+        listDataChild = new HashMap<>();
+        if(!listDataChild.containsKey("Apps"))
+            listDataHeader.add("Apps");
+
         //get list of apps
         _apps = new ListOps(getPackageManager(), getBaseContext());
-        final List<String> appInfo = _apps.getInfo(getPackageManager());
-        List<String> appList = new ArrayList<String>();
+        _appInfo = _apps.getInfo(getPackageManager());
+        _appList = new ArrayList<>();
         //add each app to group
         for(int i = 0; i < _apps.getName().size(); i++){
-            appList.add(_apps.getName().get(i).toString());
+            _appList.add(_apps.getName().get(i));
         }
 
-        listDataChild.put(listDataHeader.get(0), appList);
+        listDataChild.put(listDataHeader.get(0), _appList);
 
         //
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
         expListView.setAdapter(listAdapter);
-        expListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        expListView.setChoiceMode(ExpandableListView.CHOICE_MODE_SINGLE);
+
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
         @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
+        public boolean onChildClick(ExpandableListView adapterView, View view, int i, int j, long l) {
             if (_runMode == true) {
-                String chosenApp = appInfo.get(i).toString();
+                String chosenApp = _appInfo.get(j).toString();
                 if (chosenApp != null) {
                     Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
                     if (Launch != null) {
@@ -184,14 +186,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                _selectedAppName = _listView.getItemAtPosition(i).toString();
-                _selectedAppRunnable = appInfo.get(i).toString();
-                Toast.makeText(getApplicationContext(), "Please enter your gesture for "
-                        + _selectedAppName, Toast.LENGTH_SHORT).show();
+                _selectedAppName = expListView.getItemAtPosition(j + 1).toString();
+                //_selectedAppName = expListView.getItemAtPosition(i).toString();
+
+                _selectedAppRunnable = _appInfo.get(j).toString();
                 _hasSelection = true;
             }
-
-
+            return true;
         }
     });
         ///////////////
@@ -212,8 +213,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        LoadDataBaseFromFile("QwikAxSaveFile.txt", _apps.getName());
+    protected void onStart(){
+        LoadDataBaseFromFile(_FILE_NAME);
         ArrayList<AppStorage> appList = new ArrayList<>();
         // TODO: remove this, just to make sure that at start things are being loaded in the database.
         _dataBase.FindAllPossibleApplicationsPastNode(_dataBase.get_masterNode(), appList);
@@ -223,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        SaveDataBaseToFile("QwikAxSaveFile.txt");
+        SaveDataBaseToFile(_FILE_NAME);
         super.onStop();
     }
 
@@ -239,20 +240,19 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(), "you clicked settings", Toast.LENGTH_LONG).show();
 
                 // Create new intent and launch the layout with the intent
-                //Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
-                //startActivity(startSettings);
+                Intent startSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(startSettings);
 
                 break;
 
-            case R.id.action_profile:
-                Toast.makeText(getApplicationContext(), "you clicked profile", Toast.LENGTH_LONG).show();
+            case R.id.clear_data_base:
+                Toast.makeText(getApplicationContext(), "Clearing Data Base", Toast.LENGTH_LONG).show();
+                _dataBase = new DataBaseHandler();
+                SaveDataBaseToFile(_FILE_NAME);
                 break;
 
             case R.id.action_run_save:
-                _runMode = !_runMode;
 
-                String status = (_runMode) ? "run" : "save";
-                Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
 
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                 final View popup = inflater.inflate(R.layout.settings_menu, null);
@@ -270,11 +270,21 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         _inputNum = Integer.valueOf(txtInputNum.getText().toString());
+                        _runMode = false;
+                        String status = (_runMode) ? "run" : "save";
+                        Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
                         _settings.dismiss();
                     }
                 });
 
                 _settings.showAtLocation(main, Gravity.CENTER, 0, 0);
+                break;
+
+            case R.id.delete_item:
+                // TODO: add in the popup / listview
+
+                // This uses the relative name rather than the exact.
+                _dataBase.DeleteItemFromTree(null);
                 break;
 
             case R.id.toggle_Grid:
@@ -297,10 +307,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Used to save the data base to a file.
-    private void SaveDataBaseToFile(String fileName) {
-        try {
+    private void SaveDataBaseToFile(String fileName){
+        try{
             FileOutputStream out = getApplicationContext().openFileOutput(fileName, Context.MODE_PRIVATE);
             ObjectOutputStream os = new ObjectOutputStream(out);
+            _dataBase.ReinstateDataBase();
             os.writeObject(_dataBase);
             os.close();
         } catch (Exception ex) {
@@ -327,17 +338,15 @@ public class MainActivity extends AppCompatActivity {
             switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     _movements.InitialPosition(x, y);
-                    if (_runMode)
-                        _dataBase.InitialMovement();
-
+                    _dataBase.InitialMovement();
                     _drawingView.touch_start(x, y);
                     _drawingView.ClearCanvas();
                     value = true;
                     break;
 
                 case MotionEvent.ACTION_MOVE:
+                    _drawingView.touch_move(x, y);
                     if (!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
-                        _drawingView.touch_move(x, y);
                         //Passing in a fake list for testing
                         if (_movements.MovementOccurred(x, y)) {
                             if (_runMode) {
@@ -347,8 +356,16 @@ public class MainActivity extends AppCompatActivity {
 
                                 matchingAppNames = "Matched with:";
                                 for (AppStorage current : matchingApps) {
+                                    String currentAppName = current.get_relativeName();
                                     matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+                                    for(int i=0; i<_appList.size(); i++) {
+                                        if(_appList.get(i) == currentAppName){
+                                            _appList.remove(i);
+                                        }
+                                    }
+                                    _appList.add(0, currentAppName);
                                 }
+                                listAdapter.notifyDataSetChanged();
                             }
                         }
 
@@ -360,35 +377,27 @@ public class MainActivity extends AppCompatActivity {
 
                 case MotionEvent.ACTION_UP:
                     _drawingView.touch_up();
-                    //StringBuilder sentence = new StringBuilder();
-                    //for(Movement.MovementType move : _movements.get_movementsMade())
-                    //    sentence.append(move.toString() + " ");
-
-                    //Toast.makeText(getApplicationContext(), sentence.toString(), Toast.LENGTH_SHORT).show();
-                    //Toast.makeText(getApplicationContext(), "Number of Movements made: " + _movements.get_movementsMade().size(), Toast.LENGTH_SHORT).show();
                     if (!_movements.get_errorThrown() && !_dataBase.get_errorThrown()) {
                         if (!_runMode) {
                             if (_hasSelection) {
                                 // Save the selection
-                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade(), _drawingView.get_bitmap()));
+                                _dataBase.AddNewItemToTree(new AppStorage(AppStorage.AccessibilityLevels.NONE, _selectedAppRunnable, _selectedAppName, _movements.get_movementsMade()));
                                 _inputNum--;
 
                             } else {
-                                Toast.makeText(getApplicationContext(), "Please select an app", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Please select an app before inputting the gesture", Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             String chosenApp;
-                            if (_dataBase.get_currentMatches().size() > 0) {
-                                chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
-                                _dataBase.get_currentMatches().get(0).IncrementTimesAccessed();
-                            } else {
-                                // _dataBase.FindAppByAbstraction(_movements.get_movementsMade());
-                                // if(_dataBase.get_currentMatches().size() > 0)
-                                //      chosenApp = _dataBase.get_currentMatches().get(0).get_abesoluteName();
-                                //  else
-                                //      chosenApp = null;
-                                chosenApp = null;
-                            }
+                            if (_dataBase.get_currentMatches().size() == 0) {
+                                ArrayList<DataBaseNode> nodes = new ArrayList<>();
+                                nodes.add(_dataBase.get_masterNode());
+                                if (_dataBase.FinalSearch(_movements.get_movementsMade(),nodes))
+                                    chosenApp = _dataBase.get_MostlikelyMatchName();
+                                else
+                                    chosenApp = null;
+                            }else
+                                chosenApp = _dataBase.get_MostlikelyMatchName();
 
                             if (!TextUtils.isEmpty(chosenApp)) {
                                 Intent Launch = getPackageManager().getLaunchIntentForPackage(chosenApp);
@@ -406,6 +415,11 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Gesture saved! Now in run mode", Toast.LENGTH_SHORT).show();
                             }
                         }
+                    }else{
+                        if(_runMode)
+                            Toast.makeText(getApplicationContext(), "Error occurred during run.", Toast.LENGTH_LONG).show();
+                        else
+                            Toast.makeText(getApplicationContext(), "Error occurred during save. Did not save gesture", Toast.LENGTH_LONG).show();
                     }
 
                     value = true;
