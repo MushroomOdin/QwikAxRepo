@@ -5,6 +5,7 @@
     android:updatePeriodMillis="86400000"
     android:previewImage="@drawable/preview"
     android:initialLayout="@layout/appwidget"
+    android:autoAdvanceViewId="@+id/words"
     android:resizeMode="vertical"
     android:widgetCategory="home_screen"
     android:minResizeHeight="110dp">
