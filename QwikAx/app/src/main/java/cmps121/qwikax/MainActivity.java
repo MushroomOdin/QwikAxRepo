@@ -355,17 +355,23 @@ public class MainActivity extends AppCompatActivity {
                                 ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
                                 matchingAppNames = "Matched with:";
+                                ArrayList<String> temp = new ArrayList<>();
                                 for (AppStorage current : matchingApps) {
                                     String currentAppName = current.get_relativeName();
                                     matchingAppNames = matchingAppNames + " " + current.get_relativeName();
                                     for(int i=0; i<_appList.size(); i++) {
-                                        if(_appList.get(i) == currentAppName){
-                                            _appList.remove(i);
+                                        if((_appList.get(i) != currentAppName) && (!temp.contains(_appList.get(i)))){
+                                            temp.add(0,_appList.get(i));
                                         }
                                     }
-                                    _appList.add(0, currentAppName);
+                                    temp.add(0, currentAppName);
                                 }
-                                listAdapter.notifyDataSetChanged();
+
+                                if(matchingApps.size() > 0){
+                                    _appList.clear();
+                                    _appList.addAll(temp);
+                                    listAdapter.notifyDataSetChanged();
+                                }
                             }
                         }
 
