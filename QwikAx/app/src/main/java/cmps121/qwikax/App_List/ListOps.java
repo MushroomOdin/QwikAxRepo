@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +20,7 @@ public class ListOps extends Activity{
     private List<ApplicationInfo> allApps;
     private List<String> runnableAppInfo;
     private List<String> runnableAppName;
+    private List<Drawable> appIcons;
     private String[] presentableAppArray;
     private Context context;
 
@@ -26,6 +29,7 @@ public class ListOps extends Activity{
         this.allApps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
         this.runnableAppInfo = new ArrayList<String>();
         this.runnableAppName = new ArrayList<String>();
+        this.appIcons = new ArrayList<Drawable>();
         this.context = con;
     }
 
@@ -40,6 +44,7 @@ public class ListOps extends Activity{
             if(getRunnableApps(currentApp, pm)) {
                 runnableAppInfo.add(currentApp.packageName);
                 runnableAppName.add(currentApp.loadLabel(context.getApplicationContext().getPackageManager()).toString());
+                appIcons.add(currentApp.loadIcon(pm));
             }
         }
 
@@ -57,6 +62,10 @@ public class ListOps extends Activity{
     //Determines if an application can be launched
     private boolean getRunnableApps(ApplicationInfo pkg, PackageManager pm) {
         return (pm.getLaunchIntentForPackage(pkg.packageName) != null);
+    }
+
+    public List<Drawable> getAppIcons(){
+        return appIcons;
     }
 
     //Returns a list of runnable app names

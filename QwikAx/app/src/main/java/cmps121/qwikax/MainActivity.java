@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,6 +27,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -41,11 +44,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import cmps121.qwikax.Settings.SettingsActivity;
+import cmps121.qwikax.ViewsAndAdapters.Child;
 import cmps121.qwikax.ViewsAndAdapters.DrawingView;
 import cmps121.qwikax.App_List.ListOps;
 import cmps121.qwikax.Data_Base.AppStorage;
 import cmps121.qwikax.Data_Base.DataBaseHandler;
 import cmps121.qwikax.Node_Related.Movement;
+import cmps121.qwikax.ViewsAndAdapters.ExpAdapter;
+import cmps121.qwikax.ViewsAndAdapters.Group;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -62,7 +68,8 @@ public class MainActivity extends AppCompatActivity {
     private ListView _listView;
     /////////////////
     private ExpandableListView expListView;
-    private ExpandableListAdapter listAdapter;
+    //private ExpandableListAdapter listAdapter;
+    private ExpAdapter listAdapter;
     private List<String> listDataHeader;
     private HashMap<String, List<String>> listDataChild;
     /////////////////
@@ -80,6 +87,10 @@ public class MainActivity extends AppCompatActivity {
 
     private PopupWindow _settings;
     private String deleteSelected;
+
+    private ArrayList<Group> ExpListItems;
+    private List<Drawable> appIcons;
+
 
 
     // FIELDS
@@ -125,15 +136,41 @@ public class MainActivity extends AppCompatActivity {
         _apps = new ListOps(getPackageManager(), getBaseContext());
         _appInfo = _apps.getInfo(getPackageManager());
         _appList = new ArrayList<String>();
+
+        int[] flag = {R.mipmap.none_accessability_level};
+
         //add each app to group
+
+
+
         for(int i = 0; i < _apps.getName().size(); i++){
             _appList.add(_apps.getName().get(i));
         }
 
+
+        ExpListItems = new ArrayList<>();
+        ArrayList<Child> childList;
+
+        appIcons = _apps.getAppIcons();
+
+        Group appGroup = new Group();
+        appGroup.setName("Apps");
+        childList = new ArrayList<Child>();
+
+        for (int i = 0; i < _appList.size(); i++) {
+            Child c = new Child();
+            c.setName(_appList.get(i));
+            c.setImage(appIcons.get(i));
+            childList.add(c);
+        }
+
+        appGroup.setItems(childList);
+        ExpListItems.add(appGroup);
+
         listDataChild.put(listDataHeader.get(0), _appList);
 
-        //
-        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+
+        listAdapter = new ExpAdapter(MainActivity.this, ExpListItems);
         expListView.setAdapter(listAdapter);
         expListView.setChoiceMode(ExpandableListView.CHOICE_MODE_SINGLE);
 
@@ -151,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 //_selectedAppName = _listView.getItemAtPosition(i).toString();
-                _selectedAppName = (String)listAdapter.getChild(i, j);
+
+                _selectedAppName = listAdapter.getChild(i, j).getName();
 
                 _selectedAppRunnable = _appInfo.get(j).toString();
                 Toast.makeText(getApplicationContext(), "Please enter your gesture for "
@@ -245,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         _inputNum = Integer.valueOf(txtInputNum.getText().toString());
                         _priority = (Integer) priority.getSelectedItem();
-                        _runMode = !_runMode;
+                        _runMode = false;
                         String status = (_runMode) ? "run" : "save";
                         Toast.makeText(getApplicationContext(), "Now in " + status + "mode", Toast.LENGTH_LONG).show();
                         _settings.dismiss();
@@ -365,18 +403,18 @@ public class MainActivity extends AppCompatActivity {
 
                                 ArrayList<AppStorage> matchingApps = new ArrayList<>(_dataBase.get_currentMatches());
 
-                                matchingAppNames = "Matched with:";
-                                for (AppStorage current : matchingApps) {
-                                    String currentAppName = current.get_relativeName();
-                                    matchingAppNames = matchingAppNames + " " + current.get_relativeName();
-                                    for(int i=0; i<_appList.size(); i++) {
-                                        if(_appList.get(i) == currentAppName){
-                                            _appList.remove(i);
-                                        }
-                                    }
-                                    _appList.add(0, currentAppName);
-                                }
-                                listAdapter.notifyDataSetChanged();
+//                                matchingAppNames = "Matched with:";
+//                                for (AppStorage current : matchingApps) {
+//                                    String currentAppName = current.get_relativeName();
+//                                    matchingAppNames = matchingAppNames + " " + current.get_relativeName();
+//                                    for(int i=0; i<_appList.size(); i++) {
+//                                        if(_appList.get(i) == currentAppName){
+//                                            _appList.remove(i);
+//                                        }
+//                                    }
+//                                    _appList.add(0, currentAppName);
+//                                }
+//                                listAdapter.notifyDataSetChanged();
                             }
                         }
 
@@ -429,6 +467,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Error occurred during run.", Toast.LENGTH_LONG).show();
                         else
                             Toast.makeText(getApplicationContext(), "Error occurred during save. Did not save gesture", Toast.LENGTH_LONG).show();
+                            _runMode = true;
                     }
 
                     value = true;
