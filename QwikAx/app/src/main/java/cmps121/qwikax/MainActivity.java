@@ -509,7 +509,7 @@ public class MainActivity extends AppCompatActivity {
         public View getGroupView(int groupPosition, boolean isExpanded,
                                  View convertView, ViewGroup parent) {
 
-            if(!isExpanded){
+            //if(!isExpanded){
                 //set layout_weight to 1
                 LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
                         expListView.getLayoutParams().width,
@@ -517,9 +517,9 @@ public class MainActivity extends AppCompatActivity {
                         1.5f
                 );
                 expListView.setLayoutParams(param);
-            }
+            //}
 
-            if(isExpanded){
+            /*if(isExpanded){
                 //set layout_weight to .3
 
                 LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
@@ -529,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
                 );
                 expListView.setLayoutParams(param);
 
-            }
+            }*/
 
             String headerTitle = (String) getGroup(groupPosition);
             if (convertView == null) {
